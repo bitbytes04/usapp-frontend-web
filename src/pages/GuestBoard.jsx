@@ -9,6 +9,7 @@ export default function GuestBoard() {
     const [isSwitchOn, setIsSwitchOn] = useState(false);
     const [selectedWords, setSelectedWords] = useState([]);
     const [audio, setAudio] = useState(null);
+    const [loadingModalVisible, setLoadingModalVisible] = useState(false);
 
     const testButtons = [
         { buttonCategory: "People", buttonImagePath: "images/mama.png", buttonName: "Mama" },
@@ -64,6 +65,7 @@ export default function GuestBoard() {
 
     const handleBuildSentence = async (text) => {
         setLoading(true);
+        setLoadingModalVisible(true);
         try {
             const response = await axios.post('https://usapp-backend.vercel.app/api/board/buildSentence', {
                 text,
@@ -76,6 +78,7 @@ export default function GuestBoard() {
             console.error(error);
         } finally {
             setLoading(false);
+            setLoadingModalVisible(false);
         }
     };
 
@@ -210,6 +213,14 @@ export default function GuestBoard() {
                         <button onClick={() => setModalVisible(false)} className="bg-blue-500 text-white p-2 rounded-lg">
                             Close
                         </button>
+                    </div>
+                </div>
+            )}
+
+            {loadingModalVisible && (
+                <div className="fixed inset-0 flex items-center justify-center backdrop-blur-md backdrop-opacity-20 backdrop-brightness-50">
+                    <div className="bg-white p-4 rounded-lg">
+                        <p>Loading, please wait...</p>
                     </div>
                 </div>
             )}
