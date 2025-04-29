@@ -1,6 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import ReactSwitch from 'react-switch';
 import axios from 'axios';
+import { FourSquare } from 'react-loading-indicators';
+import { Speech, ArrowBigLeft, BrainCircuit } from 'lucide-react';
+import logo from '../assets/logos/usapp_logo_medium.png';
 
 export default function GuestBoard() {
     const [AISentence, setAISentence] = useState('');
@@ -125,18 +128,26 @@ export default function GuestBoard() {
     }, [audio]);
 
     return (
-        <div className="flex flex-col items-center h-screen w-screen bg-gray-100">
-            <header className="w-full bg-blue-900 text-white text-center py-4 text-2xl font-bold">
-                Guest Board
-            </header>
+        <div className="flex flex-col items-center h-screen w-screen bg-[#fff6eb]">
+            <div className="w-full bg-blue-900 flex flex-row items-center text-white py-2 text-2xl font-bold">
+                <button
+                    onClick={() => window.history.back()}
+                    className="ml-4  text-white p-2 rounded-lg"
+                >
+                    <ArrowBigLeft size={32} />
+                </button>
+                <div className="flex flex-grow justify-center items-center">
+                    <h1 className=" text-3xl font-extrabold text-white px-4 py-2 rounded-lg">USAPP BOARD</h1>
+                </div>
+            </div>
             <div className="flex flex-row w-full h-full">
-                <div className="flex flex-col flex-grow bg-white p-4">
+                <div className="flex flex-col flex-grow bg-[#fff6eb] p-4">
                     <div className="flex items-center mb-4">
                         <div className="flex flex-grow border h-20 p-2 rounded-lg overflow-x-auto">
                             {selectedWords.map((word, index) => (
-                                <div key={index} className="flex items-center bg-gray-200 p-2 rounded-lg mr-2">
+                                <div key={index} className="flex items-center bg-white border-2 border-r-4 border-b-4 p-4 text-xl rounded-lg mr-2">
                                     <span className="mr-2">{word.buttonName}</span>
-                                    <button onClick={() => handleDeleteWord(index)} className="text-red-500">
+                                    <button onClick={() => handleDeleteWord(index)} className="text-red-500 text-2xl">
                                         &times;
                                     </button>
                                 </div>
@@ -150,7 +161,7 @@ export default function GuestBoard() {
                         {testButtons.map((button, index) => (
                             <div
                                 key={index}
-                                className={`p-2 rounded-lg aspect-square w-30 text-white ${getCategoryColor(button.buttonCategory)}`}
+                                className={`p-2 rounded-lg aspect-square border-black border-2 border-r-4 border-b-4 w-30 text-white ${getCategoryColor(button.buttonCategory)}`}
                                 onClick={() => handleBoardButtonPress(button)}
                             >
                                 <img className="w-full h-4/5 object-cover mb-2 bg-white" src={button.buttonImagePath} alt={button.buttonName} />
@@ -159,8 +170,8 @@ export default function GuestBoard() {
                         ))}
                     </div>
                 </div>
-                <div className="flex flex-col items-center bg-blue-200 p-4 w-1/4">
-                    <h2 className="text-xl font-bold mb-4">CONTROLS</h2>
+                <div className="flex flex-col items-center bg-[#aedfec] shadow-blue-900 rounded-l-xl p-4 w-1/4">
+                    <h2 className="text-xl font-extrabold text-[#043b64] mb-4">CONTROLS</h2>
                     <button
                         onClick={() => {
                             if (selectedWords.length > 0) {
@@ -170,8 +181,9 @@ export default function GuestBoard() {
                                 alert('Please select words to speak.');
                             }
                         }}
-                        className="bg-blue-500 text-white p-4 rounded-lg mb-4 w-full"
+                        className="bg-[#043b64] flex-col flex items-center font-bold text-xl text-white p-4 rounded-lg mb-4 w-full"
                     >
+                        <Speech color='white' size={40} />
                         TALK
                     </button>
                     <button
@@ -183,12 +195,13 @@ export default function GuestBoard() {
                                 alert('Please select words to speak.');
                             }
                         }}
-                        className="bg-green-500 text-white p-4 rounded-lg mb-4 w-full"
+                        className="bg-[#043b64] flex-col flex items-center font-bold text-xl text-white p-4 rounded-lg mb-4 w-full"
                     >
+                        <BrainCircuit color='white' size={40} />
                         {loading ? 'Loading...' : 'AI'}
                     </button>
-                    <div className="flex items-center">
-                        <label className="mr-2">TOGGLE</label>
+                    <div className="bg-[#043b64] flex-col gap-5 flex items-center font-bold text-xl text-white p-4 rounded-lg mb-4 w-full">
+
                         <ReactSwitch
                             checked={isSwitchOn}
                             onChange={toggleSwitch}
@@ -202,28 +215,34 @@ export default function GuestBoard() {
                             height={20}
                             width={48}
                         />
+                        <label className="mr-2">AUTOSPEAK</label>
                     </div>
                 </div>
             </div>
 
-            {modalVisible && (
-                <div className="fixed inset-0 backdrop-blur-md backdrop-opacity-20 backdrop-brightness-50 flex items-center justify-center">
-                    <div className="bg-white p-4 rounded-lg">
-                        <p className="mb-4">{AISentence}</p>
-                        <button onClick={() => setModalVisible(false)} className="bg-blue-500 text-white p-2 rounded-lg">
-                            Close
-                        </button>
+            {
+                modalVisible && (
+                    <div className="fixed inset-0 backdrop-opacity-75 backdrop-brightness-0 flex items-center justify-center">
+                        <div className="bg-white p-4 rounded-lg">
+                            <p className="mb-4">{AISentence}</p>
+                            <button onClick={() => setModalVisible(false)} className="bg-blue-500 text-white p-2 rounded-lg">
+                                Close
+                            </button>
+                        </div>
                     </div>
-                </div>
-            )}
+                )
+            }
 
-            {loadingModalVisible && (
-                <div className="fixed inset-0 flex items-center justify-center backdrop-blur-md backdrop-opacity-20 backdrop-brightness-50">
-                    <div className="bg-white p-4 rounded-lg">
-                        <p>Loading, please wait...</p>
+            {
+                loadingModalVisible && (
+                    <div className="fixed inset-0 flex items-center justify-center backdrop-opacity-75 backdrop-brightness-0">
+                        <div className="bg-white p-4 rounded-lg">
+                            <FourSquare color="#32cd32" size="medium" text="" textColor="" />
+                            <p>Loading, please wait...</p>
+                        </div>
                     </div>
-                </div>
-            )}
-        </div>
+                )
+            }
+        </div >
     );
 }

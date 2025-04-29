@@ -1,1 +1,5 @@
 @import "tailwindcss";
+
+.usapp-border {
+    @apply border-black border-1 border-r-4 border-b-4
+}
