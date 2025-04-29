@@ -64,7 +64,6 @@ export default function CreateBoard() {
 
         console.log('Created Board:', newBoard);
         alert('Board created successfully!');
-        // You can replace this with API POST request here
     };
 
     const filteredButtons = testButtons.filter(button =>
@@ -73,14 +72,11 @@ export default function CreateBoard() {
 
     return (
         <div className="min-h-screen w-full bg-[#fff6eb] p-6 flex flex-col">
-            <div className="flex items-center mb-6">
-                <button onClick={() => window.history.back()} className="text-blue-900 p-2">
-                    <ArrowBigLeft size={32} />
-                </button>
-                <h1 className="text-3xl font-bold text-blue-900 mx-auto">Create New Board</h1>
+            <div className=" bg-[#305a7a] flex items-center mb-6 p-2">
+                <h1 className="text-3xl font-bold text-white mx-auto">Create New Board</h1>
             </div>
 
-            <div className="bg-white p-6 rounded-lg shadow-md flex flex-col gap-4 mb-8">
+            <div className="bg-white border-2 border-dashed p-6 rounded-lg shadow-md flex flex-col gap-4">
                 <div className="flex flex-col">
                     <label className="text-gray-700 font-semibold mb-1">Board Name</label>
                     <input
@@ -108,9 +104,33 @@ export default function CreateBoard() {
                     </select>
                 </div>
             </div>
-
+            <div className="mt-8">
+                <h2 className="text-2xl font-bold text-blue-900 mb-4 ">Selected Buttons</h2>
+                <div className="flex bg-white border-black p-2 rounded-lg border-2 border-dashed min-h-40 flex-row flex-wrap w-full justify-start gap-6">
+                    {selectedButtons.map((button, index) => (
+                        <div
+                            key={index}
+                            className={`cursor-pointer h-fit w-fit p-1 rounded-lg border-2 ${getCategoryColor(button.buttonCategory)}`}
+                        >
+                            <div className=" bg-white text-center font-semibold text-black text-lg rounded px-4">{button.buttonName}</div>
+                        </div>
+                    ))}
+                </div>
+                {selectedButtons.length > 0 && (
+                    <button
+                        onClick={() => {
+                            if (window.confirm('Are you sure you want to clear all selected buttons?')) {
+                                setSelectedButtons([]);
+                            }
+                        }}
+                        className="bg-red-500 hover:bg-red-400 text-white font-bold py-2 px-4 rounded-lg mt-4"
+                    >
+                        Clear All
+                    </button>
+                )}
+            </div>
             <div>
-                <h2 className="text-2xl font-bold text-blue-900 mb-4">Select Buttons</h2>
+                <h2 className="text-2xl font-bold text-blue-900 my-4">Select Buttons</h2>
                 <input
                     type="text"
                     value={searchQuery}
@@ -118,20 +138,25 @@ export default function CreateBoard() {
                     placeholder="Search buttons..."
                     className="border rounded-lg p-2 mb-4 w-full"
                 />
-                <div className="flex flex-row flex-wrap w-full justify-center gap-6 max-h-[400px] overflow-y-auto">
+                <div className="flex bg-white border-black p-2 rounded-lg border-2 border-dashed flex-row flex-wrap w-full justify-center gap-6 max-h-[400px] overflow-y-auto">
                     {filteredButtons.map((button, index) => (
                         <div
                             key={index}
                             onClick={() => handleSelectButton(button)}
-                            className={`cursor-pointer w-50 aspect-square p-2 rounded-lg border-2 ${getCategoryColor(button.buttonCategory)} ${selectedButtons.some(b => b.buttonName === button.buttonName) ? 'border-black border-8' : 'border-transparent'
+                            className={`relative cursor-pointer w-50 aspect-square p-2 rounded-lg border-2 ${getCategoryColor(button.buttonCategory)} ${selectedButtons.some(b => b.buttonName === button.buttonName) ? 'border-black border-6' : 'border-transparent'
                                 }`}
                         >
+                            {selectedButtons.some(b => b.buttonName === button.buttonName) && (
+                                <div className="absolute top-2 right-2 bg-white rounded-full p-1 text-green-600 font-bold">
+                                    ✔
+                                </div>
+                            )}
                             <img
                                 src={button.buttonImagePath}
                                 alt={button.buttonName}
                                 className="w-full h-3/4 object-cover rounded-lg mb-2 bg-white"
                             />
-                            <div className="text-center font-semibold text-white">{button.buttonName}</div>
+                            <div className="bg-white text-center font-semibold text-black py-2 text-lg">{button.buttonName}</div>
                         </div>
                     ))}
                 </div>

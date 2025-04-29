@@ -7,7 +7,7 @@ const Main = () => {
         <>
             <div className='flex flex-col justify-start items-center bg-[#fff6eb] min-h-screen pb-20'>
                 <img className="w-full object-top h-15 " src={header} alt="Header Background" />
-                <div className='flex flex-row justify-center items-center'>
+                <div className='flex w-full px-8 flex-row justify-center items-center'>
                     <div className='flex flex-col justify-center items-start w-full h-full p-6'>
                         <h1 className='text-2xl font-bold'>Welcome to the User Dashboard</h1>
                         <p className='text-lg'>You are logged in as a user.</p>
