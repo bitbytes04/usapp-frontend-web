@@ -1,34 +1,80 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { ArrowBigLeft } from 'lucide-react';
+import axios from 'axios';
+import { Transition } from '@headlessui/react';
 
 export default function CreateBoard() {
     const [boardName, setBoardName] = useState('');
     const [boardCategory, setBoardCategory] = useState('');
     const [selectedButtons, setSelectedButtons] = useState([]);
     const [searchQuery, setSearchQuery] = useState('');
+    const [Loading, setLoading] = useState();
+    const [testButtons, setTestButtons] = useState([]);
+    const [UserData, setUserData] = useState();
+    const [submitting, setSubmitting] = useState(false);
+    useEffect(() => {
 
-    const testButtons = [
-        { buttonCategory: "People", buttonImagePath: "images/mama.png", buttonName: "Mama" },
-        { buttonCategory: "People", buttonImagePath: "images/papa.png", buttonName: "Papa" },
-        { buttonCategory: "People", buttonImagePath: "images/ako.png", buttonName: "Ako" },
-        { buttonCategory: "People", buttonImagePath: "images/ikaw.png", buttonName: "Ikaw" },
-        { buttonCategory: "Actions", buttonImagePath: "images/kain.png", buttonName: "Kain" },
-        { buttonCategory: "Actions", buttonImagePath: "images/inom.png", buttonName: "Inom" },
-        { buttonCategory: "Actions", buttonImagePath: "images/tulog.png", buttonName: "Tulog" },
-        { buttonCategory: "Actions", buttonImagePath: "images/laro.png", buttonName: "Laro" },
-        { buttonCategory: "Feelings", buttonImagePath: "images/masaya.png", buttonName: "Masaya" },
-        { buttonCategory: "Feelings", buttonImagePath: "images/malungkot.png", buttonName: "Malungkot" },
-        { buttonCategory: "Feelings", buttonImagePath: "images/galit.png", buttonName: "Galit" },
-        { buttonCategory: "Feelings", buttonImagePath: "images/takot.png", buttonName: "Takot" },
-        { buttonCategory: "Things", buttonImagePath: "images/tubig.png", buttonName: "Tubig" },
-        { buttonCategory: "Things", buttonImagePath: "images/gatas.png", buttonName: "Gatas" },
-        { buttonCategory: "Things", buttonImagePath: "images/bola.png", buttonName: "Bola" },
-        { buttonCategory: "Things", buttonImagePath: "images/laruan.png", buttonName: "Laruan" },
-        { buttonCategory: "Places", buttonImagePath: "images/bahay.png", buttonName: "Bahay" },
-        { buttonCategory: "Places", buttonImagePath: "images/eskwelahan.png", buttonName: "Eskwelahan" },
-        { buttonCategory: "Places", buttonImagePath: "images/CR.png", buttonName: "CR" },
-        { buttonCategory: "Places", buttonImagePath: "images/labas.png", buttonName: "Labas" },
-    ];
+        const fetchDefaultButtons = async () => {
+            setLoading(true);
+            try {
+                const response = await axios.get('https://usapp-backend.vercel.app/api/default/buttonsall');
+                setTestButtons(response.data.buttons);
+            } catch (error) {
+
+                window.alert(error.message);
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        const fetchUserData = async () => {
+            setLoading(true);
+            try {
+                const response = await axios.get(`https://usapp-backend.vercel.app/api/users/${sessionStorage.getItem('userId')}`);
+                setUserData({ ...response.data, userId: user.userId });
+            } catch (error) {
+
+            } finally {
+                setLoading(false);
+            }
+        };
+        fetchDefaultButtons();
+        fetchUserData();
+
+    }, []);
+
+    const filteredButtons = testButtons.filter(button =>
+        button.buttonName.toLowerCase().includes(searchQuery.toLowerCase())
+    );
+
+    const handleSubmit = async () => {
+        if (!boardName || !boardCategory || selectedButtons.length === 0) {
+            window.alert('Incomplete', 'Please complete all fields and select at least one button.');
+            return;
+        }
+
+        const buttonIds = selectedButtons.map(button => button.id);
+
+        setSubmitting(true);
+        try {
+            const response = await axios.post(`https://usapp-backend.vercel.app/api/users/${sessionStorage.getItem('userId')}/boards`, {
+                boardName,
+                isFavorite: false,
+                buttonIds,
+            });
+
+
+            window.alert('Success', 'Board created successfully!');
+            setBoardName('');
+            setBoardCategory('');
+            setSelectedButtons([]);
+
+        } catch (error) {
+            window.alert(response.data.message);
+        } finally {
+            setSubmitting(false);
+        }
+    };
 
     const handleSelectButton = (button) => {
         const isSelected = selectedButtons.find(b => b.buttonName === button.buttonName);
@@ -50,30 +96,31 @@ export default function CreateBoard() {
         }
     };
 
-    const handleSubmit = () => {
-        if (!boardName || !boardCategory || selectedButtons.length === 0) {
-            alert('Please complete all fields and select at least one button.');
-            return;
-        }
 
-        const newBoard = {
-            boardName,
-            boardCategory,
-            buttons: selectedButtons,
-        };
-
-        console.log('Created Board:', newBoard);
-        alert('Board created successfully!');
-    };
-
-    const filteredButtons = testButtons.filter(button =>
-        button.buttonName.toLowerCase().includes(searchQuery.toLowerCase())
-    );
 
     return (
         <div className="min-h-screen w-full bg-[#fff6eb] p-6 flex flex-col">
+            <Transition
+                show={submitting}
+                enter="transition-opacity duration-300"
+                enterFrom="opacity-0"
+                enterTo="opacity-100"
+                leave="transition-opacity duration-200"
+                leaveFrom="opacity-100"
+                leaveTo="opacity-0"
+            >
+                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-40">
+                    <div className="bg-white rounded-lg p-8 flex flex-col items-center shadow-lg">
+                        <svg className="animate-spin h-10 w-10 text-blue-900 mb-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"></path>
+                        </svg>
+                        <span className="text-lg font-semibold text-blue-900">Creating board...</span>
+                    </div>
+                </div>
+            </Transition>
             <div className=" bg-[#305a7a] flex items-center mb-6 p-2">
-                <h1 className="text-3xl font-bold text-white mx-auto">Create New Board</h1>
+                <h1 className="text-3xl font-bold text-white mx-auto">Create New Board { }</h1>
             </div>
 
             <div className="bg-white border-2 border-dashed p-6 rounded-lg shadow-md flex flex-col gap-4">
@@ -139,26 +186,32 @@ export default function CreateBoard() {
                     className="border rounded-lg p-2 mb-4 w-full"
                 />
                 <div className="flex bg-white border-black p-2 rounded-lg border-2 border-dashed flex-row flex-wrap w-full justify-center gap-6 max-h-[400px] overflow-y-auto">
-                    {filteredButtons.map((button, index) => (
-                        <div
-                            key={index}
-                            onClick={() => handleSelectButton(button)}
-                            className={`relative cursor-pointer w-50 aspect-square p-2 rounded-lg border-2 ${getCategoryColor(button.buttonCategory)} ${selectedButtons.some(b => b.buttonName === button.buttonName) ? 'border-black border-6' : 'border-transparent'
-                                }`}
-                        >
-                            {selectedButtons.some(b => b.buttonName === button.buttonName) && (
-                                <div className="absolute top-2 right-2 bg-white rounded-full p-1 text-green-600 font-bold">
-                                    ✔
-                                </div>
-                            )}
-                            <img
-                                src={button.buttonImagePath}
-                                alt={button.buttonName}
-                                className="w-full h-3/4 object-cover rounded-lg mb-2 bg-white"
-                            />
-                            <div className="bg-white text-center font-semibold text-black py-2 text-lg">{button.buttonName}</div>
+                    {Loading ? (
+                        <div className="flex justify-center items-center w-full h-full">
+                            <div className="loader"></div>
                         </div>
-                    ))}
+                    ) : (
+                        filteredButtons.map((button, index) => (
+                            <div
+                                key={index}
+                                onClick={() => handleSelectButton(button)}
+                                className={`relative cursor-pointer w-50 aspect-square p-2 rounded-lg border-2 ${getCategoryColor(button.buttonCategory)} ${selectedButtons.some(b => b.buttonName === button.buttonName) ? 'border-black border-6' : 'border-transparent'
+                                    }`}
+                            >
+                                {selectedButtons.some(b => b.buttonName === button.buttonName) && (
+                                    <div className="absolute top-2 right-2 bg-white rounded-full p-1 text-green-600 font-bold">
+                                        ✔
+                                    </div>
+                                )}
+                                <img
+                                    src={button.buttonImagePath}
+                                    alt={button.buttonName}
+                                    className="w-full h-3/4 object-cover rounded-lg mb-2 bg-white"
+                                />
+                                <div className="bg-white text-center font-semibold text-black py-2 text-lg">{button.buttonName}</div>
+                            </div>
+                        ))
+                    )}
                 </div>
             </div>
 

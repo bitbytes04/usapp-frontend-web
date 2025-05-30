@@ -6,6 +6,7 @@ import { useNavigate } from 'react-router-dom';
 import { FIREBASE_AUTH } from '../../firebaseConfig';
 import { signInWithEmailAndPassword, sendPasswordResetEmail } from 'firebase/auth';
 import { FourSquare } from 'react-loading-indicators';
+import SignIn from '../components/SignIn';
 
 const Login = () => {
     const auth = FIREBASE_AUTH;
@@ -16,6 +17,7 @@ const Login = () => {
     const [loginLoading, setloginLoading] = useState(false);
     const [ErrorMessage, setErrorMessage] = useState();
     const [LoadingReset, setLoadingReset] = useState(false);
+    const [showTerms, setshowTerms] = useState(false);
     const navigate = useNavigate();
 
     const toggleView = () => {
@@ -37,12 +39,23 @@ const Login = () => {
         try {
             const userCredential = await signInWithEmailAndPassword(auth, email, password);
             const uid = userCredential.user.uid;
+            sessionStorage.setItem('userId', uid);
             navigate('/dashboard');
         } catch (error) {
-            setloginLoading(false);
-            const errorMsg = error instanceof Error ? error.message : "Invalid credentials.";
-            setErrorMessage(errorMsg);
-            window.alert(errorMsg);
+            const errorMsg = error instanceof Error ? error.message : "Login failed.";
+            if (typeof error === 'object' && error !== null && 'code' in error) {
+                if (error.code === 'auth/user-not-found') {
+                    window.alert("No user found with this username.");
+                } else if (error.code === 'auth/wrong-password') {
+                    window.alert("Wrong Password.");
+                } else if (error.code === 'auth/invalid-email') {
+                    window.alert("Invalid Email.");
+                } else {
+                    window.alert(errorMsg);
+                }
+            } else {
+                window.alert("Login Error", errorMsg);
+            }
         } finally {
             setloginLoading(false);
         }
@@ -73,17 +86,17 @@ const Login = () => {
             <div className="flex flex-col justify-start min-h-svh h-full items-center bg-[#fff6eb] p-4">
                 <img className="absolute top-0 w-full object-top object-fill h-20" src={header} alt="Header Background" />
 
-                <img className="mt-20 w-3/12 mb-4 min-w-60" src={logo} alt="Logo" />
+                <img className="m-20 lg:m-10 w-3/12 mb-0 min-w-60" src={logo} alt="Logo" />
                 <div className="flex flex-col lg:flex-row justify-center items-center w-full gap-5 lg:gap-0 ">
-                    <div className="flex-4 flex flex-row justify-center items-center w-full h-full p-6 border-dashed border-b-2 lg:border-b-0 border-r-0  lg:border-r-2 border-gray-700">
-                        <div className="relative w-11/12 max-w-96 lg:max-w-full h-96 overflow-hidden bg-white rounded-lg shadow-lg ">
+                    <div className="flex-4 flex flex-row justify-center items-center w-full h-full p-6">
+                        <div className="relative w-11/12 max-w-96 lg:max-w-[900px] h-[500px] overflow-y-auto overflow-x-hidden bg-white rounded-lg shadow-lg ">
                             <div
                                 className={`absolute inset-0 transition-transform duration-500 ${isLogin ? 'translate-x-0' : '-translate-x-full'
                                     }`}
                             >
                                 {/* Login Form */}
-                                <div className="w-full h-full flex flex-col justify-center items-center p-6">
-                                    <h2 className="text-2xl font-bold mb-4">Login</h2>
+                                <div className="w-full h-full flex flex-col justify-start gap-5 items-center p-6">
+                                    <h2 className="text-4xl font-bold mb-4">Login</h2>
                                     <input
                                         type="email"
                                         placeholder="Email"
@@ -126,55 +139,12 @@ const Login = () => {
                                     }`}
                             >
                                 {/* Sign Up Form */}
-                                <div className="w-full h-full flex flex-col justify-center items-center p-6">
-                                    <h2 className="text-2xl font-bold mb-4">Sign Up</h2>
-                                    <input
-                                        type="text"
-                                        placeholder="Name"
-                                        className="w-full mb-4 p-2 border rounded"
-                                    />
-                                    <input
-                                        type="email"
-                                        placeholder="Email"
-                                        className="w-full mb-4 p-2 border rounded"
-                                    />
-                                    <input
-                                        type="password"
-                                        placeholder="Password"
-                                        className="w-full mb-4 p-2 border rounded"
-                                    />
-                                    <button className="w-full bg-[#fe8917] text-white usapp-border py-2 rounded">
-                                        Sign Up
-                                    </button>
-                                    <p className="mt-4 text-sm ">
-                                        Already have an account?{' '}
-                                        <button
-                                            onClick={toggleView}
-                                            className="text-green-500 underline"
-                                        >
-                                            Login
-                                        </button>
-                                    </p>
-                                </div>
+                                <SignIn toggleView={toggleView} showTerms={showTerms} setShowTerms={setshowTerms} />
                             </div>
                         </div>
                     </div>
 
-                    <div className="flex-3 flex flex-col justify-center items-center">
-                        {/* Enter as Guest Section */}
-                        <div className="w-11/12 max-w-96 h-96 bg-white p-6 rounded-lg shadow-lg text-center">
-                            <h2 className="text-2xl font-bold mb-4">Enter as Guest</h2>
-                            <p className="mb-4 text-gray-600">
-                                Ipahayag ang sarili gamit ang UsApp, isang Filipino Communication Board App. Katulong mo sa bawat salita
-                            </p>
-                            <button
-                                onClick={() => navigate('/guestboard')}
-                                className="w-full usapp-border bg-[#17616e] hover:bg-[#7697a0] text-white py-2 rounded transition duration-300"
-                            >
-                                Continue as Guest
-                            </button>
-                        </div>
-                    </div>
+
                 </div>
 
                 <Transition
@@ -215,6 +185,42 @@ const Login = () => {
                                 Cancel
                             </button>
                         </div>
+                    </div>
+                </Transition>
+                <Transition
+                    show={showTerms}
+                    enter="transition-opacity duration-500"
+                    enterFrom="opacity-0"
+                    enterTo="opacity-100"
+                    leave="transition-opacity duration-500"
+                    leaveFrom="opacity-100"
+                    leaveTo="opacity-0"
+                >
+                    <div className="fixed inset-0 flex justify-center items-center backdrop-blur-md backdrop-brightness-50 animate-fade-in">
+                        <div className="bg-white p-6 pt-20  overflow-y-auto max-h-[90svh] flex flex-col justify-center items-center shadow-lg w-80">
+                            <p className='mt-10'>
+                                Welcome to USAPP! Please read these Terms and Conditions carefully before using our app. By signing up, you agree to abide by all rules and policies.
+                                <br /><br />
+                                1. You must provide accurate information.
+                                <br />
+                                2. Guardians must be 18+ years old.
+                                <br />
+                                3. Respect privacy and community guidelines.
+                                <br />
+                                4. Your data is protected as per our privacy policy and the Philippine Data Privacy Act of 2012 (Republic Act No. 10173).
+                                <br /><br />
+                                By using this app and creating an account, you consent to the collection, use, and processing of your personal data in accordance with the Philippine Data Privacy Act. We are committed to safeguarding your information and ensuring your privacy rights.
+                                <br /><br />
+                                For full details, visit our website or contact support.
+                            </p>
+                            <button
+                                onClick={showTerms ? () => { setshowTerms(false) } : () => { setshowTerms(true) }}
+                                className="w-full bg-gray-300 mt-5 text-black py-2 usapp-border rounded"
+                            >
+                                Back to Signup
+                            </button>
+                        </div>
+
                     </div>
                 </Transition>
                 <Transition

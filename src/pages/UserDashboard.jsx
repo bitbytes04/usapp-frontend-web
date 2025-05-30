@@ -8,6 +8,8 @@ import { Home, User, LibraryBig, UserCog, ChartNoAxesCombined, SquarePlus } from
 import Main from './Main'
 import MyBoards from './MyBoards'
 import CreateBoard from './CreateBoard'
+import AccountSettings from './Account'
+import CreateWord from './CreateWord'
 
 function UserDashboard() {
   const [activeItem, setActiveItem] = useState("Home");
@@ -39,23 +41,26 @@ function UserDashboard() {
               active={activeItem === "Create Board"}
               onClick={() => handleSidebarItemClick("Create Board")} />
             <SidebarItem
+              icon={<ChartNoAxesCombined />}
+              text="Create Word Button"
+              active={activeItem === "Create Word"}
+              onClick={() => handleSidebarItemClick("Create Word")} />
+
+            <SidebarItem
               icon={<UserCog />}
               text="Account"
               active={activeItem === "Account"}
               onClick={() => handleSidebarItemClick("Account")}
             />
-            <SidebarItem
-              icon={<ChartNoAxesCombined />}
-              text="Monitoring"
-              active={activeItem === "Monitoring"}
-              onClick={() => handleSidebarItemClick("Monitoring")} />
-          </Sidebar>
 
+          </Sidebar>
         </div>
         <div className='flex-grow flex-1 bg-[#fff6eb] overflow-y-auto'>
           {activeItem === "Home" && <Main />}
           {activeItem === "My Boards" && <MyBoards />}
           {activeItem === "Create Board" && <CreateBoard />}
+          {activeItem === "Account" && <AccountSettings />}
+          {activeItem === "Create Word" && <CreateWord />}
         </div>
       </div>
     </>
