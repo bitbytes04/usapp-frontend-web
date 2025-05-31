@@ -3,9 +3,11 @@ import { useNavigate } from 'react-router-dom';
 import { createUserWithEmailAndPassword } from 'firebase/auth';
 import { FIREBASE_AUTH } from '../../firebaseConfig';
 import { Transition } from '@headlessui/react';
+import axios from 'axios';
 
 function SignupForm(props) {
 
+    const navigate = useNavigate();
     const auth = FIREBASE_AUTH;
     const [currentStep, setCurrentStep] = useState(1);
     const [userType, setUserType] = useState('');
@@ -74,7 +76,7 @@ function SignupForm(props) {
             await axios.post('https://usapp-backend.vercel.app/api/users/create', userData);
 
             window.alert("User created successfully!");
-            router.navigate("/UserEntry/Login");
+            navigate("/UserEntry/Login");
         } catch (error) {
             console.error(error);
             window.alert("Error creating user: " + (error instanceof Error ? error.message : "Unknown error"));
