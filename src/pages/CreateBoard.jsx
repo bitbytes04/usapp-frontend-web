@@ -12,6 +12,7 @@ export default function CreateBoard() {
     const [testButtons, setTestButtons] = useState([]);
     const [UserData, setUserData] = useState();
     const [submitting, setSubmitting] = useState(false);
+
     useEffect(() => {
 
         const fetchDefaultButtons = async () => {
@@ -23,9 +24,18 @@ export default function CreateBoard() {
 
                 window.alert(error.message);
             } finally {
-                setLoading(false);
+                try {
+                    const response = await axios.get(`https://usapp-backend.vercel.app/api/users/${sessionStorage.getItem('userId')}/userbuttons`);
+                    setTestButtons(prevButtons => [...prevButtons, ...response.data]);
+                } catch (error) {
+                    window.alert(error.message);
+                } finally {
+
+                }
             }
         };
+
+
 
         const fetchUserData = async () => {
             setLoading(true);

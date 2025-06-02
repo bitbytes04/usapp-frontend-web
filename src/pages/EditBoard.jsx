@@ -89,7 +89,7 @@ export default function EditBoard() {
         );
 
     return (
-        <div className="max-w-xl mx-auto mt-10 bg-white shadow rounded p-8">
+        <div className="max-w-xl mx-auto mt-10 bg-[#fff6eb] shadow rounded p-8">
             <h1 className="text-2xl font-bold mb-6">Edit Board</h1>
             {error && (
                 <div className="mb-4 text-red-600 bg-red-100 p-2 rounded">{error}</div>
