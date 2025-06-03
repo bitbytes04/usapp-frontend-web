@@ -84,12 +84,12 @@ const AccountSettings = () => {
 
     const handleVoiceSliderChange = (e) => {
         const idx = parseInt(e.target.value, 10);
-        setFormData({ ...formData, preferredVoice: voiceOptions[idx] });
+        setFormData({ ...formData, preferredVoice: idx });
     };
 
     const handlePitchSliderChange = (e) => {
         const idx = parseInt(e.target.value, 10);
-        setFormData({ ...formData, preferredPitch: pitchOptions[idx] });
+        setFormData({ ...formData, preferredPitch: idx });
     };
 
     const toggleEdit = () => {

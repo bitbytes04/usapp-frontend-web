@@ -18,24 +18,27 @@ export default function CreateBoard() {
         const fetchDefaultButtons = async () => {
             setLoading(true);
             try {
+                setTestButtons([]);
                 const response = await axios.get('https://usapp-backend.vercel.app/api/default/buttonsall');
                 setTestButtons(response.data.buttons);
             } catch (error) {
 
                 window.alert(error.message);
             } finally {
-                try {
-                    const response = await axios.get(`https://usapp-backend.vercel.app/api/users/${sessionStorage.getItem('userId')}/userbuttons`);
-                    setTestButtons(prevButtons => [...prevButtons, ...response.data]);
-                } catch (error) {
-                    window.alert(error.message);
-                } finally {
-
-                }
+                setLoading(false);
             }
         };
 
+        const fetchUserButtons = async () => {
+            try {
+                const response = await axios.get(`https://usapp-backend.vercel.app/api/users/${sessionStorage.getItem('userId')}/userbuttons`);
+                setTestButtons(prevButtons => [...prevButtons, ...response.data]);
+            } catch (error) {
+                window.alert(error.message);
+            } finally {
 
+            }
+        }
 
         const fetchUserData = async () => {
             setLoading(true);
@@ -49,6 +52,7 @@ export default function CreateBoard() {
             }
         };
         fetchDefaultButtons();
+        fetchUserButtons();
         fetchUserData();
 
     }, []);
@@ -73,14 +77,15 @@ export default function CreateBoard() {
                 buttonIds,
             });
 
-
+            console.log(response.data);
             window.alert('Success', 'Board created successfully!');
             setBoardName('');
             setBoardCategory('');
             setSelectedButtons([]);
 
+
         } catch (error) {
-            window.alert(response.data.message);
+            window.alert(error.message);
         } finally {
             setSubmitting(false);
         }
@@ -153,11 +158,15 @@ export default function CreateBoard() {
                         className="border rounded-lg p-2"
                     >
                         <option value="">Select category</option>
-                        <option value="People">People</option>
-                        <option value="Actions">Actions</option>
-                        <option value="Feelings">Feelings</option>
-                        <option value="Things">Things</option>
-                        <option value="Places">Places</option>
+                        <option value="Paaralan">Paaralan</option>
+                        <option value="Bahay">Bahay</option>
+                        <option value="Pagkain">Pagkain</option>
+                        <option value="Kalusugan">Kalusugan</option>
+                        <option value="Pamilya">Pamilya</option>
+                        <option value="Pang-araw-araw na Gawain">Pang-araw-araw na Gawain</option>
+                        <option value="Sarili">Sarili</option>
+                        <option value="Laro at Libangan">Laro at Libangan</option>
+                        <option value="Panahon at Kalikasan">Panahon at Kalikasan</option>
                     </select>
                 </div>
             </div>
@@ -214,7 +223,7 @@ export default function CreateBoard() {
                                     </div>
                                 )}
                                 <img
-                                    src={button.buttonImagePath}
+                                    src={(button.buttonImagePath === "" ? null : button.buttonImagePath)}
                                     alt={button.buttonName}
                                     className="w-full h-3/4 object-cover rounded-lg mb-2 bg-white"
                                 />
