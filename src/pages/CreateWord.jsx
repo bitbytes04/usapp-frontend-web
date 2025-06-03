@@ -182,7 +182,7 @@ export default function CreateWord() {
             <div className="my-10 border-t-2 border-dashed border-gray-500 w-full"></div>
             <div className="">
                 <div className="bg-[#305a7a] flex items-center mb-6 p-2">
-                    <h1 className="text-3xl font-bold text-white mx-auto">Create New Word</h1>
+                    <h1 className="text-3xl font-bold text-white mx-auto">User Created Words</h1>
                 </div>
                 <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
                     {userButtons.map((button) => (

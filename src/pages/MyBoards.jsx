@@ -20,7 +20,19 @@ const MyBoards = () => {
         )
         : [];
 
-
+    const fetchDefaultButtons = async () => {
+        setLoading(true);
+        try {
+            const response = await axios.get(`https://usapp-backend.vercel.app/api/users/${sessionStorage.getItem('userId')}/userboards`);
+            setUserBoards(response.data); // Assuming the response contains an array of buttons
+            console.log(response.data);
+        } catch (error) {
+            console.error('Error fetching default buttons:', error);
+            window.alert('Error', 'Failed to fetch user boards');
+        } finally {
+            setLoading(false);
+        }
+    };
     useEffect(() => {
         const fetchUserData = async () => {
             setLoading(true);
@@ -34,19 +46,7 @@ const MyBoards = () => {
             }
         };
 
-        const fetchDefaultButtons = async () => {
-            setLoading(true);
-            try {
-                const response = await axios.get(`https://usapp-backend.vercel.app/api/users/${sessionStorage.getItem('userId')}/userboards`);
-                setUserBoards(response.data); // Assuming the response contains an array of buttons
-                console.log(response.data);
-            } catch (error) {
-                console.error('Error fetching default buttons:', error);
-                window.alert('Error', 'Failed to fetch user boards');
-            } finally {
-                setLoading(false);
-            }
-        };
+
 
         fetchDefaultButtons();
         fetchUserData();
@@ -63,14 +63,14 @@ const MyBoards = () => {
     };
 
     const handleDelete = async () => {
-        if (!selectedBoard || !UserData?.userId) return;
+
         try {
-            await axios.post(
-                `https://usapp-backend.vercel.app/api/users/${sessionStorage.getItem('userId')}/${sessionStorage.getItem('boardId')}/deleteUserBoard`,
+            const response = await axios.post(
+                `https://usapp-backend.vercel.app/api/users/${sessionStorage.getItem('userId')}/${sessionStorage.getItem('boardId')}/deleteboard`,
             );
-            setUserBoards(prev =>
-                prev.filter(board => board.id !== selectedBoard.id)
-            );
+            console.log('Board deleted:', response.data);
+            fetchDefaultButtons();
+
         } catch (error) {
             console.error('Error deleting board:', error);
             window.alert('Failed to delete board');
