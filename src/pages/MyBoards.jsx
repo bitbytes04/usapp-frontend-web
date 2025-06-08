@@ -10,8 +10,10 @@ const MyBoards = () => {
 
     const [UserData, setUserData] = useState();
     const [Loading, setLoading] = useState();
+    const [isDeleting, setisDeleting] = useState(false);
     const [UserBoards, setUserBoards] = useState();
     const [searchTerm, setSearchTerm] = useState('');
+    const [DisplayName, setDisplayName] = useState();
     const navigate = useNavigate();
 
     const filteredBoards = UserBoards
@@ -62,20 +64,25 @@ const MyBoards = () => {
 
     };
 
-    const handleDelete = async () => {
-
+    const handleDelete = async (bid) => {
+        setisDeleting(true);
+        if (!selectedBoard || !UserData?.userId) {
+            console.error('No board selected or user ID not found');
+            return;
+        };
         try {
             const response = await axios.post(
-                `https://usapp-backend.vercel.app/api/users/${sessionStorage.getItem('userId')}/${sessionStorage.getItem('boardId')}/deleteboard`,
+                `https://usapp-backend.vercel.app/api/users/${sessionStorage.getItem('userId')}/${bid}/deleteboard`,
             );
             console.log('Board deleted:', response.data);
             fetchDefaultButtons();
 
         } catch (error) {
-            console.error('Error deleting board:', error);
-            window.alert('Failed to delete board');
+
         } finally {
             setShowPopup(false);
+            fetchDefaultButtons();
+            setisDeleting(false);
         }
     };
 
@@ -93,6 +100,17 @@ const MyBoards = () => {
                     onChange={e => setSearchTerm(e.target.value)}
                     className="mb-6 w-11/12 px-4 py-2 border border-gray-300 rounded-lg outline-1 shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-400 text-lg"
                 />
+                {isDeleting && (
+                    <div className="fixed inset-0 z-100 flex items-center justify-center bg-black bg-opacity-40">
+                        <div className="bg-white rounded-lg p-6 flex flex-col items-center shadow-lg">
+                            <svg className="animate-spin h-8 w-8 text-blue-500 mb-3" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"></path>
+                            </svg>
+                            <span className="text-lg font-medium text-gray-700">Deleting board...</span>
+                        </div>
+                    </div>
+                )}
                 <div className="bg-white h-96 w-11/12 text-black p-6 rounded-lg shadow-lg border-dashed border-2 duration-300">
                     {
                         Loading ? (<></>) : (<>
@@ -138,7 +156,7 @@ const MyBoards = () => {
                                                     Edit
                                                 </button>
                                                 <button
-                                                    onClick={handleDelete}
+                                                    onClick={() => { handleDelete(board.id) }}
                                                     className="bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600 text-sm"
                                                 >
                                                     Delete

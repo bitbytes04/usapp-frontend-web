@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { createUserWithEmailAndPassword } from 'firebase/auth';
+import { createUserWithEmailAndPassword, sendEmailVerification, getIdToken } from 'firebase/auth';
 import { FIREBASE_AUTH } from '../../firebaseConfig';
 import { Transition } from '@headlessui/react';
 import axios from 'axios';
@@ -25,6 +25,8 @@ function SignupForm(props) {
     const { showTerms, setShowTerms } = props
     const [isLoading, setIsLoading] = useState(false);
     const toggleView = props.toggleView;
+    const [showVerificationScreen, setshowVerificationScreen] = useState(false);
+    const [currentUser, setcurrentUser] = useState();
     const userTypeOptions = [
         { label: 'Guardian', value: 'Guardian' },
         { label: 'End-User', value: 'End-User' },
@@ -49,6 +51,17 @@ function SignupForm(props) {
         return true;
     };
 
+    const deleteUserFromFirebase = async () => {
+        if (currentUser) {
+            try {
+                await currentUser.user.delete();
+                window.alert('Account Verification Cancelled')
+            } catch (err) {
+                console.error("Error deleting user:", err);
+            }
+        }
+    };
+
     const SignupUser = async () => {
         if (!validateInputs()) {
             return;
@@ -57,32 +70,58 @@ function SignupForm(props) {
             window.alert("Passwords do not match");
             return;
         }
-        setIsLoading(true);
+
+
+        setshowVerificationScreen(true);
+
+        // Send email verification before proceeding
         try {
-            const userCredential = await createUserWithEmailAndPassword(auth, email, password);
-            const uid = userCredential.user.uid;
+            const tempUserCredential = await createUserWithEmailAndPassword(auth, email, password);
+            await sendEmailVerification(tempUserCredential.user)
 
-            const userData = {
-                uid,
-                firstName,
-                lastName,
-                username,
-                email,
-                userType,
-                age,
-                ...(userType === 'Guardian' && { endName, endAge }),
-            };
+            setcurrentUser(tempUserCredential)
 
-            await axios.post('https://usapp-backend.vercel.app/api/users/create', userData);
+            const checkEmailVerified = setInterval(async () => {
 
-            window.alert("User created successfully!");
-            navigate("/UserEntry/Login");
+                if (tempUserCredential.user.emailVerified) {
+                    clearInterval(checkEmailVerified);
+                    setshowVerificationScreen(false);
+                    setIsLoading(true);
+                    const uid = tempUserCredential.user.uid;
+                    const userData = {
+                        uid,
+                        firstName,
+                        lastName,
+                        username,
+                        email,
+                        userType,
+                        age,
+                        ...(userType === 'Guardian' && { endName, endAge }),
+                    };
+                    try {
+                        await axios.post('https://usapp-backend.vercel.app/api/users/create', userData);
+                        window.alert("User created successfully!");
+                        navigate("/UserEntry/Login");
+                    } catch (err) {
+                        window.alert("Error creating user: " + (err instanceof Error ? err.message : "Unknown error"));
+                    } finally {
+                        setIsLoading(false);
+                    }
+                }
+            }, 3000);
+
         } catch (error) {
             console.error(error);
-            window.alert("Error creating user: " + (error instanceof Error ? error.message : "Unknown error"));
-        } finally {
+            window.alert("Error sending verification email: " + (error instanceof Error ? error.message : "Unknown error"));
             setIsLoading(false);
+            return;
         }
+        finally {
+            setIsLoading(false)
+        }
+
+
+
     };
     const renderStep = () => {
         if (isLoading) {
@@ -219,6 +258,42 @@ function SignupForm(props) {
                             value={confirmPassword}
                             onChange={(e) => setConfirmPassword(e.target.value)}
                         />
+
+                        {password.length > 0 && (
+                            <p className={`
+                                w-4/5 self-center mb-2 text-[13px] font-bold
+                                ${password.length < 8 ||
+                                    !/[A-Z]/.test(password) ||
+                                    !/[a-z]/.test(password) ||
+                                    !/[0-9]/.test(password) ||
+                                    !/[^A-Za-z0-9]/.test(password)
+                                    ? 'text-red-600'
+                                    : 'text-green-600'}
+                            `}>
+                                {password.length < 8
+                                    ? 'Password must be at least 8 characters. '
+                                    : ''}
+                                {!/[A-Z]/.test(password)
+                                    ? 'Include an uppercase letter. '
+                                    : ''}
+                                {!/[a-z]/.test(password)
+                                    ? 'Include a lowercase letter. '
+                                    : ''}
+                                {!/[0-9]/.test(password)
+                                    ? 'Include a number. '
+                                    : ''}
+                                {!/[^A-Za-z0-9]/.test(password)
+                                    ? 'Include a special character. '
+                                    : ''}
+                                {password.length >= 8 &&
+                                    /[A-Z]/.test(password) &&
+                                    /[a-z]/.test(password) &&
+                                    /[0-9]/.test(password) &&
+                                    /[^A-Za-z0-9]/.test(password)
+                                    ? 'Strong password!'
+                                    : ''}
+                            </p>
+                        )}
                         <div className="flex items-center justify-between text-sm mb-4">
                             <label className="flex items-center">
                                 <input
@@ -259,6 +334,51 @@ function SignupForm(props) {
                                 Sign Up
                             </button>
                         </div>
+
+                        <Transition
+                            show={showVerificationScreen}
+                            enter="transition-opacity duration-300"
+                            enterFrom="opacity-0"
+                            enterTo="opacity-100"
+                            leave="transition-opacity duration-200"
+                            leaveFrom="opacity-100"
+                            leaveTo="opacity-0"
+                        >
+                            <div className="fixed inset-0 flex justify-center items-center backdrop-blur-md backdrop-brightness-50 animate-fade-in">
+                                <div className="bg-white rounded-lg shadow-lg p-8 max-w-sm w-full text-center">
+                                    <h3 className="text-xl font-semibold mb-4">Verify Your Email</h3>
+                                    <p className="mb-6">
+                                        A verification link has been sent to <span className="font-medium">{email}</span>.<br />
+                                        Please check your inbox
+                                    </p>
+                                    <div className="flex flex-col gap-3">
+
+                                        <button
+                                            className="bg-amber-600 text-white px-4 py-2 rounded hover:bg-amber-700"
+                                            onClick={async () => {
+                                                if (currentUser && currentUser.user) {
+                                                    try {
+                                                        deleteUserFromFirebase();
+                                                        setshowVerificationScreen(false);
+                                                        setcurrentUser(undefined);
+
+                                                    } catch (err) {
+                                                        window.alert(err.message);
+                                                    }
+                                                    finally {
+                                                        setshowVerificationScreen(false)
+                                                    }
+                                                } else {
+                                                    setshowVerificationScreen(false);
+                                                }
+                                            }}
+                                        >
+                                            Cancel Verification
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </Transition>
                     </>
                 );
             default:

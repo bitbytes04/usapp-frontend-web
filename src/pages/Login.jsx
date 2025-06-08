@@ -45,7 +45,7 @@ const Login = () => {
             const errorMsg = error instanceof Error ? error.message : "Login failed.";
             if (typeof error === 'object' && error !== null && 'code' in error) {
                 if (error.code === 'auth/user-not-found') {
-                    window.alert("No user found with this username.");
+                    window.alert("No user found with this email.");
                 } else if (error.code === 'auth/wrong-password') {
                     window.alert("Wrong Password.");
                 } else if (error.code === 'auth/invalid-email') {
@@ -83,69 +83,70 @@ const Login = () => {
 
     return (
         <>
-            <div className="flex flex-col justify-start min-h-svh h-full items-center bg-[#fff6eb] p-4">
-                <img className="absolute top-0 w-full object-top object-fill h-20" src={header} alt="Header Background" />
+            <div className="flex flex-col justify-center bg-[url('./assets/backgrounds/bg-revision.png')] min-h-svh max-w-[100svw] overflow-x-hidden h-full items-center bg-[#fff6eb] p-4">
 
-                <img className="m-20 lg:m-10 w-3/12 mb-0 min-w-60" src={logo} alt="Logo" />
-                <div className="flex flex-col lg:flex-row justify-center items-center w-full gap-5 lg:gap-0 ">
-                    <div className="flex-4 flex flex-row justify-center items-center w-full h-full p-6">
-                        <div className="relative w-11/12 max-w-96 lg:max-w-[900px] h-[500px] overflow-y-auto overflow-x-hidden bg-white rounded-lg shadow-lg ">
-                            <div
-                                className={`absolute inset-0 transition-transform duration-500 ${isLogin ? 'translate-x-0' : '-translate-x-full'
-                                    }`}
-                            >
-                                {/* Login Form */}
-                                <div className="w-full h-full flex flex-col justify-start gap-5 items-center p-6">
-                                    <h2 className="text-4xl font-bold mb-4">Login</h2>
-                                    <input
-                                        type="email"
-                                        placeholder="Email"
-                                        className="w-full mb-4 p-2 border rounded"
-                                        onChange={(e) => setEmail(e.target.value)}
-                                        value={email}
-                                    />
-                                    <input
-                                        type="password"
-                                        placeholder="Password"
-                                        className="w-full mb-4 p-2 border rounded"
-                                        value={password}
-                                        onChange={(e) => setPassword(e.target.value)}
-                                    />
-                                    <button className="w-full bg-blue-900 border-black border-2 border-r-4 border-b-4 hover:bg-blue-700 delay-150 duration-300 text-white py-2 rounded"
-                                        onClick={() => { handleLogin() }}>
-                                        Login
+                <div className='backdrop-blur-sm w-full h-full absolute'></div>
+
+                <div className="h-[80%] max-h-[1000px] flex flex-col justify-center backdrop-blur-lg bg-white rounded-lg  w-11/12 max-w-96 lg:max-w-[900px] min-h-[400px] shadow-lg items-center p-6">
+                    <img className="m-20 lg:m-0 w-3/12 mb-0 min-w-60" src={logo} alt="Logo" />
+                    <div className="relative w-full max-w-96 lg:max-w-[900px] border-2 rounded-lg border-dashed border-gray-400 min-h-[500px] overflow-y-auto overflow-x-hidden ">
+
+                        <div
+                            className={`absolute inset-0 transition-transform duration-500 ${isLogin ? 'translate-x-0' : '-translate-x-full'
+                                }`}
+                        >
+                            {/* Login Form */}
+                            <div className="w-full h-full flex flex-col justify-start gap-5 items-center p-6">
+                                <h2 className="text-4xl font-bold mb-4">Login</h2>
+                                <input
+                                    type="email"
+                                    placeholder="Email"
+                                    className="w-full mb-4 p-2 border rounded"
+                                    onChange={(e) => setEmail(e.target.value)}
+                                    value={email}
+                                />
+                                <input
+                                    type="password"
+                                    placeholder="Password"
+                                    className="w-full mb-4 p-2 border rounded"
+                                    value={password}
+                                    onChange={(e) => setPassword(e.target.value)}
+                                />
+                                <button className="w-full bg-blue-900 border-black border-2 border-r-4 border-b-4 hover:bg-blue-700 delay-150 duration-300 text-white py-2 rounded"
+                                    onClick={() => { handleLogin() }}>
+                                    Login
+                                </button>
+                                <p className="mt-4 text-sm">
+                                    <button
+                                        onClick={toggleForgotPassword}
+                                        className="text-blue-500 underline"
+                                    >
+                                        Forgot Password?
                                     </button>
-                                    <p className="mt-4 text-sm">
-                                        <button
-                                            onClick={toggleForgotPassword}
-                                            className="text-blue-500 underline"
-                                        >
-                                            Forgot Password?
-                                        </button>
-                                    </p>
-                                    <p className="mt-4 text-sm">
-                                        Don't have an account?{' '}
-                                        <button
-                                            onClick={toggleView}
-                                            className="text-blue-500 underline"
-                                        >
-                                            Sign Up
-                                        </button>
-                                    </p>
-                                </div>
-                            </div>
-                            <div
-                                className={`absolute inset-0 transition-transform duration-500 ${isLogin ? 'translate-x-full' : 'translate-x-0'
-                                    }`}
-                            >
-                                {/* Sign Up Form */}
-                                <SignIn toggleView={toggleView} showTerms={showTerms} setShowTerms={setshowTerms} />
+                                </p>
+                                <p className="mt-4 text-sm">
+                                    Don't have an account?{' '}
+                                    <button
+                                        onClick={toggleView}
+                                        className="text-blue-500 underline"
+                                    >
+                                        Sign Up
+                                    </button>
+                                </p>
                             </div>
                         </div>
+                        <div
+                            className={`absolute inset-0 transition-transform duration-500 ${isLogin ? 'translate-x-full' : 'translate-x-0'
+                                }`}
+                        >
+                            {/* Sign Up Form */}
+                            <SignIn toggleView={toggleView} showTerms={showTerms} setShowTerms={setshowTerms} />
+                        </div>
                     </div>
-
-
                 </div>
+
+
+
 
                 <Transition
                     show={showForgotPassword}
@@ -233,8 +234,16 @@ const Login = () => {
                     leaveTo="opacity-0"
                 >
                     <div className="fixed inset-0 flex justify-center items-center backdrop-blur-md backdrop-brightness-50 animate-fade-in">
-                        <div className="bg-white p-6 flex flex-col justify-center items-center rounded-lg shadow-lg w-80">
-                            <FourSquare color="#3d6887" size="medium" text="" textColor="" />
+                        <div className="p-6 flex flex-col justify-center items-center backdrop-blur-md backdrop-brightness-50 w-80">
+                            <div className="fixed inset-0 z-50 flex items-center justify-center">
+                                <div className="bg-white px-8 py-6 rounded-lg flex flex-col items-center shadow-lg">
+                                    <svg className="animate-spin h-8 w-8 text-blue-500 mb-3" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"></path>
+                                    </svg>
+                                    <span className="text-lg font-semibold text-gray-700">Saving changes...</span>
+                                </div>
+                            </div>
                             <h2 className="text-xl font-bold mb-4">Logging in user</h2>
                         </div>
                     </div>
