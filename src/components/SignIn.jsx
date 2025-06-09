@@ -295,7 +295,7 @@ function SignupForm(props) {
                             </p>
                         )}
                         <div className="flex items-center justify-between text-sm mb-4">
-                            <label className="flex items-center">
+                            <label className="flex flex-col md:flex-row text-center justify-center items-center">
                                 <input
                                     type="checkbox"
                                     className="mr-2"
@@ -304,8 +304,9 @@ function SignupForm(props) {
                                 />
                                 I agree to&nbsp;
                                 <span
+
                                     onClick={() => setShowTerms(true)}
-                                    className="text-blue-500 underline cursor-pointer"
+                                    className="text-blue-500 text-center underline cursor-pointer"
                                 >
                                     Terms and Conditions
                                 </span>

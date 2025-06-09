@@ -83,12 +83,12 @@ const Login = () => {
 
     return (
         <>
-            <div className="flex flex-col justify-center bg-[url('./assets/backgrounds/bg-revision.png')] min-h-svh max-w-[100svw] overflow-x-hidden h-full items-center bg-[#fff6eb] p-4">
+            <div className="flex flex-col justify-center bg-[url('./assets/backgrounds/bg-revision.png')] min-h-svh max-w-[100svw] overflow-x-hidden items-center bg-[#fff6eb] p-4">
 
-                <div className='backdrop-blur-sm w-full h-full absolute'></div>
 
-                <div className="h-[80%] max-h-[1000px] flex flex-col justify-center backdrop-blur-lg bg-white rounded-lg  w-11/12 max-w-96 lg:max-w-[900px] min-h-[400px] shadow-lg items-center p-6">
-                    <img className="m-20 lg:m-0 w-3/12 mb-0 min-w-60" src={logo} alt="Logo" />
+
+                <div className="h-[80%] max-h-[1000px] flex flex-col justify-center backdrop-blur-lg bg-white rounded-lg  w-11/12 max-w-96 lg:max-w-[900px] min-h-[400px] shadow-2xl items-center p-6">
+                    <img className=" m-0 w-3/12 mb-0 min-w-60" src={logo} alt="Logo" />
                     <div className="relative w-full max-w-96 lg:max-w-[900px] border-2 rounded-lg border-dashed border-gray-400 min-h-[500px] overflow-y-auto overflow-x-hidden ">
 
                         <div
