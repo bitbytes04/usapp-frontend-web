@@ -5,12 +5,15 @@ import UserDashboard from './pages/UserDashboard'
 import Login from './pages/Login'
 import GuestBoard from './pages/GuestBoard'
 import EditBoard from './pages/EditBoard'
-
+import Landing from './pages/Landing'
+import AdminLogin from './pages/adminLogin'
 const App = () => {
     return (
         <BrowserRouter>
             <Routes>
-                <Route path="/" element={<Login />} />
+                <Route path='/' element={<Landing />} />
+                <Route path='/slp/login' element={<AdminLogin />} />
+                <Route path="/login" element={<Login />} />
                 <Route path="/dashboard" element={<UserDashboard />} />
                 <Route path="/guestboard" element={<GuestBoard />} />
                 <Route path="/editboard" element={<EditBoard />} />

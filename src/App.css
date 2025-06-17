@@ -3,3 +3,18 @@
 .usapp-border {
     @apply border-black border-1 border-r-4 border-b-4
 }
+
+.usapp-bg {
+    background-color: #22004d;
+    background-image: radial-gradient(circle at -77% -76%, #00000025 41%, transparent 41.05%), radial-gradient(circle at 21% -2%, #00000028 44%, transparent 44.05%), radial-gradient(circle at 93% 2%, #00000017 59%, transparent 59.05%), linear-gradient(52deg, #00000022 48%, transparent 48.05%);
+}
+
+.bg-beige {
+    background-color: #fff6eb;
+    background-image: radial-gradient(circle at -77% -76%, #c49a6825 41%, transparent 41.05%), radial-gradient(circle at 21% -2%, #ffcb7028 44%, transparent 44.05%), radial-gradient(circle at 93% 2%, #fde2b417 59%, transparent 59.05%), linear-gradient(52deg, #fbcd9822 48%, transparent 48.05%);
+}
+
+.bg-teal {
+    background-color: #17616e;
+    background-image: radial-gradient(circle at -91% 192%, #0000001a 62%, transparent 62.05%), radial-gradient(circle at 87% -37%, #0000001d 52%, transparent 52.05%), radial-gradient(circle at -72% -44%, #00000026 60%, transparent 60.05%), linear-gradient(130deg, #00000027 51%, transparent 51.05%);
+}

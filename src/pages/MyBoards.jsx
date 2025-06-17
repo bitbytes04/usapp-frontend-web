@@ -88,92 +88,112 @@ const MyBoards = () => {
 
     return (
         <div className="min-h-screen">
-            <img className="w-full object-top h-15 " src={header} alt="Header Background" />
-            <div className="container justify-center flex flex-col items-center mx-auto py-10 px-4">
-                <h1 className="text-4xl md:text-6xl font-bold text-center mb-8 drop-shadow-lg">
-                    My Boards
-                </h1>
-                <input
-                    type="text"
-                    placeholder="Search boards..."
-                    value={searchTerm}
-                    onChange={e => setSearchTerm(e.target.value)}
-                    className="mb-6 w-11/12 px-4 py-2 border border-gray-300 rounded-lg outline-1 shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-400 text-lg"
-                />
+            <div className="container mx-auto flex flex-col items-center p-2 sm:p-5">
+                <div className="bg-blue-900 w-full flex items-center mb-4 sm:mb-6 p-2">
+                    <h1 className="text-2xl sm:text-3xl font-bold text-white mx-auto">MY BOARDS</h1>
+                </div>
+                <div className="w-full mb-6 sm:mb-8 flex flex-col sm:flex-row gap-3 sm:gap-0">
+                    <input
+                        type="text"
+                        placeholder="Search boards..."
+                        value={searchTerm}
+                        onChange={e => setSearchTerm(e.target.value)}
+                        className="w-full px-4 py-2 sm:px-5 sm:py-3 border border-gray-200 rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-400 text-base sm:text-lg bg-white"
+                    />
+                    <select
+                        value={DisplayName || ''}
+                        onChange={e => setDisplayName(e.target.value)}
+                        className="sm:ml-4 px-4 py-2 sm:py-3 border border-gray-200 rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-400 text-base sm:text-lg bg-white mt-2 sm:mt-0"
+                    >
+                        <option value="">All Boards</option>
+                        {UserBoards &&
+                            [...new Set(UserBoards.map(board => board.boardCategory || ''))]
+                                .filter(name => name)
+                                .map((name, idx) => (
+                                    <option key={idx} value={name}>
+                                        {name}
+                                    </option>
+                                ))}
+                    </select>
+                </div>
                 {isDeleting && (
-                    <div className="fixed inset-0 z-100 flex items-center justify-center bg-black bg-opacity-40">
-                        <div className="bg-white rounded-lg p-6 flex flex-col items-center shadow-lg">
-                            <svg className="animate-spin h-8 w-8 text-blue-500 mb-3" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-40">
+                        <div className="bg-white rounded-2xl p-6 sm:p-8 flex flex-col items-center shadow-2xl">
+                            <svg className="animate-spin h-8 w-8 sm:h-10 sm:w-10 text-blue-500 mb-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                                 <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
                                 <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"></path>
                             </svg>
-                            <span className="text-lg font-medium text-gray-700">Deleting board...</span>
+                            <span className="text-base sm:text-lg font-medium text-gray-700">Deleting board...</span>
                         </div>
                     </div>
                 )}
-                <div className="bg-white h-96 w-11/12 text-black p-6 rounded-lg shadow-lg border-dashed border-2 duration-300">
-                    {
-                        Loading ? (<></>) : (<>
-                            <div className="flex flex-wrap justify-center items-center relative">
-                                {filteredBoards && filteredBoards.map((board, index) => (
-                                    <div key={index} className="relative m-1">
-                                        <button
-                                            onClick={e => {
-                                                const rect = e.currentTarget.getBoundingClientRect();
-                                                setSelectedBoard({
-                                                    ...board,
-                                                    popupPosition: {
-                                                        top: rect.top + window.scrollY,
-                                                        left: rect.right + 8 + window.scrollX
-                                                    }
-                                                });
-                                                setShowPopup(true);
-                                            }}
-                                            className="focus:outline-none"
+                <div className="w-full grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-4">
+                    {Loading ? (
+                        <div className="col-span-full w-full flex justify-center items-center py-12 sm:py-16">
+                            <svg className="animate-spin h-8 w-8 text-blue-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"></path>
+                            </svg>
+                        </div>
+                    ) : (
+                        filteredBoards && filteredBoards.length > 0 ? (
+                            filteredBoards.map((board, index) => (
+                                <div key={index} className="relative group">
+                                    <button
+                                        onClick={e => {
+                                            const rect = e.currentTarget.getBoundingClientRect();
+                                            setSelectedBoard({
+                                                ...board,
+                                                popupPosition: {
+                                                    top: rect.top + window.scrollY,
+                                                    left: rect.right + 8 + window.scrollX
+                                                }
+                                            });
+                                            setShowPopup(true);
+                                        }}
+                                        className=" bg-white rounded-2xl shadow-lg flex flex-col items-center justify-center border border-blue-100 hover:shadow-2xl transition group"
+                                    >
+                                        <div className="flex items-center justify-center w-12 h-12 sm:w-16 sm:h-16 rounded-full bg-blue-100 mb-2 sm:mb-3">
+                                            <svg className="w-6 h-6 sm:w-8 sm:h-8 text-blue-500" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                                                <rect x="4" y="4" width="16" height="16" rx="4" />
+                                            </svg>
+                                        </div>
+                                        <div className="text-blue-900 font-semibold text-base sm:text-lg text-center truncate w-full px-2">
+                                            {board.boardName}
+                                        </div>
+                                    </button>
+                                    {showPopup && selectedBoard && selectedBoard.boardName === board.boardName && (
+                                        <div
+                                            className="absolute z-50 bg-white rounded-xl shadow-xl p-3 sm:p-4 min-w-[140px] sm:min-w-[160px] flex flex-col gap-2 right-0 top-1/2 -translate-y-1/2 border border-gray-100"
                                         >
-                                            <div className="w-[100px] h-[100px] p-2 rounded-lg flex flex-col items-center justify-center bg-blue-500">
-                                                <div className="w-full h-1/2 bg-white rounded mb-2"></div>
-                                                <div className="bg-white text-black font-semibold text-[18px] text-center w-full rounded px-1 flex-grow flex items-center justify-center">
-                                                    {board.boardName}
-                                                </div>
-                                            </div>
-                                        </button>
-                                        {/* Inline popup for this board */}
-                                        {showPopup && selectedBoard && selectedBoard.boardName === board.boardName && (
-                                            <div
-                                                className="absolute z-50 bg-white rounded shadow-lg p-2 min-w-[140px] flex flex-col gap-1"
-                                                style={{
-                                                    top: '50%',
-                                                    left: '110%',
-                                                    transform: 'translateY(-50%)',
-                                                    boxShadow: '0 2px 8px rgba(0,0,0,0.15)'
-                                                }}
+                                            <button
+                                                onClick={handleEdit}
+                                                className="bg-blue-600 hover:bg-blue-700 text-white px-3 py-2 sm:px-4 sm:py-2 rounded-lg font-medium transition text-xs sm:text-sm"
                                             >
-                                                <button
-                                                    onClick={handleEdit}
-                                                    className="bg-blue-500 text-white px-3 py-1 rounded hover:bg-blue-600 text-sm"
-                                                >
-                                                    Edit
-                                                </button>
-                                                <button
-                                                    onClick={() => { handleDelete(board.id) }}
-                                                    className="bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600 text-sm"
-                                                >
-                                                    Delete
-                                                </button>
-                                                <button
-                                                    onClick={() => setShowPopup(false)}
-                                                    className="bg-gray-300 text-black px-3 py-1 rounded hover:bg-gray-400 text-sm"
-                                                >
-                                                    Cancel
-                                                </button>
-                                            </div>
-                                        )}
-                                    </div>
-                                ))}
+                                                Edit
+                                            </button>
+                                            <button
+                                                onClick={() => { handleDelete(board.id) }}
+                                                className="bg-red-500 hover:bg-red-600 text-white px-3 py-2 sm:px-4 sm:py-2 rounded-lg font-medium transition text-xs sm:text-sm"
+                                            >
+                                                Delete
+                                            </button>
+                                            <button
+                                                onClick={() => setShowPopup(false)}
+                                                className="bg-gray-200 hover:bg-gray-300 text-gray-800 px-3 py-2 sm:px-4 sm:py-2 rounded-lg font-medium transition text-xs sm:text-sm"
+                                            >
+                                                Cancel
+                                            </button>
+                                        </div>
+                                    )}
+                                </div>
+                            ))
+                        ) : (
+                            <div className="col-span-full w-full text-center text-gray-500 py-12 sm:py-16 text-base sm:text-lg">
+                                No boards found.
                             </div>
-                        </>)
-                    }
+                        )
+                    )}
                 </div>
             </div>
         </div>

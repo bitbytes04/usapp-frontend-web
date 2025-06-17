@@ -114,7 +114,7 @@ const AccountSettings = () => {
     };
 
     return (
-        <div className='flex flex-col justify-start items-center bg-[#fff6eb] min-h-screen pb-20'>
+        <div className='flex flex-col p-5 justify-start items-center bg-[#fff6eb] min-h-screen pb-20'>
             <Transition
                 show={isSubmitting}
                 enter="transition-opacity duration-200"
@@ -134,17 +134,12 @@ const AccountSettings = () => {
                     </div>
                 </div>
             </Transition>
-            <img className="w-full object-top h-15" src={header} alt="Header Background" />
-            <div className='flex w-full px-8 flex-row justify-center items-center'>
-                <div className='flex flex-col justify-center items-start w-full h-full p-6'>
-                    <h1 className='text-2xl font-bold'>Account Settings</h1>
-                    <p className='text-lg'>Manage your account details below.</p>
-                </div>
-                <img className="w-1/12 mb-4 min-w-40" src={logo} alt="Logo" />
+            <div className=" bg-blue-900 flex w-full items-center mb-6 p-2">
+                <h1 className="text-3xl font-bold text-white mx-auto">Create New Board { }</h1>
             </div>
             <form
                 onSubmit={handleSubmit}
-                className="bg-white w-11/12 text-black p-6 rounded-lg shadow-lg border-dashed border-2 duration-300"
+                className="bg-white w-full text-black p-6 rounded-lg shadow-lg border-dashed border-2 duration-300"
             >
                 <div className="mb-4">
                     <label className="block text-lg font-medium mb-2">First Name</label>

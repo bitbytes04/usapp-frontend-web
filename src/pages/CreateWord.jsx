@@ -133,7 +133,7 @@ export default function CreateWord() {
                 <h1 className="text-3xl font-bold text-white mx-auto">Create New Word</h1>
             </div>
 
-            <div className="bg-white border-2 border-dashed p-6 rounded-lg shadow-md flex flex-col gap-4">
+            <div className="bg-white p-6 rounded-lg shadow-md flex flex-col gap-4">
                 <div className="flex flex-col">
                     <label className="text-gray-700 font-semibold mb-1">Word Name</label>
                     <input

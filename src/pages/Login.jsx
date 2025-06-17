@@ -5,7 +5,6 @@ import { Transition } from '@headlessui/react';
 import { useNavigate } from 'react-router-dom';
 import { FIREBASE_AUTH } from '../../firebaseConfig';
 import { signInWithEmailAndPassword, sendPasswordResetEmail } from 'firebase/auth';
-import { FourSquare } from 'react-loading-indicators';
 import SignIn from '../components/SignIn';
 
 const Login = () => {
@@ -73,7 +72,7 @@ const Login = () => {
             .catch((error) => {
                 setLoadingReset(false);
                 const errorMsg = error instanceof Error ? error.message : "Failed to send password reset email.";
-                window.alert("Error", errorMsg);
+                window.alert("Error sending forgot password email, Please make sure your email is correct");
             })
             .finally(() => {
                 setLoadingReset(false);
@@ -81,9 +80,13 @@ const Login = () => {
             });
     }
 
+    const handleSLPLogin = () => {
+
+    }
+
     return (
         <>
-            <div className="flex flex-col justify-center bg-[url('./assets/backgrounds/bg-revision.png')] min-h-svh max-w-[100svw] overflow-x-hidden items-center bg-[#fff6eb] p-4">
+            <div className="flex flex-col justify-center bg-[url('./assets/backgrounds/bg-revision.png')] min-h-svh max-w-[100svw] overflow-x-hidden items-center  p-4">
 
 
 
@@ -161,7 +164,15 @@ const Login = () => {
                         <div className="bg-white p-6 rounded-lg flex flex-col justify-center items-center shadow-lg w-80">
                             <h2 className="text-xl font-bold mb-4">Forgot Password</h2>
                             {LoadingReset ? (
-                                <FourSquare color="#3d6887" size="medium" text="" textColor="" />
+                                <div className="fixed inset-0 z-50 flex items-center justify-center">
+                                    <div className="bg-white px-8 py-6 rounded-lg flex flex-col items-center shadow-lg">
+                                        <svg className="animate-spin h-8 w-8 text-blue-500 mb-3" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                                            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"></path>
+                                        </svg>
+                                        <span className="text-lg font-semibold text-gray-700">Logging In...</span>
+                                    </div>
+                                </div>
                             ) : (
                                 <>
                                     <input
@@ -241,7 +252,7 @@ const Login = () => {
                                         <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
                                         <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"></path>
                                     </svg>
-                                    <span className="text-lg font-semibold text-gray-700">Saving changes...</span>
+                                    <span className="text-lg font-semibold text-gray-700">Logging In...</span>
                                 </div>
                             </div>
                             <h2 className="text-xl font-bold mb-4">Logging in user</h2>

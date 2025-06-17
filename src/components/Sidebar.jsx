@@ -42,7 +42,7 @@ export default function Sidebar({ children }) {
                             `}
                     >
                         <button
-                            onClick={() => navigate("/")}
+                            onClick={() => navigate(-1)}
                             className={`${expanded ? "block" : "hidden"} w-full bg-red-900 hover:bg-red-700 delay-150 duration-300 text-white py-2 rounded`} >
                             Log out
                         </button>
