@@ -6,7 +6,7 @@ import Login from './pages/Login'
 import GuestBoard from './pages/GuestBoard'
 import EditBoard from './pages/EditBoard'
 import Landing from './pages/Landing'
-import AdminLogin from './pages/adminLogin'
+import AdminLogin from './pages/AdminLogin'
 const App = () => {
     return (
         <BrowserRouter>
