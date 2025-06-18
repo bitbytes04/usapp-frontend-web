@@ -3,6 +3,8 @@ import { Transition } from '@headlessui/react'
 import logo from '../assets/logos/usapp_logo_medium.png'
 import { sendPasswordResetEmail, signInWithEmailAndPassword } from 'firebase/auth'
 import { useState } from 'react'
+import { useNavigate } from 'react-router-dom'
+import axios from 'axios'
 
 
 const AdminLogin = () => {
@@ -11,7 +13,17 @@ const AdminLogin = () => {
     const [showForgotPassword, setshowForgotPassword] = useState(false);
     const [loginLoading, setLoginLoading] = useState(false);
     const [LoadingReset, setLoadingReset] = useState(false);
-    const [UserType, setUserType] = useState('');
+    const [ShowPassword, setShowPassword] = useState(false);
+    const [UserType, setUserType] = useState('admin');
+    const navigate = useNavigate();
+
+    const handleUserTypeChange = (e) => {
+        setUserType(e.target.value);
+    }
+
+
+
+
     const handlePasswordReset = async () => {
         if (Email.length < 5 || Password.length < 5) {
             window.alert("Email and password must be at least 5 characters long.");
@@ -35,7 +47,30 @@ const AdminLogin = () => {
 
     const handleLogin = async () => {
         if (UserType === 'admin') {
+            if (Email.length < 5 || Password.length < 5) {
+                window.alert("Email and password must be at least 5 characters long.");
+                return;
+            }
+            setLoginLoading(true);
+            try {
+                const response = await axios.post('https://usapp-backend.vercel.app/api/admin/login', {
+                    email: Email,
+                    password: Password
+                });
+                if (response.data.success) {
+                    sessionStorage.setItem('admintoken', response.data.uid);
+                    window.alert("Login successful");
+                    navigate('/admin/dashboard');
+                } else {
+                    window.alert("Login failed: " + response.data.message);
+                }
 
+
+            } catch (error) {
+                setLoginLoading(false);
+                const errorMsg = error instanceof Error ? error.message : "Failed to login.";
+                window.alert(errorMsg);
+            }
         }
         else if (UserType == 'slp') {
 
@@ -50,38 +85,65 @@ const AdminLogin = () => {
     }
     return (
         <div className="flex flex-col justify-center usapp-bg min-h-svh max-w-[100svw] overflow-x-hidden items-center  p-4">
-
-
-
             <div className="h-[80%] max-h-[1000px] flex flex-col justify-center backdrop-blur-lg bg-white rounded-lg  w-11/12 max-w-96 lg:max-w-[900px] min-h-[400px] shadow-2xl items-center p-6">
                 <img className=" m-0 w-3/12 mb-0 min-w-60" src={logo} alt="Logo" />
                 <div className="relative w-full max-w-96 lg:max-w-[900px] border-2 rounded-lg border-dashed border-gray-400 min-h-[500px] overflow-y-auto overflow-x-hidden ">
-
-
                     {/* Login Form */}
                     <div className="w-full h-full flex flex-col justify-start gap-5 items-center p-6">
                         <h2 className="text-4xl font-bold mb-4">Login</h2>
-                        <input
-                            type="Email"
-                            placeholder="Email"
-                            className="w-full mb-4 p-2 border rounded"
-                            onChange={(e) => setEmail(e.target.value)}
-                            value={Email}
-                        />
-                        <input
-                            type="Password"
-                            placeholder="Password"
-                            className="w-full mb-4 p-2 border rounded"
-                            value={Password}
-                            onChange={(e) => setPassword(e.target.value)}
-                        />
-                        <select
-                            className="w-full mb-4 p-2 border rounded"
-                            defaultValue=""
-                        >
-                            <option value="admin">Admin</option>
-                            <option value="slp">Speech Language Pathologist</option>
-                        </select>
+                        <div className="w-full mb-4">
+                            <label htmlFor="email" className="block text-sm font-medium mb-1">Email</label>
+                            <input
+                                id="email"
+                                type="email"
+                                placeholder="Email"
+                                className="w-full p-2 border rounded"
+                                onChange={(e) => setEmail(e.target.value)}
+                                value={Email}
+                                aria-describedby="email-validation"
+                            />
+                            {Email.length > 0 && Email.length < 5 && (
+                                <p id="email-validation" className="text-xs text-red-500 mt-1">Email must be at least 5 characters long.</p>
+                            )}
+                        </div>
+                        <div className="w-full mb-4">
+                            <label htmlFor="password" className="block text-sm font-medium mb-1">Password</label>
+                            <input
+                                id="password"
+                                type={(ShowPassword ? "text" : "password")}
+                                placeholder="Password"
+                                className="w-full p-2 border rounded"
+                                value={Password}
+                                onChange={(e) => setPassword(e.target.value)}
+                                aria-describedby="password-validation"
+                            />
+                            {Password.length > 0 && Password.length < 5 && (
+                                <p id="password-validation" className="text-xs text-red-500 mt-1">Password must be at least 5 characters long.</p>
+                            )}
+                        </div>
+                        <div className="w-full justify-end flex items-center">
+                            <input
+                                id="show-password"
+                                type="checkbox"
+                                className="mr-2"
+                                checked={ShowPassword}
+                                onChange={e => setShowPassword(e.target.checked)}
+                            />
+                            <label htmlFor="show-password" className="text-sm select-none">Show Password</label>
+                        </div>
+                        <div className="w-full mb-4">
+                            <label htmlFor="user-type" className="block text-sm font-medium mb-1">User Type</label>
+                            <select
+                                id="user-type"
+                                className="w-full p-2 border rounded"
+                                defaultValue="admin"
+                                onChange={(e) => setUserType(e.target.value)}
+                                value={UserType}
+                            >
+                                <option value="admin">Admin</option>
+                                <option value="slp">Speech Language Pathologist</option>
+                            </select>
+                        </div>
                         <button className="w-full bg-blue-900 border-black border-2 border-r-4 border-b-4 hover:bg-blue-700 delay-150 duration-300 text-white py-2 rounded"
                             onClick={() => { handleLogin() }}>
                             Login
@@ -94,15 +156,9 @@ const AdminLogin = () => {
                                 Forgot Password?
                             </button>
                         </p>
-
                     </div>
-
                 </div>
             </div>
-
-
-
-
             <Transition
                 show={showForgotPassword}
                 enter="transition-opacity duration-500"
@@ -127,13 +183,21 @@ const AdminLogin = () => {
                             </div>
                         ) : (
                             <>
-                                <input
-                                    type="Email"
-                                    placeholder="Enter your Email"
-                                    value={Email}
-                                    onChange={(e) => setEmail(e.target.value)}
-                                    className="w-full mb-4 p-2 border rounded"
-                                />
+                                <div className="w-full mb-4">
+                                    <label htmlFor="reset-email" className="block text-sm font-medium mb-1">Email</label>
+                                    <input
+                                        id="reset-email"
+                                        type="email"
+                                        placeholder="Enter your Email"
+                                        value={Email}
+                                        onChange={(e) => setEmail(e.target.value)}
+                                        className="w-full p-2 border rounded"
+                                        aria-describedby="reset-email-validation"
+                                    />
+                                    {Email.length > 0 && Email.length < 5 && (
+                                        <p id="reset-email-validation" className="text-xs text-red-500 mt-1">Email must be at least 5 characters long.</p>
+                                    )}
+                                </div>
                                 <button
                                     onClick={handlePasswordReset}
                                     className="w-full bg-blue-500 text-white py-2 rounded usapp-border mb-2"
@@ -151,7 +215,6 @@ const AdminLogin = () => {
                     </div>
                 </div>
             </Transition>
-
             <Transition
                 show={loginLoading}
                 enter="transition-opacity duration-500"
