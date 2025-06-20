@@ -103,6 +103,7 @@ const AdminDashboard = () => {
                                     className="flex items-center p-2 rounded mb-2 text-red-600 hover:bg-red-100"
                                     onClick={() => {
                                         navigate(-1)
+                                        sessionStorage.removeItem('admintoken');
                                     }}
                                 >
                                     <Home size={22} className="mr-2" /> Logout

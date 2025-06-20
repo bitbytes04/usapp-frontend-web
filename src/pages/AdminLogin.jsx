@@ -2,6 +2,8 @@ import React from 'react'
 import { Transition } from '@headlessui/react'
 import logo from '../assets/logos/usapp_logo_medium.png'
 import { sendPasswordResetEmail, signInWithEmailAndPassword } from 'firebase/auth'
+import { FIREBASE_AUTH } from '../../firebaseConfig';
+
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import axios from 'axios'
@@ -10,6 +12,7 @@ import SLPSignUp from './SLPSignUp'
 
 
 const AdminLogin = () => {
+    const auth = FIREBASE_AUTH;
     const [Email, setEmail] = useState("");
     const [Password, setPassword] = useState("");
     const [showForgotPassword, setshowForgotPassword] = useState(false);
@@ -78,8 +81,40 @@ const AdminLogin = () => {
                 showError(errorMsg);
             }
         }
-        else if (UserType == 'slp') {
-
+        else if (UserType === 'slp') {
+            try {
+                setLoginLoading(true);
+                const res = await signInWithEmailAndPassword(auth, Email, Password);
+                if (res.user) {
+                    const user = res.user;
+                    // Get ID token result to check custom claims
+                    const idTokenResult = await user.getIdTokenResult();
+                    if (idTokenResult.claims && idTokenResult.claims.slp === true) {
+                        sessionStorage.setItem('slpId', user.uid);
+                        showError("Login successful");
+                        navigate('/slp/dashboard');
+                    } else {
+                        setLoginLoading(false);
+                        showError("You are not authorized as an SLP.");
+                    }
+                }
+            } catch (error) {
+                setLoginLoading(false);
+                const errorMsg = error instanceof Error ? error.message : "Failed to login.";
+                if (typeof error === 'object' && error !== null && 'code' in error) {
+                    if (error.code === 'auth/user-not-found') {
+                        showError("No user found with this email.");
+                    } else if (error.code === 'auth/wrong-password') {
+                        showError("Wrong Password.");
+                    } else if (error.code === 'auth/invalid-email') {
+                        showError("Invalid Email.");
+                    } else {
+                        showError(errorMsg);
+                    }
+                } else {
+                    showError(errorMsg);
+                }
+            }
         }
         else {
             return;

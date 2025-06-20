@@ -8,12 +8,15 @@ import EditBoard from './pages/EditBoard'
 import Landing from './pages/Landing'
 import AdminLogin from './pages/AdminLogin'
 import AdminDashboard from './pages/AdminPages/AdminDashboard'
+import SLPDashboard from './pages/SLPPages/SLPDashboard'
+
 const App = () => {
     return (
         <BrowserRouter>
             <Routes>
                 <Route path='/' element={<Landing />} />
                 <Route path='/slp/login' element={<AdminLogin />} />
+                <Route path='/slp/dashboard' element={<SLPDashboard />} />
                 <Route path='/admin/dashboard' element={<AdminDashboard />} />
                 <Route path="/login" element={<Login />} />
                 <Route path="/dashboard" element={<UserDashboard />} />

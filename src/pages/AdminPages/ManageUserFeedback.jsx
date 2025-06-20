@@ -31,7 +31,7 @@ const ManageUserFeedback = () => {
         setSummarizing(true);
         setError('');
         try {
-            const res = await axios.get('https://usapp-backend.vercel.app/api/admin/summarize-feedback');
+            const res = await axios.post('https://usapp-backend.vercel.app/api/admin/summarize-feedback');
             setSummary(res.data.summary || '');
         } catch (err) {
             setError('Failed to summarize feedback.');

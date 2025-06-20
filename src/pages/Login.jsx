@@ -7,7 +7,7 @@ import { FIREBASE_AUTH } from '../../firebaseConfig';
 import { signInWithEmailAndPassword, sendPasswordResetEmail } from 'firebase/auth';
 
 import SignIn from '../components/SignIn';
-import { getFirestore, doc, getDoc } from 'firebase/firestore';
+
 
 const Login = () => {
     const auth = FIREBASE_AUTH;

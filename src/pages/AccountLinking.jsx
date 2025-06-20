@@ -31,7 +31,7 @@ const AccountLinking = ({ uid }) => {
         setError("");
         try {
             await axios.post(
-                `${API_BASE}/link-requests/${uid}/approve/${requestId}/${slpId}`
+                `${API_BASE}/${sessionStorage.getItem('userId')}/linkrequests/${requestId}/approve/${slpId}`
             );
             setRequests((prev) =>
                 prev.map((req) =>
@@ -45,36 +45,52 @@ const AccountLinking = ({ uid }) => {
     };
 
     return (
-        <div className="w-full mx-auto p-6">
-
-            <div className="bg-[#cb833d] flex items-center mb-6 p-2">
-                <h1 className="text-3xl font-bold text-white mx-auto">Account Linking</h1>
+        <div className="w-full mx-auto p-4 sm:p-6">
+            <div className="bg-[#cb833d] flex items-center mb-6 p-2 rounded sm:rounded-lg">
+                <h1 className="text-2xl sm:text-3xl font-bold text-white mx-auto text-center">Account Linking</h1>
             </div>
             {error && (
-                <div className="bg-red-100 text-red-700 px-4 py-2 rounded mb-4">
+                <div className="bg-red-100 text-red-700 px-4 py-2 rounded mb-4 text-sm sm:text-base">
                     {error}
                 </div>
             )}
             {loading ? (
-                <div className="text-gray-500">Loading...</div>
+                <div className="text-gray-500 text-center">Loading...</div>
             ) : requests.length === 0 ? (
-                <div className="text-gray-500">No link requests found.</div>
+                <div className="text-gray-500 text-center">No link requests found.</div>
             ) : (
                 <ul className="space-y-4">
                     {requests.map((req) => (
                         <li
                             key={req.id}
-                            className="bg-white shadow rounded p-4 flex items-center justify-between"
+                            className="bg-white shadow rounded p-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4"
                         >
-                            <div>
-                                <div className="font-semibold">SPEECH PATHOLOGIST: {req.fromDisplayName}</div>
-                                <div className="text-sm text-gray-500">
-                                    Status:{" "}
+                            <div className="w-full">
+                                <div className="mb-2">
+                                    <span className="uppercase text-xs font-bold text-gray-500 tracking-wider mr-2">
+                                        Speech Pathologist:
+                                    </span>
+                                    <span className="text-base sm:text-lg font-semibold text-gray-900 break-words">
+                                        {req.fromDisplayName}
+                                    </span>
+                                </div>
+                                <div className="mb-2">
+                                    <span className="uppercase text-xs font-bold text-gray-500 tracking-wider mr-2">
+                                        Clinic:
+                                    </span>
+                                    <span className="inline-block bg-blue-800 text-white px-3 py-1 rounded-full font-medium shadow text-xs sm:text-base">
+                                        {req.fromClinicName}
+                                    </span>
+                                </div>
+                                <div className="text-sm">
+                                    <span className="uppercase text-xs font-bold text-gray-500 tracking-wider mr-2">
+                                        Status:
+                                    </span>
                                     <span
                                         className={
                                             req.status === "approved"
-                                                ? "text-green-600"
-                                                : "text-yellow-600"
+                                                ? "text-green-600 font-bold"
+                                                : "text-yellow-600 font-bold"
                                         }
                                     >
                                         {req.status}
@@ -83,7 +99,7 @@ const AccountLinking = ({ uid }) => {
                             </div>
                             {req.status !== "approved" && (
                                 <button
-                                    className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 disabled:opacity-50"
+                                    className="w-full sm:w-auto bg-blue-600 text-white px-4 py-2 rounded-lg font-semibold shadow hover:bg-blue-700 transition disabled:opacity-50 text-sm sm:text-base"
                                     onClick={() => approveRequest(req.id, req.fromUserId)}
                                     disabled={approving[req.id]}
                                 >
