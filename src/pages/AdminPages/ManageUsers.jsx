@@ -30,9 +30,10 @@ const ManageUsers = () => {
 
     // Filtered users based on search and filterType
     const filteredAllUsers = allUsers.filter(user =>
-    (user.email?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        user.displayName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        user.uid?.toLowerCase().includes(searchTerm.toLowerCase()))
+        (user.email?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            user.displayName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            user.uid?.toLowerCase().includes(searchTerm.toLowerCase())) ||
+        user.role?.toLowerCase().includes(searchTerm.toLowerCase())
     );
     const filteredSlpUsers = slpUsers.filter(user =>
     (user.email?.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -41,9 +42,60 @@ const ManageUsers = () => {
         user.uid?.toLowerCase().includes(searchTerm.toLowerCase()))
     );
 
+    // Pagination state
+    const [currentPage, setCurrentPage] = useState(1);
+    const usersPerPage = 10;
+
+    // Get current users for pagination
+    const getCurrentUsers = (users) => {
+        const indexOfLastUser = currentPage * usersPerPage;
+        const indexOfFirstUser = indexOfLastUser - usersPerPage;
+        return users.slice(indexOfFirstUser, indexOfLastUser);
+    };
+
+    // Reset to first page when filter/search changes
+    useEffect(() => {
+        setCurrentPage(1);
+    }, [searchTerm, filterType]);
+
+    // Pagination controls
+    const getPageCount = (users) => Math.ceil(users.length / usersPerPage);
+
+    const renderPagination = (users) => {
+        const pageCount = getPageCount(users);
+        if (pageCount <= 1) return null;
+        return (
+            <div className="flex justify-center mt-4 gap-2">
+                <button
+                    className="px-3 py-1 rounded bg-gray-200"
+                    onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
+                    disabled={currentPage === 1}
+                >
+                    Prev
+                </button>
+                {Array.from({ length: pageCount }, (_, i) => (
+                    <button
+                        key={i + 1}
+                        className={`px-3 py-1 rounded ${currentPage === i + 1 ? 'bg-blue-600 text-white' : 'bg-gray-200'}`}
+                        onClick={() => setCurrentPage(i + 1)}
+                    >
+                        {i + 1}
+                    </button>
+                ))}
+                <button
+                    className="px-3 py-1 rounded bg-gray-200"
+                    onClick={() => setCurrentPage((p) => Math.min(pageCount, p + 1))}
+                    disabled={currentPage === pageCount}
+                >
+                    Next
+                </button>
+            </div>
+        );
+    };
+
     return (
         <div className="max-w-6xl mx-auto p-6">
-            <h1 className="text-3xl font-bold mb-6">Manage Users</h1>
+            <h1 className="text-3xl font-bold mb-6">Monitor Users</h1>
             <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-6">
                 <input
                     type="text"
@@ -88,15 +140,16 @@ const ManageUsers = () => {
                                             <th className="py-2 px-4 text-left">Email</th>
                                             <th className="py-2 px-4 text-left">Display Name</th>
                                             <th className="py-2 px-4 text-left">Role</th>
+                                            <th className="py-2 px-4 text-left"></th>
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        {filteredAllUsers.length === 0 ? (
+                                        {getCurrentUsers(filteredAllUsers).length === 0 ? (
                                             <tr>
-                                                <td colSpan={4} className="py-4 text-center text-gray-500">No users found.</td>
+                                                <td colSpan={5} className="py-4 text-center text-gray-500">No users found.</td>
                                             </tr>
                                         ) : (
-                                            filteredAllUsers.map(user => (
+                                            getCurrentUsers(filteredAllUsers).map(user => (
                                                 <tr key={user.uid} className="border-b hover:bg-blue-50">
                                                     <td className="py-2 px-4">{user.uid}</td>
                                                     <td className="py-2 px-4">{user.email}</td>
@@ -104,12 +157,18 @@ const ManageUsers = () => {
                                                     <td className="py-2 px-4">
                                                         {user.role}
                                                     </td>
+                                                    <td className="py-2 px-4">
+                                                        <button>
+                                                            disable
+                                                        </button>
+                                                    </td>
                                                 </tr>
                                             ))
                                         )}
                                     </tbody>
                                 </table>
                             </div>
+                            {renderPagination(filteredAllUsers)}
                         </div>
                     ) : (
                         <div>
@@ -124,12 +183,12 @@ const ManageUsers = () => {
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        {filteredSlpUsers.length === 0 ? (
+                                        {getCurrentUsers(filteredSlpUsers).length === 0 ? (
                                             <tr>
                                                 <td colSpan={3} className="py-4 text-center text-gray-500">No SLP users found.</td>
                                             </tr>
                                         ) : (
-                                            filteredSlpUsers.map(user => (
+                                            getCurrentUsers(filteredSlpUsers).map(user => (
                                                 <tr key={user.uid} className="border-b hover:bg-blue-50">
                                                     <td className="py-2 px-4">{user.uid}</td>
                                                     <td className="py-2 px-4">{user.name || user.displayName || '-'}</td>
@@ -140,6 +199,7 @@ const ManageUsers = () => {
                                     </tbody>
                                 </table>
                             </div>
+                            {renderPagination(filteredSlpUsers)}
                         </div>
                     )}
                 </>

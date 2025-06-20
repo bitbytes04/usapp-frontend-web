@@ -12,7 +12,14 @@ export default function CreateBoard() {
     const [testButtons, setTestButtons] = useState([]);
     const [UserData, setUserData] = useState();
     const [submitting, setSubmitting] = useState(false);
+    const [showErrorMessage, setshowErrorMessage] = useState(false);
+    const [ErrorText, setErrorText] = useState("");
 
+
+    const showError = (message) => {
+        setErrorText(message);
+        setshowErrorMessage(true);
+    };
 
     useEffect(() => {
         const fetchButtonsAndUserData = async () => {
@@ -29,7 +36,7 @@ export default function CreateBoard() {
                 ]);
                 setUserData({ ...userDataRes.data, userId: userDataRes.data.userId });
             } catch (error) {
-                window.alert(error.message);
+                showError('Failed to load buttons or user data.');
             } finally {
                 setLoading(false);
             }
@@ -43,7 +50,7 @@ export default function CreateBoard() {
 
     const handleSubmit = async () => {
         if (!boardName || !boardCategory || selectedButtons.length === 0) {
-            window.alert('Incomplete', 'Please complete all fields and select at least one button.');
+            showError('Please fill in all required fields and select at least one button.');
             return;
         }
 
@@ -55,9 +62,10 @@ export default function CreateBoard() {
                 boardName,
                 isFavorite: false,
                 buttonIds,
+                boardCategory
             });
 
-            console.log(response.data);
+            console.log(response);
             window.alert('Success', 'Board created successfully!');
             setBoardName('');
             setBoardCategory('');
@@ -65,6 +73,7 @@ export default function CreateBoard() {
 
 
         } catch (error) {
+            console.error('Error creating board:', error);
             window.alert(error.message);
         } finally {
             setSubmitting(false);
@@ -95,6 +104,31 @@ export default function CreateBoard() {
 
     return (
         <div className="min-h-screen w-full p-6 flex flex-col">
+            <Transition
+                show={showErrorMessage && !!ErrorText}
+                enter="transition-opacity duration-500"
+                enterFrom="opacity-0"
+                enterTo="opacity-100"
+                leave="transition-opacity duration-500"
+                leaveFrom="opacity-100"
+                leaveTo="opacity-0"
+            >
+                <div className="fixed inset-0 flex justify-center items-center backdrop-blur-md backdrop-brightness-50 animate-fade-in z-50">
+                    <div className="bg-white p-6 rounded-lg flex flex-col justify-center items-center shadow-lg w-80">
+                        <h2 className="text-xl font-bold mb-4 text-[#feaf61]">Error</h2>
+                        <p className="mb-6 text-center text-gray-700">{ErrorText}</p>
+                        <button
+                            onClick={() => {
+                                setshowErrorMessage(false);
+                                setErrorText('');
+                            }}
+                            className="w-full bg-[#5c7c93] text-white py-2 rounded"
+                        >
+                            Close
+                        </button>
+                    </div>
+                </div>
+            </Transition>
             <Transition
                 show={submitting}
                 enter="transition-opacity duration-300"

@@ -16,34 +16,15 @@ const initialFormData = {
     boardPreference: 0,
     preferredVoice: 0,
     preferredPitch: 0,
+    preferredSpeed: 0,
+    emotionToggle: 'off',
 };
 
 const voiceOptions = ['Male', 'Female', 'Child'];
 const pitchOptions = ['Low', 'Medium', 'High'];
+const speedOptions = ['Slow', 'Moderate', 'Fast'];
 
-const getVoiceValue = (pref) => {
-    if (pref === 'male') {
-        return 0;
-    }
-    else if (pref === 'female') {
-        return 1;
-    }
-    else if (pref === 'child') {
-        return 2;
-    }
-}
 
-const getPitchValue = (pref) => {
-    if (pref === 'low') {
-        return 0;
-    }
-    else if (pref === 'medium') {
-        return 1;
-    }
-    else if (pref === 'high') {
-        return 2;
-    }
-}
 
 const AccountSettings = () => {
     const [isEditing, setIsEditing] = useState(false);
@@ -68,6 +49,8 @@ const AccountSettings = () => {
                     boardPreference: data.boardPreference,
                     preferredVoice: parseInt(data.preferredVoice),
                     preferredPitch: parseInt(data.preferredPitch),
+                    preferredSpeed: parseInt(data.preferredSpeed),
+                    emotionToggle: data.emotionToggle || 'off',
                 });
             } catch (error) {
                 alert(error.message)
@@ -92,6 +75,10 @@ const AccountSettings = () => {
         setFormData({ ...formData, preferredPitch: idx });
     };
 
+    const handleSpeedSliderChange = (e) => {
+        const idx = parseInt(e.target.value, 10);
+        setFormData({ ...formData, preferredSpeed: idx });
+    };
     const toggleEdit = () => {
         setIsEditing(!isEditing);
     };
@@ -135,7 +122,7 @@ const AccountSettings = () => {
                 </div>
             </Transition>
             <div className=" bg-blue-900 flex w-full items-center mb-6 p-2">
-                <h1 className="text-3xl font-bold text-white mx-auto">Create New Board { }</h1>
+                <h1 className="text-3xl font-bold text-white mx-auto">ACCOUNT SETTINGS</h1>
             </div>
             <form
                 onSubmit={handleSubmit}
@@ -250,6 +237,38 @@ const AccountSettings = () => {
                     </select>
                 </div>
                 <div className="mb-4">
+                    <label className="block text-lg font-medium mb-2">Emotion Toggle</label>
+                    <select
+                        name="emotionToggle"
+                        value={formData.emotionToggle || "off"}
+                        onChange={handleInputChange}
+                        disabled={!isEditing}
+                        className="w-full p-2 border rounded-lg"
+                    >
+                        <option value="on">On</option>
+                        <option value="off">Off</option>
+                    </select>
+                </div>
+                <div className="mb-4">
+                    <label className="block text-lg font-medium mb-2">Preferred Speed</label>
+                    <div className="flex items-center gap-4">
+                        <input
+                            type="range"
+                            min="0"
+                            max="2"
+                            step="1"
+                            name="preferredSpeed"
+                            value={formData.preferredSpeed}
+                            onChange={handleSpeedSliderChange}
+                            disabled={!isEditing}
+                            className="w-full"
+                        />
+                        <span className="ml-2">
+                            {speedOptions[formData.preferredSpeed]}
+                        </span>
+                    </div>
+                </div>
+                <div className="mb-4">
                     <label className="block text-lg font-medium mb-2">Preferred Voice</label>
                     <div className="flex items-center gap-4">
                         <input
@@ -281,6 +300,7 @@ const AccountSettings = () => {
                         <span className="ml-2">{pitchOptions[formData.preferredPitch]}</span>
                     </div>
                 </div>
+
                 <div className="flex justify-between items-center">
                     <button
                         type="button"

@@ -130,12 +130,12 @@ export default function CreateWord() {
             </Transition>
 
             <div className="bg-[#305a7a] flex items-center mb-6 p-2">
-                <h1 className="text-3xl font-bold text-white mx-auto">Create New Word</h1>
+                <h1 className="text-3xl font-bold text-white mx-auto">Create New Button</h1>
             </div>
 
             <div className="bg-white p-6 rounded-lg shadow-md flex flex-col gap-4">
                 <div className="flex flex-col">
-                    <label className="text-gray-700 font-semibold mb-1">Word Name</label>
+                    <label className="text-gray-700 font-semibold mb-1">Button Name<span className='text-red-500'>*</span></label>
                     <input
                         type="text"
                         value={wordName}
@@ -146,18 +146,28 @@ export default function CreateWord() {
                 </div>
 
                 <div className="flex flex-col">
-                    <label className="text-gray-700 font-semibold mb-1">Word Category</label>
+                    <label className="text-gray-700 font-semibold mb-1">Button Category<span className='text-red-500'>*</span></label>
                     <select
                         value={wordCategory}
                         onChange={(e) => setWordCategory(e.target.value)}
                         className="border rounded-lg p-2"
                     >
-                        <option value="">Select category</option>
+
                         <option value="People">People</option>
                         <option value="Actions">Actions</option>
                         <option value="Feelings">Feelings</option>
                         <option value="Things">Things</option>
                         <option value="Places">Places</option>
+                        <option value="Nouns">Nouns</option>
+                        <option value="Pronouns">Pronouns</option>
+                        <option value="Verbs">Verbs</option>
+                        <option value="Adjectives">Adjectives</option>
+                        <option value="Prepositions & Social Words">Prepositions & Social Words</option>
+                        <option value="Questions">Questions</option>
+                        <option value="Negation & Important Words">Negation & Important Words</option>
+                        <option value="Adverbs">Adverbs</option>
+                        <option value="Conjunctions">Conjunctions</option>
+                        <option value="Determiners">Determiners</option>
                     </select>
                 </div>
 

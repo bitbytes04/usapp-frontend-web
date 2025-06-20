@@ -4,13 +4,15 @@ import '../App.css'
 import Sidebar, { SidebarItem } from '../components/Sidebar'
 import header from '../assets/backgrounds/header_background_img.png'
 import logo from '../assets/logos/usapp_logo_medium.png'
-import { Home, User, LibraryBig, UserCog, ChartNoAxesCombined, SquarePlus } from 'lucide-react'
+import { Home, User, LibraryBig, UserCog, ChartNoAxesCombined, SquarePlus, Users, MessageSquarePlus } from 'lucide-react'
 
 import MyBoards from './MyBoards'
 import CreateBoard from './CreateBoard'
 import AccountSettings from './Account'
 import CreateWord from './CreateWord'
 import { useNavigate } from 'react-router-dom'
+import AccountLinking from './AccountLinking'
+import UserFeedback from './UserFeedback'
 function UserDashboard() {
   const navigate = useNavigate();
   const [activeItem, setActiveItem] = useState("My Boards");
@@ -39,7 +41,7 @@ function UserDashboard() {
               onClick={() => handleSidebarItemClick("Create Board")} />
             <SidebarItem
               icon={<ChartNoAxesCombined />}
-              text="Create Word Button"
+              text="Create Button"
               active={activeItem === "Create Word"}
               onClick={() => handleSidebarItemClick("Create Word")} />
             <SidebarItem
@@ -48,6 +50,22 @@ function UserDashboard() {
               active={activeItem === "Account"}
               onClick={() => handleSidebarItemClick("Account")}
             />
+            <SidebarItem
+              icon={<Users />}
+              text="Account Linking"
+              active={activeItem === "Account Linking"}
+              onClick={() => handleSidebarItemClick("Account Linking")}
+            />
+            <div className='flex-grow'>
+
+            </div>
+
+            <SidebarItem
+              icon={<MessageSquarePlus />}
+              text="User Feedback"
+              active={activeItem === "User Feedback"}
+              onClick={() => handleSidebarItemClick("User Feedback")}
+            />
           </Sidebar>
         </div>
         <div className='flex-grow flex-1 bg-[#fff6eb] overflow-y-auto'>
@@ -55,6 +73,8 @@ function UserDashboard() {
           {activeItem === "Create Board" && <CreateBoard />}
           {activeItem === "Account" && <AccountSettings />}
           {activeItem === "Create Word" && <CreateWord />}
+          {activeItem === "Account Linking" && <AccountLinking />}
+          {activeItem === "User Feedback" && <UserFeedback />}
         </div>
       </div>
       {/* Mobile popup menu */}
@@ -101,7 +121,7 @@ function UserDashboard() {
               className={`flex items-center p-2 rounded mb-2 ${activeItem === "Create Word" ? "bg-[#ffe0b2]" : ""}`}
               onClick={() => { setActiveItem("Create Word"); setMenuOpen(false); }}
             >
-              <ChartNoAxesCombined size={22} className="mr-2" /> Create Word
+              <ChartNoAxesCombined size={22} className="mr-2" /> Create Button
             </button>
             <button
               className={`flex items-center p-2 rounded mb-2 ${activeItem === "Account" ? "bg-[#ffe0b2]" : ""}`}
@@ -111,12 +131,25 @@ function UserDashboard() {
             </button>
             <button
               className="flex items-center p-2 rounded mb-2 text-red-600 hover:bg-red-100"
+              onClick={() => { setActiveItem("Account Linking"); setMenuOpen(false); }}
+            >
+              <Users size={22} className="mr-2" /> Account Linking
+            </button>
+            <button
+              className="flex items-center p-2 rounded mb-2 text-red-600 hover:bg-red-100"
+              onClick={() => { setActiveItem("User Feedback"); setMenuOpen(false); }}
+            >
+              <Users size={22} className="mr-2" /> User Feedback
+            </button>
+            <button
+              className="flex items-center p-2 rounded mb-2 text-red-600 hover:bg-red-100"
               onClick={() => {
                 navigate(-1)
               }}
             >
               <Home size={22} className="mr-2" /> Logout
             </button>
+
           </div>
         </div>
         <div className="md:hidden transition-transform duration-500 ease-in-out">
@@ -124,6 +157,8 @@ function UserDashboard() {
           {activeItem === "Create Board" && <CreateBoard />}
           {activeItem === "Account" && <AccountSettings />}
           {activeItem === "Create Word" && <CreateWord />}
+          {activeItem === "Account Linking" && <AccountLinking />}
+          {activeItem === "User Feedback" && <UserFeedback />}
         </div>
       </div>
     </>

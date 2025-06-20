@@ -14,12 +14,33 @@ const MyBoards = () => {
     const [UserBoards, setUserBoards] = useState();
     const [searchTerm, setSearchTerm] = useState('');
     const [DisplayName, setDisplayName] = useState();
+    const [Category, setCategory] = useState();
     const navigate = useNavigate();
 
+    const getCategoryColor = (category) => {
+        switch (category) {
+            case 'Paaralan': return '#FACC15'; // yellow-400
+            case 'Bahay': return '#EF4444'; // red-500
+            case 'Pagkain': return '#22C55E'; // green-500
+            case 'Kalusugan': return '#3B82F6'; // blue-500
+            case 'Pamilya': return '#8B5CF6'; // purple-500
+            case 'Pang-araw-araw na Gawain': return '#FB923C'; // orange-400
+            case 'Sarili': return '#A3E635'; // lime-400
+            case 'Laro at Libangan': return '#F472B6'; // pink-400
+            case 'Panahon at Kalikasan': return '#38BDF8'; // sky-400
+            default: return '#D1D5DB'; // gray-300
+        }
+    };
+
+
     const filteredBoards = UserBoards
-        ? UserBoards.filter(board =>
-            board.boardName.toLowerCase().includes(searchTerm.toLowerCase())
-        )
+        ? UserBoards.filter(board => {
+            const matchesSearch = board.boardName.toLowerCase().includes(searchTerm.toLowerCase());
+            if (!Category || Category === "") {
+                return matchesSearch;
+            }
+            return matchesSearch && board.boardCategory === Category;
+        })
         : [];
 
     const fetchDefaultButtons = async () => {
@@ -101,8 +122,8 @@ const MyBoards = () => {
                         className="w-full px-4 py-2 sm:px-5 sm:py-3 border border-gray-200 rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-400 text-base sm:text-lg bg-white"
                     />
                     <select
-                        value={DisplayName || ''}
-                        onChange={e => setDisplayName(e.target.value)}
+                        value={Category || ''}
+                        onChange={e => setCategory(e.target.value)}
                         className="sm:ml-4 px-4 py-2 sm:py-3 border border-gray-200 rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-400 text-base sm:text-lg bg-white mt-2 sm:mt-0"
                     >
                         <option value="">All Boards</option>
@@ -127,7 +148,7 @@ const MyBoards = () => {
                         </div>
                     </div>
                 )}
-                <div className="w-full grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-4">
+                <div className="w-full max-h-[80dvh] overflow-y-auto grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-4">
                     {Loading ? (
                         <div className="col-span-full w-full flex justify-center items-center py-12 sm:py-16">
                             <svg className="animate-spin h-8 w-8 text-blue-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
@@ -141,6 +162,7 @@ const MyBoards = () => {
                                 <div key={index} className="relative group">
                                     <button
                                         onClick={e => {
+                                            console.log(getCategoryColor(board.boardCategory));
                                             const rect = e.currentTarget.getBoundingClientRect();
                                             setSelectedBoard({
                                                 ...board,
@@ -150,15 +172,16 @@ const MyBoards = () => {
                                                 }
                                             });
                                             setShowPopup(true);
+
                                         }}
-                                        className=" bg-white rounded-2xl shadow-lg flex flex-col items-center justify-center border border-blue-100 hover:shadow-2xl transition group"
+                                        style={{ backgroundColor: getCategoryColor(board.boardCategory) }}
+                                        className="rounded p-2 shadow-lg flex gap-2 flex-col items-center justify-center h-40 border w-45 hover:shadow-2xl transition group"
                                     >
-                                        <div className="flex items-center justify-center w-12 h-12 sm:w-16 sm:h-16 rounded-full bg-blue-100 mb-2 sm:mb-3">
-                                            <svg className="w-6 h-6 sm:w-8 sm:h-8 text-blue-500" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-                                                <rect x="4" y="4" width="16" height="16" rx="4" />
-                                            </svg>
+                                        <div className='flex-grow bg-white rounded w-full'>
+
                                         </div>
-                                        <div className="text-blue-900 font-semibold text-base sm:text-lg text-center truncate w-full px-2">
+
+                                        <div className="text-blue-900 bg-white font-semibold rounded text-base sm:text-lg text-center truncate w-full px-2">
                                             {board.boardName}
                                         </div>
                                     </button>

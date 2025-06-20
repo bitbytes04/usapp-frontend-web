@@ -5,7 +5,9 @@ import { Transition } from '@headlessui/react';
 import { useNavigate } from 'react-router-dom';
 import { FIREBASE_AUTH } from '../../firebaseConfig';
 import { signInWithEmailAndPassword, sendPasswordResetEmail } from 'firebase/auth';
+
 import SignIn from '../components/SignIn';
+import { getFirestore, doc, getDoc } from 'firebase/firestore';
 
 const Login = () => {
     const auth = FIREBASE_AUTH;
@@ -17,6 +19,9 @@ const Login = () => {
     const [ErrorMessage, setErrorMessage] = useState();
     const [LoadingReset, setLoadingReset] = useState(false);
     const [showTerms, setshowTerms] = useState(false);
+    const [showErrorMessage, setshowErrorMessage] = useState(false);
+    const [ErrorText, setErrorText] = useState("");
+
     const navigate = useNavigate();
 
     const toggleView = () => {
@@ -27,9 +32,14 @@ const Login = () => {
         setShowForgotPassword(!showForgotPassword);
     };
 
+    const showError = (text) => {
+        setErrorText(text);
+        setshowErrorMessage(true);
+    }
+
     const handleLogin = async () => {
         if (email.length < 5 || password.length < 5) {
-            window.alert("Email and password must be at least 5 characters long.");
+            showError("Email and password must be at least 5 characters long.");
             return;
         }
 
@@ -38,41 +48,45 @@ const Login = () => {
         try {
             const userCredential = await signInWithEmailAndPassword(auth, email, password);
             const uid = userCredential.user.uid;
+
+
+
+
+
             sessionStorage.setItem('userId', uid);
             navigate('/dashboard');
         } catch (error) {
             const errorMsg = error instanceof Error ? error.message : "Login failed.";
             if (typeof error === 'object' && error !== null && 'code' in error) {
                 if (error.code === 'auth/user-not-found') {
-                    window.alert("No user found with this email.");
+                    showError("No user found with this email.");
                 } else if (error.code === 'auth/wrong-password') {
-                    window.alert("Wrong Password.");
+                    showError("Wrong Password.");
                 } else if (error.code === 'auth/invalid-email') {
-                    window.alert("Invalid Email.");
+                    showError("Invalid Email.");
                 } else {
-                    window.alert(errorMsg);
+                    showError(errorMsg);
                 }
             } else {
-                window.alert("Login Error", errorMsg);
+                showError(errorMsg);
             }
         } finally {
             setloginLoading(false);
         }
     };
     const handlePasswordReset = async () => {
-        if (email.length < 5 || password.length < 5) {
-            window.alert("Email and password must be at least 5 characters long.");
+        if (email.length < 5) {
+            showError("Email must be at least 5 characters long.");
             return;
         }
         setLoadingReset(true);
         await sendPasswordResetEmail(auth, email)
             .then(() => {
-                window.alert("Success", "Password reset email sent successfully.");
+                showError("Password reset email sent successfully.");
             })
             .catch((error) => {
                 setLoadingReset(false);
-                const errorMsg = error instanceof Error ? error.message : "Failed to send password reset email.";
-                window.alert("Error sending forgot password email, Please make sure your email is correct");
+                showError("Error sending forgot password email. Please make sure your email is correct.");
             })
             .finally(() => {
                 setLoadingReset(false);
@@ -101,22 +115,47 @@ const Login = () => {
                             {/* Login Form */}
                             <div className="w-full h-full flex flex-col justify-start gap-5 items-center p-6">
                                 <h2 className="text-4xl font-bold mb-4">Login</h2>
-                                <input
-                                    type="email"
-                                    placeholder="Email"
-                                    className="w-full mb-4 p-2 border rounded"
-                                    onChange={(e) => setEmail(e.target.value)}
-                                    value={email}
-                                />
-                                <input
-                                    type="password"
-                                    placeholder="Password"
-                                    className="w-full mb-4 p-2 border rounded"
-                                    value={password}
-                                    onChange={(e) => setPassword(e.target.value)}
-                                />
-                                <button className="w-full bg-blue-900 border-black border-2 border-r-4 border-b-4 hover:bg-blue-700 delay-150 duration-300 text-white py-2 rounded"
-                                    onClick={() => { handleLogin() }}>
+                                <div className="w-full mb-2">
+                                    <label className="block text-sm font-medium mb-1" htmlFor="login-email">
+                                        Email <span className="text-red-500">*</span>
+                                    </label>
+                                    <input
+                                        id="login-email"
+                                        type="email"
+                                        placeholder="Email"
+                                        className={`w-full p-2 border rounded ${email && email.length < 5 ? 'border-red-500' : ''}`}
+                                        onChange={(e) => setEmail(e.target.value)}
+                                        value={email}
+                                        required
+                                        aria-invalid={email && email.length < 5}
+                                    />
+                                    {email && email.length < 5 && (
+                                        <span className="text-xs text-red-500">Email must be at least 5 characters.</span>
+                                    )}
+                                </div>
+                                <div className="w-full mb-2">
+                                    <label className="block text-sm font-medium mb-1" htmlFor="login-password">
+                                        Password <span className="text-red-500">*</span>
+                                    </label>
+                                    <input
+                                        id="login-password"
+                                        type="password"
+                                        placeholder="Password"
+                                        className={`w-full p-2 border rounded ${password && password.length < 5 ? 'border-red-500' : ''}`}
+                                        value={password}
+                                        onChange={(e) => setPassword(e.target.value)}
+                                        required
+                                        aria-invalid={password && password.length < 5}
+                                    />
+                                    {password && password.length < 5 && (
+                                        <span className="text-xs text-red-500">Password must be at least 5 characters.</span>
+                                    )}
+                                </div>
+                                <button
+                                    className="w-full bg-[#3d6887] border-black border-2 border-r-4 border-b-4 hover:bg-blue-700 delay-150 duration-300 text-white py-2 rounded"
+                                    onClick={handleLogin}
+                                    disabled={email.length < 5 || password.length < 5}
+                                >
                                     Login
                                 </button>
                                 <p className="mt-4 text-sm">
@@ -145,11 +184,36 @@ const Login = () => {
                             {/* Sign Up Form */}
                             <SignIn toggleView={toggleView} showTerms={showTerms} setShowTerms={setshowTerms} />
                         </div>
+
                     </div>
                 </div>
 
 
-
+                <Transition
+                    show={showErrorMessage && !!ErrorText}
+                    enter="transition-opacity duration-500"
+                    enterFrom="opacity-0"
+                    enterTo="opacity-100"
+                    leave="transition-opacity duration-500"
+                    leaveFrom="opacity-100"
+                    leaveTo="opacity-0"
+                >
+                    <div className="fixed inset-0 flex justify-center items-center backdrop-blur-md backdrop-brightness-50 animate-fade-in z-50">
+                        <div className="bg-white p-6 rounded-lg flex flex-col justify-center items-center shadow-lg w-80">
+                            <h2 className="text-xl font-bold mb-4 text-[#feaf61]">Error</h2>
+                            <p className="mb-6 text-center text-gray-700">{ErrorText}</p>
+                            <button
+                                onClick={() => {
+                                    setshowErrorMessage(false);
+                                    setErrorText('');
+                                }}
+                                className="w-full bg-[#5c7c93] text-white py-2 rounded"
+                            >
+                                Close
+                            </button>
+                        </div>
+                    </div>
+                </Transition>
 
                 <Transition
                     show={showForgotPassword}

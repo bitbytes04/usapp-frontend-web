@@ -137,39 +137,75 @@ function SignupForm(props) {
                 return (
                     <>
                         <h2 className="text-2xl font-bold mb-4">User Type Information</h2>
+                        <label className="block mb-1 font-medium">
+                            User Type <span className="text-red-600">*</span>
+                        </label>
                         <select
                             className="w-full mb-4 p-2 border rounded"
                             value={userType}
                             onChange={(e) => setUserType(e.target.value)}
                         >
-
+                            <option value="" disabled>Select user type</option>
                             {userTypeOptions.map(opt => (
                                 <option key={opt.value} value={opt.value}>{opt.label}</option>
                             ))}
                         </select>
+                        {userType === "" && (
+                            <p className="text-red-600 text-xs mb-2">User type is required.</p>
+                        )}
+
+                        <label className="block mb-1 font-medium">
+                            Age <span className="text-red-600">*</span>
+                        </label>
                         <input
                             type="number"
                             placeholder="Age"
-                            className="w-full mb-4 p-2 border rounded"
+                            className="w-full mb-1 p-2 border rounded"
                             value={age}
                             onChange={(e) => setAge(e.target.value)}
+                            min={0}
                         />
+                        {age !== "" && (isNaN(Number(age)) || Number(age) < 0) && (
+                            <p className="text-red-600 text-xs mb-2">Please enter a valid age.</p>
+                        )}
+                        {age !== "" && Number(age) < 13 && (
+                            <p className="text-red-600 text-xs mb-2">You must be at least 13 years old to sign up.</p>
+                        )}
+                        {userType === "Guardian" && age !== "" && Number(age) < 18 && (
+                            <p className="text-red-600 text-xs mb-2">Guardian must be at least 18 years old.</p>
+                        )}
                         {userType === 'Guardian' && (
                             <>
+                                <label className="block mb-1 font-medium">
+                                    End-User's Name <span className="text-red-600">*</span>
+                                </label>
                                 <input
                                     type="text"
                                     placeholder="End-User's Name"
-                                    className="w-full mb-4 p-2 border rounded"
+                                    className="w-full mb-1 p-2 border rounded"
                                     value={endName}
                                     onChange={(e) => setEndName(e.target.value)}
                                 />
+                                {endName !== "" && endName.length < 5 && (
+                                    <p className="text-red-600 text-xs mb-2">Name must be at least 5 characters.</p>
+                                )}
+                                <label className="block mb-1 font-medium">
+                                    End-User's Age <span className="text-red-600">*</span>
+                                </label>
                                 <input
                                     type="number"
                                     placeholder="End-User's Age"
-                                    className="w-full mb-4 p-2 border rounded"
+                                    className="w-full mb-1 p-2 border rounded"
                                     value={endAge}
                                     onChange={(e) => setEndAge(e.target.value)}
+                                    min={0}
                                 />
+                                {endAge !== "" && (isNaN(Number(endAge)) || Number(endAge) < 0) && (
+                                    <p className="text-red-600 text-xs mb-2">Please enter a valid age.</p>
+                                )}
+                                {endAge !== "" && Number(endAge) < 13 && (
+                                    <p className="text-red-600 text-xs mb-2">End-User must be at least 13 years old.</p>
+                                )}
                             </>
                         )}
                         <p className="mt-4 text-sm">
@@ -184,6 +220,13 @@ function SignupForm(props) {
                         <button
                             onClick={() => setCurrentStep(2)}
                             className="w-full bg-blue-900 border-black border-2 border-r-4 border-b-4 hover:bg-blue-700 transition duration-300 text-white py-2 rounded"
+                            disabled={
+                                !userType ||
+                                !age ||
+                                isNaN(Number(age)) ||
+                                Number(age) < 13 ||
+                                (userType === "Guardian" && (endName.length < 5 || !endAge || isNaN(Number(endAge)) || Number(endAge) < 13))
+                            }
                         >
                             Next
                         </button>
@@ -194,28 +237,49 @@ function SignupForm(props) {
                 return (
                     <>
                         <h2 className="text-2xl font-bold mb-4">Personal Information</h2>
+                        <label className="block mb-1 font-medium">
+                            First Name <span className="text-red-600">*</span>
+                        </label>
                         <input
                             type="text"
                             placeholder="First Name"
-                            className="w-full mb-4 p-2 border rounded"
+                            className="w-full mb-1 p-2 border rounded"
                             value={firstName}
                             onChange={(e) => setFirstName(e.target.value)}
                         />
+                        {firstName !== "" && firstName.length < 5 && (
+                            <p className="text-red-600 text-xs mb-2">First name must be at least 5 characters.</p>
+                        )}
+
+                        <label className="block mb-1 font-medium">
+                            Last Name <span className="text-red-600">*</span>
+                        </label>
                         <input
                             type="text"
                             placeholder="Last Name"
-                            className="w-full mb-4 p-2 border rounded"
+                            className="w-full mb-1 p-2 border rounded"
                             value={lastName}
                             onChange={(e) => setLastName(e.target.value)}
                         />
+                        {lastName !== "" && lastName.length < 5 && (
+                            <p className="text-red-600 text-xs mb-2">Last name must be at least 5 characters.</p>
+                        )}
+
+                        <label className="block mb-1 font-medium">
+                            Username <span className="text-red-600">*</span>
+                        </label>
                         <input
                             type="text"
                             placeholder="Username"
-                            className="w-full mb-4 p-2 border rounded"
+                            className="w-full mb-1 p-2 border rounded"
                             value={username}
                             onChange={(e) => setUsername(e.target.value)}
                         />
-                        <div className="flex justify-between gap-2">
+                        {username !== "" && username.length < 5 && (
+                            <p className="text-red-600 text-xs mb-2">Username must be at least 5 characters.</p>
+                        )}
+
+                        <div className="flex justify-between gap-2 mt-4">
                             <button
                                 onClick={() => setCurrentStep(1)}
                                 className="w-full bg-gray-300 hover:bg-gray-400 transition duration-300 text-black py-2 rounded"
@@ -225,6 +289,11 @@ function SignupForm(props) {
                             <button
                                 onClick={() => setCurrentStep(3)}
                                 className="w-full bg-blue-900 border-black border-2 border-r-4 border-b-4 hover:bg-blue-700 transition duration-300 text-white py-2 rounded"
+                                disabled={
+                                    firstName.length < 5 ||
+                                    lastName.length < 5 ||
+                                    username.length < 5
+                                }
                             >
                                 Next
                             </button>

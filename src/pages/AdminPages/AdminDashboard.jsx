@@ -30,7 +30,7 @@ const AdminDashboard = () => {
                             <Sidebar>
                                 <SidebarItem
                                     icon={<User />}
-                                    text="Manage Users"
+                                    text="Monitor Users"
                                     active={activeItem === "Manage Users"}
                                     onClick={() => handleSidebarItemClick("Manage Users")}
                                 />
@@ -85,7 +85,7 @@ const AdminDashboard = () => {
                                     className={`flex items-center p-2 rounded mb-2 ${activeItem === "Manage Users" ? "bg-[#ffe0b2]" : ""}`}
                                     onClick={() => { setActiveItem("Manage Users"); setMenuOpen(false); }}
                                 >
-                                    <User size={22} className="mr-2" /> Manage Users
+                                    <User size={22} className="mr-2" /> Monitor Users
                                 </button>
                                 <button
                                     className={`flex items-center p-2 rounded mb-2 ${activeItem === "Manage User Feedback" ? "bg-[#ffe0b2]" : ""}`}
