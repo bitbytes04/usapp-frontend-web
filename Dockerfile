@@ -17,8 +17,7 @@ RUN npm install -g serve
 
 WORKDIR /app
 
-
-COPY --from=builder /app/build ./build
+COPY --from=builder /app/dist ./build
 
 
 EXPOSE 8080
