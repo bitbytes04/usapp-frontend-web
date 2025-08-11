@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { createUserWithEmailAndPassword, sendEmailVerification, getIdToken } from 'firebase/auth';
+import { createUserWithEmailAndPassword, sendEmailVerification, getIdToken, onAuthStateChanged } from 'firebase/auth';
 import { FIREBASE_AUTH } from '../../firebaseConfig';
 import { Transition } from '@headlessui/react';
 import axios from 'axios';
@@ -62,6 +62,8 @@ function SignupForm(props) {
         }
     };
 
+
+
     const SignupUser = async () => {
         if (!validateInputs()) {
             return;
@@ -71,77 +73,89 @@ function SignupForm(props) {
             return;
         }
 
-
         setshowVerificationScreen(true);
 
 
 
-        setIsLoading(true);
-        const uid = tempUserCredential.user.uid;
-        const userData = {
-            uid,
-            firstName,
-            lastName,
-            username,
-            email,
-            userType,
-            age,
-            ...(userType === 'Guardian' && { endName, endAge }),
-        };
-        try {
-            await axios.post('https://usapp-backend.vercel.app/api/users/create', userData);
-            window.alert("User created successfully!");
-            navigate("/UserEntry/Login");
-        } catch (err) {
-            window.alert("Error creating user: " + (err instanceof Error ? err.message : "Unknown error"));
-        } finally {
-            setIsLoading(false);
-        }
-        // Send email verification before proceeding
         // try {
+        //     setIsLoading(true);
         //     const tempUserCredential = await createUserWithEmailAndPassword(auth, email, password);
-        //     await sendEmailVerification(tempUserCredential.user)
+        //     const uid = tempUserCredential.user.uid;
+        //     const userData = {
+        //         uid,
+        //         firstName,
+        //         lastName,
+        //         username,
+        //         email,
+        //         userType,
+        //         age,
+        //         ...(userType === 'Guardian' && { endName, endAge }),
+        //     };
+        //     try {
+        //         await axios.post('https://usapp-backend.vercel.app/api/users/create', userData);
+        //         window.alert("User created successfully!");
+        //         navigate("/Login");
 
-        //     setcurrentUser(tempUserCredential)
-
-        //     const checkEmailVerified = setInterval(async () => {
-
-        //         if (tempUserCredential.user.emailVerified) {
-        //             clearInterval(checkEmailVerified);
-        //             setshowVerificationScreen(false);
-        //             setIsLoading(true);
-        //             const uid = tempUserCredential.user.uid;
-        //             const userData = {
-        //                 uid,
-        //                 firstName,
-        //                 lastName,
-        //                 username,
-        //                 email,
-        //                 userType,
-        //                 age,
-        //                 ...(userType === 'Guardian' && { endName, endAge }),
-        //             };
-        //             try {
-        //                 await axios.post('https://usapp-backend.vercel.app/api/users/create', userData);
-        //                 window.alert("User created successfully!");
-        //                 navigate("/UserEntry/Login");
-        //             } catch (err) {
-        //                 window.alert("Error creating user: " + (err instanceof Error ? err.message : "Unknown error"));
-        //             } finally {
-        //                 setIsLoading(false);
-        //             }
-        //         }
-        //     }, 3000);
-
+        //     } catch (err) {
+        //         window.alert("Error creating user: " + (err instanceof Error ? err.message : "Unknown error"));
+        //     } finally {
+        //         setIsLoading(false);
+        //     }
         // } catch (error) {
-        //     console.error(error);
-        //     window.alert("Error sending verification email: " + (error instanceof Error ? error.message : "Unknown error"));
-        //     setIsLoading(false);
-        //     return;
+
         // }
-        // finally {
-        //     setIsLoading(false)
-        // }
+
+        // Send email verification before proceeding
+
+        try {
+            const tempUserCredential = await createUserWithEmailAndPassword(auth, email, password);
+            await sendEmailVerification(tempUserCredential.user);
+
+
+
+
+            const checkEmailVerified = setInterval(async () => {
+                await tempUserCredential.user.reload();
+                if (tempUserCredential.user.emailVerified) {
+
+                    setshowVerificationScreen(false);
+                    clearInterval(checkEmailVerified);
+
+                    setIsLoading(true);
+                    const uid = tempUserCredential.user.uid;
+                    const userData = {
+                        uid,
+                        firstName,
+                        lastName,
+                        username,
+                        email,
+                        userType,
+                        age,
+                        ...(userType === 'Guardian' && { endName, endAge }),
+                    };
+                    try {
+                        await axios.post('https://usapp-backend.vercel.app/api/users/create', userData);
+                        window.alert("User created successfully!");
+                        navigate("/login");
+                    } catch (err) {
+                        window.alert("Error creating user: " + (err instanceof Error ? err.message : "Unknown error"));
+                    } finally {
+                        setIsLoading(false);
+                    }
+                }
+            }, 3000);
+
+
+
+        } catch (error) {
+            console.error(error);
+            window.alert("Error sending verification email: " + (error instanceof Error ? error.message : "Unknown error"));
+            setIsLoading(false);
+            return;
+        }
+        finally {
+            setIsLoading(false)
+        }
 
 
 
