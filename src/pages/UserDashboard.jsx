@@ -130,21 +130,23 @@ function UserDashboard() {
               <UserCog size={22} className="mr-2" /> Account
             </button>
             <button
-              className="flex items-center p-2 rounded mb-2 text-red-600 hover:bg-red-100"
+              className={`flex items-center p-2 rounded mb-2 ${activeItem === "Account Linking" ? "bg-[#ffe0b2]" : ""}`}
               onClick={() => { setActiveItem("Account Linking"); setMenuOpen(false); }}
             >
               <Users size={22} className="mr-2" /> Account Linking
             </button>
             <button
-              className="flex items-center p-2 rounded mb-2 text-red-600 hover:bg-red-100"
+              className={`flex items-center p-2 rounded mb-2 ${activeItem === "User Feedback" ? "bg-[#ffe0b2]" : ""}`}
               onClick={() => { setActiveItem("User Feedback"); setMenuOpen(false); }}
             >
               <Users size={22} className="mr-2" /> User Feedback
             </button>
             <button
-              className="flex items-center p-2 rounded mb-2 text-red-600 hover:bg-red-100"
+              className="flex items-center p-2 rounded mb-2 text-red-500 hover:bg-red-100"
               onClick={() => {
+                sessionStorage.removeItem("userId")
                 navigate(-1)
+
               }}
             >
               <Home size={22} className="mr-2" /> Logout

@@ -21,7 +21,8 @@ const Login = () => {
     const [showTerms, setshowTerms] = useState(false);
     const [showErrorMessage, setshowErrorMessage] = useState(false);
     const [ErrorText, setErrorText] = useState("");
-
+    const [ShowPassword, setShowPassword] = useState(false);
+    const [ErrorLabel, setErrorLabel] = useState("Error");
     const navigate = useNavigate();
 
     const toggleView = () => {
@@ -29,6 +30,7 @@ const Login = () => {
     };
 
     const toggleForgotPassword = () => {
+        setErrorLabel("Password Reset")
         setShowForgotPassword(!showForgotPassword);
     };
 
@@ -38,8 +40,9 @@ const Login = () => {
     }
 
     const handleLogin = async () => {
-        if (email.length < 5 || password.length < 5) {
-            showError("Email and password must be at least 5 characters long.");
+        if (email.length < 1 || password.length < 1) {
+
+            showError("Please fill in all fields.");
             return;
         }
 
@@ -48,13 +51,20 @@ const Login = () => {
         try {
             const userCredential = await signInWithEmailAndPassword(auth, email, password);
             const uid = userCredential.user.uid;
+            if (userCredential.user) {
+                const user = userCredential.user;
+                // Get ID token result to check custom claims
+                const idTokenResult = await user.getIdTokenResult();
+                if (idTokenResult.claims && idTokenResult.claims.slp === true) {
+                    showError("This is an SLP account please use the SLP Portal to login.");
+                    return;
+                } else {
+                    sessionStorage.setItem('userId', uid);
+                    navigate('/dashboard');
+                }
+            }
 
 
-
-
-
-            sessionStorage.setItem('userId', uid);
-            navigate('/dashboard');
         } catch (error) {
             const errorMsg = error instanceof Error ? error.message : "Login failed.";
             if (typeof error === 'object' && error !== null && 'code' in error) {
@@ -63,7 +73,7 @@ const Login = () => {
                 } else if (error.code === 'auth/wrong-password') {
                     showError("Wrong Password.");
                 } else if (error.code === 'auth/invalid-email') {
-                    showError("Invalid Email.");
+                    showError("No user found with this email.");
                 } else {
                     showError(errorMsg);
                 }
@@ -75,8 +85,8 @@ const Login = () => {
         }
     };
     const handlePasswordReset = async () => {
-        if (email.length < 5) {
-            showError("Email must be at least 5 characters long.");
+        if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+            showError("Please enter a valid email address.");
             return;
         }
         setLoadingReset(true);
@@ -94,9 +104,7 @@ const Login = () => {
             });
     }
 
-    const handleSLPLogin = () => {
 
-    }
 
     return (
         <>
@@ -112,7 +120,7 @@ const Login = () => {
                             className={`absolute inset-0 transition-transform duration-500 ${isLogin ? 'translate-x-0' : '-translate-x-full'
                                 }`}
                         >
-                            {/* Login Form */}
+
                             <div className="w-full h-full flex flex-col justify-start gap-5 items-center p-6">
                                 <h2 className="text-4xl font-bold mb-4">Login</h2>
                                 <div className="w-full mb-2">
@@ -123,14 +131,14 @@ const Login = () => {
                                         id="login-email"
                                         type="email"
                                         placeholder="Email"
-                                        className={`w-full p-2 border rounded ${email && email.length < 5 ? 'border-red-500' : ''}`}
+                                        className={`w-full p-2 border rounded ${email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email) ? 'border-red-500' : ''}`}
                                         onChange={(e) => setEmail(e.target.value)}
                                         value={email}
                                         required
-                                        aria-invalid={email && email.length < 5}
+                                        aria-invalid={email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)}
                                     />
-                                    {email && email.length < 5 && (
-                                        <span className="text-xs text-red-500">Email must be at least 5 characters.</span>
+                                    {email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email) && (
+                                        <span className="text-xs text-red-500">Please enter a valid email address.</span>
                                     )}
                                 </div>
                                 <div className="w-full mb-2">
@@ -139,7 +147,7 @@ const Login = () => {
                                     </label>
                                     <input
                                         id="login-password"
-                                        type="password"
+                                        type={ShowPassword ? "text" : "password"}
                                         placeholder="Password"
                                         className={`w-full p-2 border rounded ${password && password.length < 5 ? 'border-red-500' : ''}`}
                                         value={password}
@@ -151,10 +159,20 @@ const Login = () => {
                                         <span className="text-xs text-red-500">Password must be at least 5 characters.</span>
                                     )}
                                 </div>
+                                <div className="w-full justify-end flex items-center">
+                                    <input
+                                        id="show-password"
+                                        type="checkbox"
+                                        className="mr-2"
+                                        checked={ShowPassword}
+                                        onChange={e => setShowPassword(e.target.checked)}
+                                    />
+                                    <label htmlFor="show-password" className="text-sm select-none">Show Password</label>
+                                </div>
                                 <button
                                     className="w-full bg-[#3d6887] border-black border-2 border-r-4 border-b-4 hover:bg-blue-700 delay-150 duration-300 text-white py-2 rounded"
                                     onClick={handleLogin}
-                                    disabled={email.length < 5 || password.length < 5}
+
                                 >
                                     Login
                                 </button>
@@ -181,7 +199,7 @@ const Login = () => {
                             className={`absolute inset-0 transition-transform duration-500 ${isLogin ? 'translate-x-full' : 'translate-x-0'
                                 }`}
                         >
-                            {/* Sign Up Form */}
+
                             <SignIn toggleView={toggleView} showTerms={showTerms} setShowTerms={setshowTerms} />
                         </div>
 
@@ -200,12 +218,13 @@ const Login = () => {
                 >
                     <div className="fixed inset-0 flex justify-center items-center backdrop-blur-md backdrop-brightness-50 animate-fade-in z-50">
                         <div className="bg-white p-6 rounded-lg flex flex-col justify-center items-center shadow-lg w-80">
-                            <h2 className="text-xl font-bold mb-4 text-[#feaf61]">Error</h2>
+                            <h2 className="text-xl font-bold mb-4 text-[#feaf61]">{ErrorLabel}</h2>
                             <p className="mb-6 text-center text-gray-700">{ErrorText}</p>
                             <button
                                 onClick={() => {
                                     setshowErrorMessage(false);
                                     setErrorText('');
+                                    setErrorLabel("Error");
                                 }}
                                 className="w-full bg-[#5c7c93] text-white py-2 rounded"
                             >
@@ -234,7 +253,7 @@ const Login = () => {
                                             <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
                                             <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"></path>
                                         </svg>
-                                        <span className="text-lg font-semibold text-gray-700">Logging In...</span>
+                                        <span className="text-lg font-semibold text-gray-700">Processing Request...</span>
                                     </div>
                                 </div>
                             ) : (
@@ -248,7 +267,7 @@ const Login = () => {
                                     />
                                     <button
                                         onClick={handlePasswordReset}
-                                        className="w-full bg-blue-500 text-white py-2 rounded usapp-border mb-2"
+                                        className="w-full bg-blue-900 text-white py-2 rounded usapp-border mb-2"
                                     >
                                         Send Reset Password Link
                                     </button>
