@@ -138,7 +138,7 @@ const MyBoards = () => {
                     </select>
                 </div>
                 {isDeleting && (
-                    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-40">
+                    <div className="fixed inset-0 z-100 flex items-center justify-center backdrop-brightness-50 bg-opacity-40">
                         <div className="bg-white rounded-2xl p-6 sm:p-8 flex flex-col items-center shadow-2xl">
                             <svg className="animate-spin h-8 w-8 sm:h-10 sm:w-10 text-blue-500 mb-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                                 <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>

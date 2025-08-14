@@ -30,10 +30,12 @@ const AccountSettings = () => {
     const [isEditing, setIsEditing] = useState(false);
     const [formData, setFormData] = useState(initialFormData);
     const [isSubmitting, setIsSubmitting] = useState(false);
+    const [loading, setloading] = useState(false);
 
     useEffect(() => {
         const fetchUserData = async () => {
             try {
+                setloading(true);
                 const response = await axios.get(`https://usapp-backend.vercel.app/api/users/${sessionStorage.getItem('userId')}`);
                 const data = response.data;
 
@@ -54,6 +56,9 @@ const AccountSettings = () => {
                 });
             } catch (error) {
                 alert(error.message)
+            }
+            finally {
+                setloading(false);
             }
         };
 
@@ -111,13 +116,32 @@ const AccountSettings = () => {
                 leaveFrom="opacity-100"
                 leaveTo="opacity-0"
             >
-                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-40">
+                <div className="fixed inset-0 z-50 flex items-center justify-center backdrop-brightness-75 bg-opacity-40">
                     <div className="bg-white px-8 py-6 rounded-lg flex flex-col items-center shadow-lg">
                         <svg className="animate-spin h-8 w-8 text-blue-500 mb-3" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                             <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
                             <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"></path>
                         </svg>
                         <span className="text-lg font-semibold text-gray-700">Saving changes...</span>
+                    </div>
+                </div>
+            </Transition>
+            <Transition
+                show={loading}
+                enter="transition-opacity duration-200"
+                enterFrom="opacity-0"
+                enterTo="opacity-100"
+                leave="transition-opacity duration-200"
+                leaveFrom="opacity-100"
+                leaveTo="opacity-0"
+            >
+                <div className="fixed inset-0 z-50 flex items-center justify-center backdrop-brightness-75 bg-opacity-40">
+                    <div className="bg-white px-8 py-6 rounded-lg flex flex-col items-center shadow-lg">
+                        <svg className="animate-spin h-8 w-8 text-blue-500 mb-3" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"></path>
+                        </svg>
+                        <span className="text-lg font-semibold text-gray-700">Loading User Information...</span>
                     </div>
                 </div>
             </Transition>

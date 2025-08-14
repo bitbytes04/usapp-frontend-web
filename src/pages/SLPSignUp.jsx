@@ -1,6 +1,7 @@
 import React from 'react'
 import { useState } from 'react';
 import axios from 'axios';
+import { Transition } from '@headlessui/react';
 
 const SLPSignUp = (props) => {
     const { isLogin, setIsLogin } = props;
@@ -16,6 +17,7 @@ const SLPSignUp = (props) => {
     });
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');
+    const [showSuccess, setshowSuccess] = useState(false);
     const [success, setSuccess] = useState('');
 
     // Pagination state
@@ -101,6 +103,7 @@ const SLPSignUp = (props) => {
             const data = res.data;
             if (data.success) {
                 setSuccess('Account created successfully!');
+                setshowSuccess(true);
                 setForm({
                     email: '',
                     password: '',
@@ -110,6 +113,17 @@ const SLPSignUp = (props) => {
                     clinicName: '',
                     age: ''
                 });
+
+                setIsLogin(true)
+                setForm({
+                    email: '',
+                    password: '',
+                    displayName: '',
+                    firstName: '',
+                    lastName: '',
+                    clinicName: '',
+                    age: ''
+                })
                 setPage(0);
                 setTouched({});
                 setValidation({});
@@ -339,6 +353,50 @@ const SLPSignUp = (props) => {
                         <p className="text-red-500 text-sm mt-1">{validation.age}</p>
                     )}
                 </div>
+                <Transition
+                    show={showSuccess}
+                    enter="transition-opacity duration-500"
+                    enterFrom="opacity-0"
+                    enterTo="opacity-100"
+                    leave="transition-opacity duration-500"
+                    leaveFrom="opacity-100"
+                    leaveTo="opacity-0"
+                >
+                    <div className="fixed inset-0 flex justify-center items-center backdrop-blur-md backdrop-brightness-50 animate-fade-in z-50">
+                        <div className="bg-white p-6 rounded-lg flex flex-col justify-center items-center shadow-lg w-80">
+                            <h2 className="text-xl font-bold mb-4 text-[#feaf61]">ACCOUNT CREATED</h2>
+                            <p className="mb-6 text-center text-gray-700">{success}</p>
+                            <button
+                                onClick={() => {
+                                    setshowErrorMessage(false);
+                                    setErrorText('');
+                                }}
+                                className="w-full bg-[#5c7c93] text-white py-2 rounded"
+                            >
+                                Close
+                            </button>
+                        </div>
+                    </div>
+                </Transition>
+                <Transition
+                    show={loading}
+                    enter="transition-opacity duration-300"
+                    enterFrom="opacity-0"
+                    enterTo="opacity-100"
+                    leave="transition-opacity duration-200"
+                    leaveFrom="opacity-100"
+                    leaveTo="opacity-0"
+                >
+                    <div className="fixed inset-0 z-50 flex items-center justify-center backdrop-brightness-50 bg-opacity-30">
+                        <div className="bg-white rounded-xl p-8 flex flex-col items-center shadow-2xl">
+                            <svg className="animate-spin h-10 w-10 text-blue-700 mb-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"></path>
+                            </svg>
+                            <span className="text-lg font-medium text-blue-700">Creating Account...</span>
+                        </div>
+                    </div>
+                </Transition>
             </>
         )
     ];
@@ -415,7 +473,7 @@ const SLPSignUp = (props) => {
                             disabled={loading || !canGoNext()}
                             className="bg-blue-600 text-white py-2 px-4 rounded hover:bg-blue-700 transition usapp-border disabled:opacity-50"
                         >
-                            {loading ? 'Signing Up...' : 'Sign Up'}
+                            Create Account
                         </button>
                     )}
                 </div>

@@ -14,14 +14,28 @@ const SLPAccount = () => {
         setMessage('');
         try {
             const res = await axios.put(`/api/slpusers/${uid}`, {
-                displayName,
+                displayName, clinicName
             });
-            setMessage(res.data.message || 'SLP user updated!');
+
         } catch (err) {
             setMessage(err.response?.data?.error || 'Error updating user');
         }
         setLoading(false);
     };
+
+    const getUserInfo = async () => {
+
+        try {
+            const res = await axios.get(`/api/slpusers/${uid}`);
+            setDisplayName(res.data.displayName || '');
+            setClinicName(res.data.clinicName || '');
+            setMessage('User info loaded');
+        } catch (err) {
+            setMessage(err.response?.data?.error || 'Error fetching user info');
+        }
+        setLoading(false);
+    };
+
 
     return (
         <div className="w-full mx-auto mt-10 p-6 ">
@@ -57,7 +71,7 @@ const SLPAccount = () => {
                 </div>
                 <button
                     type="submit"
-                    className="w-full bg-blue-600 text-white py-2 rounded hover:bg-blue-700"
+                    className="w-full bg-blue-900 text-white py-2 rounded hover:bg-blue-800"
                     disabled={loading}
                 >
                     {loading ? 'Updating...' : 'Update User'}

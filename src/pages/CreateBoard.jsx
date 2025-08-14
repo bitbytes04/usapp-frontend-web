@@ -49,8 +49,8 @@ export default function CreateBoard() {
     );
 
     const handleSubmit = async () => {
-        if (!boardName || !boardCategory || selectedButtons.length === 0) {
-            showError('Please fill in all required fields and select at least one button.');
+        if (!boardName || !boardCategory || selectedButtons.length < 5) {
+            showError('Please fill in all required fields and select at least 5 button.');
             return;
         }
 
@@ -85,6 +85,10 @@ export default function CreateBoard() {
         if (isSelected) {
             setSelectedButtons(prev => prev.filter(b => b.buttonName !== button.buttonName));
         } else {
+            if (selectedButtons.length >= 40) {
+                showError('You can select up to 40 buttons only.');
+                return;
+            }
             setSelectedButtons(prev => [...prev, button]);
         }
     };
@@ -138,7 +142,7 @@ export default function CreateBoard() {
                 leaveFrom="opacity-100"
                 leaveTo="opacity-0"
             >
-                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-30">
+                <div className="fixed inset-0 z-50 flex items-center justify-center backdrop-brightness-50 bg-opacity-30">
                     <div className="bg-white rounded-xl p-8 flex flex-col items-center shadow-2xl">
                         <svg className="animate-spin h-10 w-10 text-blue-700 mb-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                             <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>

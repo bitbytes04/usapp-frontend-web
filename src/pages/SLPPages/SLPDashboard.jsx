@@ -15,7 +15,7 @@ import { useState } from 'react'
 const SLPDashboard = () => {
 
     const navigate = useNavigate();
-    const [activeItem, setActiveItem] = useState("Manage Users");
+    const [activeItem, setActiveItem] = useState("Linked Users");
     const [menuOpen, setMenuOpen] = useState(false);
     const handleSidebarItemClick = (item) => {
         setActiveItem(item);
@@ -89,7 +89,9 @@ const SLPDashboard = () => {
                         <button
                             className="flex items-center p-2 rounded mb-2 text-red-600 hover:bg-red-100"
                             onClick={() => {
+                                sessionStorage.removeItem('slpId');
                                 navigate(-1)
+
                             }}
                         >
                             <Home size={22} className="mr-2" /> Logout

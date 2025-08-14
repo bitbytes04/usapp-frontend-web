@@ -153,6 +153,7 @@ const ManageUsers = () => {
                 leave="transition-opacity duration-500"
                 leaveFrom="opacity-100"
                 leaveTo="opacity-0"
+                className="z-20"
             >
                 <div className="fixed inset-0 flex justify-center items-center backdrop-blur-md backdrop-brightness-50 animate-fade-in">
                     <div className="p-6 flex flex-col justify-center items-center backdrop-blur-md backdrop-brightness-50 w-80">
@@ -162,14 +163,14 @@ const ManageUsers = () => {
                                     <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
                                     <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"></path>
                                 </svg>
-                                <span className="text-lg font-semibold text-gray-700">Summarizing Feedback...</span>
+                                <span className="text-lg font-semibold text-gray-700">Processing Request...</span>
                             </div>
                         </div>
                         <h2 className="text-xl font-bold mb-4">Generating Summary</h2>
                     </div>
                 </div>
             </Transition>
-            <h1 className="text-3xl font-bold mb-6">Monitor Users</h1>
+            <h1 className="text-2xl font-bold mb-6 px-3 bg-blue-900 text-white">MONITOR USERS</h1>
             <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-6">
                 <input
                     type="text"
@@ -180,13 +181,13 @@ const ManageUsers = () => {
                 />
                 <div className="flex gap-2">
                     <button
-                        className={`px-4 py-2 rounded ${filterType === 'all' ? 'bg-blue-600 text-white' : 'bg-gray-200 text-gray-700'}`}
+                        className={`px-4 py-2 rounded ${filterType === 'all' ? 'bg-blue-900 text-white' : 'bg-gray-200 text-gray-700'}`}
                         onClick={() => setFilterType('all')}
                     >
                         All Users
                     </button>
                     <button
-                        className={`px-4 py-2 rounded ${filterType === 'slp' ? 'bg-blue-600 text-white' : 'bg-gray-200 text-gray-700'}`}
+                        className={`px-4 py-2 rounded ${filterType === 'slp' ? 'bg-blue-900 text-white' : 'bg-gray-200 text-gray-700'}`}
                         onClick={() => setFilterType('slp')}
                     >
                         SLP Users
@@ -205,12 +206,12 @@ const ManageUsers = () => {
                 <>
                     {filterType === 'all' ? (
                         <div>
-                            <h2 className="text-xl font-semibold mb-2">All Users</h2>
+                            <h2 className="px-3 bg-blue-900 text-xl font-semibold text-white mb-2">USERS</h2>
                             <div className="overflow-x-auto rounded shadow">
                                 <table className="min-w-full bg-white">
                                     <thead>
                                         <tr className="bg-gray-100 text-gray-700">
-                                            <th className="py-2 px-4 text-left">UID</th>
+                                            {/* <th className="py-2 px-4 text-left">UID</th> */}
                                             <th className="py-2 px-4 text-left">Email</th>
                                             <th className="py-2 px-4 text-left">Display Name</th>
                                             <th className="py-2 px-4 text-left">Role</th>
@@ -227,7 +228,7 @@ const ManageUsers = () => {
                                         ) : (
                                             getCurrentUsers(filteredAllUsers).map(user => (
                                                 <tr key={user.uid} className="border-b hover:bg-blue-50">
-                                                    <td className="py-2 px-4">{user.uid}</td>
+                                                    {/* <td className="py-2 px-4">{user.uid}</td> */}
                                                     <td className="py-2 px-4">{user.email}</td>
                                                     <td className="py-2 px-4">{user.displayName || user.username}</td>
                                                     <td className="py-2 px-4">
@@ -259,7 +260,7 @@ const ManageUsers = () => {
                         </div>
                     ) : (
                         <div>
-                            <h2 className="text-xl font-semibold mb-2">Speech Pathologist Users</h2>
+                            <h2 className="px-3 bg-blue-900 text-xl font-semibold text-white mb-2">Speech Pathologist Users</h2>
                             <div className="overflow-x-auto rounded shadow">
                                 <table className="min-w-full bg-white">
                                     <thead>
@@ -312,12 +313,12 @@ const ManageUsers = () => {
                         </div>
                     )}
 
-                    <h2 className="text-xl font-semibold mb-2 mt-10">User Statistics</h2>
+                    <h2 className="px-3 bg-blue-900 text-xl font-semibold text-white mt-5">USER STATISTICS</h2>
                     <div className='flex flex-col md:flex-row md:items-center shadow-md rounded bg-white md:justify-center gap-4 '>
                         <div className="mt-10 flex flex-col items-center">
                             <h2 className="text-xl font-semibold mb-4">User Roles Distribution</h2>
                             <div className="w-full flex justify-center">
-                                <PieChart width={350} height={300}>
+                                <PieChart width={350} height={300} className='z-0'>
                                     <Pie
                                         dataKey="value"
                                         isAnimationActive={true}

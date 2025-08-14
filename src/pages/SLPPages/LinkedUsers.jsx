@@ -151,7 +151,7 @@ const LinkedUsers = ({ uid }) => {
                     onChange={(e) => setSearch(e.target.value)}
                 />
                 <button
-                    className="ml-2 bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
+                    className="ml-2 bg-blue-900 text-white px-4 py-2 rounded hover:bg-blue-800"
                     onClick={() => setshowLinkingPopUp(true)}
                 > Send Link Request</button>
                 <Transition

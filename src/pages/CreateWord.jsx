@@ -12,9 +12,10 @@ export default function CreateWord() {
     const [wordPhoto, setWordPhoto] = useState(null);
     const [loading, setLoading] = useState(false);
     const [userButtons, setuserButtons] = useState([]);
-    const [showPopup, setshowPopup] = useState();
+    const [showPopup, setshowPopup] = useState(false);
     const [selectedButton, setselectedButton] = useState();
     const [downloadURL, setdownloadURL] = useState('');
+
 
     const handlePhotoUpload = (e) => {
         const file = e.target.files[0];
@@ -43,10 +44,6 @@ export default function CreateWord() {
         }
         if (wordName.length < 2) {
             alert('Word name must be at least 2 characters.');
-            return;
-        }
-        if (!['People', 'Actions', 'Feelings', 'Things', 'Places'].includes(wordCategory)) {
-            alert('Please select a valid category.');
             return;
         }
         if (!wordPhoto || !wordPhoto.type.startsWith('image/')) {
@@ -130,7 +127,7 @@ export default function CreateWord() {
             </Transition>
 
             <div className="bg-[#305a7a] flex items-center mb-6 p-2">
-                <h1 className="text-3xl font-bold text-white mx-auto">Create New Button</h1>
+                <h1 className="text-3xl font-bold text-white mx-auto">CREATE NEW BUTTON</h1>
             </div>
 
             <div className="bg-white p-6 rounded-lg shadow-md flex flex-col gap-4">
@@ -152,12 +149,6 @@ export default function CreateWord() {
                         onChange={(e) => setWordCategory(e.target.value)}
                         className="border rounded-lg p-2"
                     >
-
-                        <option value="People">People</option>
-                        <option value="Actions">Actions</option>
-                        <option value="Feelings">Feelings</option>
-                        <option value="Things">Things</option>
-                        <option value="Places">Places</option>
                         <option value="Nouns">Nouns</option>
                         <option value="Pronouns">Pronouns</option>
                         <option value="Verbs">Verbs</option>
@@ -192,21 +183,46 @@ export default function CreateWord() {
             <div className="my-10 border-t-2 border-dashed border-gray-500 w-full"></div>
             <div className="">
                 <div className="bg-[#305a7a] flex items-center mb-6 p-2">
-                    <h1 className="text-3xl font-bold text-white mx-auto">User Created Words</h1>
+                    <h1 className="text-3xl font-bold text-white mx-auto">USER CREATED WORDS</h1>
                 </div>
                 <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
                     {userButtons.map((button) => (
-                        <div
-                            key={button.id}
-                            className="bg-white p-4 rounded-lg shadow-md hover:shadow-lg transition-shadow duration-200 cursor-pointer"
-                            onClick={() => {
-                                setselectedButton(button);
-                                setshowPopup(true);
-                            }}
-                        >
-                            <img src={button.buttonImagePath} alt={button.buttonName} className="w-full h-32 object-cover rounded mb-2" />
-                            <h3 className="text-lg font-semibold text-gray-800">{button.buttonName}</h3>
-                            <p className="text-gray-600">{button.buttonCategory}</p>
+                        <div key={button.id} className="relative flex">
+                            <div
+                                className="bg-white w-100 p-4 rounded-lg shadow-md hover:shadow-lg transition-shadow duration-200 cursor-pointer"
+                                onClick={() => {
+                                    setselectedButton(button.buttonName);
+                                    setshowPopup(true);
+                                }}
+                            >
+                                <img src={button.buttonImagePath} alt={button.buttonName} className="w-full h-32 object-cover rounded mb-2" />
+                                <h3 className="text-lg font-semibold text-gray-800">{button.buttonName}</h3>
+                                <p className="text-gray-600">{button.buttonCategory}</p>
+                            </div>
+                            {showPopup && selectedButton === button.buttonName && (
+                                <div
+                                    className="absolute left-full top-1/2 -translate-y-1/2 ml-4 z-50 bg-white rounded-xl shadow-xl p-3 sm:p-4 min-w-[140px] sm:min-w-[160px] flex flex-col gap-2 border border-gray-100"
+                                >
+                                    <button
+                                        onClick={() => { }}
+                                        className="bg-blue-600 hover:bg-blue-700 text-white px-3 py-2 sm:px-4 sm:py-2 rounded-lg font-medium transition text-xs sm:text-sm"
+                                    >
+                                        Edit
+                                    </button>
+                                    <button
+                                        onClick={() => { }}
+                                        className="bg-red-500 hover:bg-red-600 text-white px-3 py-2 sm:px-4 sm:py-2 rounded-lg font-medium transition text-xs sm:text-sm"
+                                    >
+                                        Delete
+                                    </button>
+                                    <button
+                                        onClick={() => setshowPopup(false)}
+                                        className="bg-gray-200 hover:bg-gray-300 text-gray-800 px-3 py-2 sm:px-4 sm:py-2 rounded-lg font-medium transition text-xs sm:text-sm"
+                                    >
+                                        Cancel
+                                    </button>
+                                </div>
+                            )}
                         </div>
                     ))}
                 </div>
