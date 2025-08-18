@@ -4,7 +4,7 @@ import axios from 'axios';
 import { Transition } from '@headlessui/react';
 
 const SLPSignUp = (props) => {
-    const { isLogin, setIsLogin } = props;
+    const { isLogin, setIsLogin, setEmail, setPassword } = props;
     const [showPassword, setShowPassword] = useState(false);
     const [form, setForm] = useState({
         email: '',
@@ -113,7 +113,8 @@ const SLPSignUp = (props) => {
                     clinicName: '',
                     age: ''
                 });
-
+                setEmail('');
+                setPassword('');
                 setIsLogin(true)
                 setForm({
                     email: '',

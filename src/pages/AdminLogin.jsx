@@ -214,7 +214,7 @@ const AdminLogin = () => {
                             }`}
                     >
                         {/* Sign Up Form */}
-                        <SLPSignUp isLogin={isLogin} setIsLogin={setIsLogin} />
+                        <SLPSignUp isLogin={isLogin} setIsLogin={setIsLogin} setEmail={setEmail} setPassword={setPassword} />
                     </div>
                 </div>
             </div>
