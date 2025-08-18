@@ -15,12 +15,28 @@ export default function CreateWord() {
     const [showPopup, setshowPopup] = useState(false);
     const [selectedButton, setselectedButton] = useState();
     const [downloadURL, setdownloadURL] = useState('');
-
+    const [deleting, setdeleting] = useState(false);
 
     const handlePhotoUpload = (e) => {
         const file = e.target.files[0];
         setWordPhoto(file);
     };
+    const handleDelete = async () => {
+        try {
+            console.log(selectedButton)
+            setdeleting(true)
+            const uid = sessionStorage.getItem('userId');
+            await axios.post(`https://usapp-backend.vercel.app/api/users/${sessionStorage.getItem('userId')}/${selectedButton.id}/deletebutton`);
+            alert('Board deleted successfully!');
+            fetchUserButtons(); // Refresh the list
+            setshowPopup(false);
+        } catch (error) {
+            alert('Error deleting board: ' + (error.response?.data?.error || error.message));
+        }
+        finally {
+            setdeleting(false)
+        }
+    }
 
     const fetchUserButtons = async () => {
         try {
@@ -125,6 +141,26 @@ export default function CreateWord() {
                     </div>
                 </div>
             </Transition>
+            <Transition
+                show={loading}
+                enter="transition-opacity duration-200"
+                enterFrom="opacity-0"
+                enterTo="opacity-100"
+                leave="transition-opacity duration-200"
+                leaveFrom="opacity-100"
+                leaveTo="opacity-0"
+            >
+                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black-50 bg-opacity-40">
+                    <div className="bg-white rounded-lg p-8 flex flex-col items-center shadow-lg">
+                        <svg className="animate-spin h-8 w-8 text-blue-900 mb-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"></path>
+                        </svg>
+                        <span className="text-blue-900 font-semibold text-lg">Deleting...</span>
+                    </div>
+                </div>
+            </Transition>
+
 
             <div className="bg-[#305a7a] flex items-center mb-6 p-2">
                 <h1 className="text-3xl font-bold text-white mx-auto">CREATE NEW BUTTON</h1>
@@ -187,11 +223,11 @@ export default function CreateWord() {
                 </div>
                 <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
                     {userButtons.map((button) => (
-                        <div key={button.id} className="relative flex">
+                        <div key={button.id} className="relative flex z-10">
                             <div
                                 className="bg-white w-100 p-4 rounded-lg shadow-md hover:shadow-lg transition-shadow duration-200 cursor-pointer"
                                 onClick={() => {
-                                    setselectedButton(button.buttonName);
+                                    setselectedButton(button);
                                     setshowPopup(true);
                                 }}
                             >
@@ -199,29 +235,61 @@ export default function CreateWord() {
                                 <h3 className="text-lg font-semibold text-gray-800">{button.buttonName}</h3>
                                 <p className="text-gray-600">{button.buttonCategory}</p>
                             </div>
-                            {showPopup && selectedButton === button.buttonName && (
-                                <div
-                                    className="absolute left-full top-1/2 -translate-y-1/2 ml-4 z-50 bg-white rounded-xl shadow-xl p-3 sm:p-4 min-w-[140px] sm:min-w-[160px] flex flex-col gap-2 border border-gray-100"
-                                >
-                                    <button
-                                        onClick={() => { }}
-                                        className="bg-blue-600 hover:bg-blue-700 text-white px-3 py-2 sm:px-4 sm:py-2 rounded-lg font-medium transition text-xs sm:text-sm"
+                            {showPopup && selectedButton.buttonName === button.buttonName && (
+                                <>
+                                    {/* Popup for desktop */}
+                                    <div
+                                        className="hidden sm:flex absolute left-full top-1/2 -translate-y-1/2 ml-4 z-50 bg-white rounded-xl shadow-xl p-3 sm:p-4 min-w-[140px] sm:min-w-[160px] flex-col gap-2 border border-gray-100"
                                     >
-                                        Edit
-                                    </button>
-                                    <button
-                                        onClick={() => { }}
-                                        className="bg-red-500 hover:bg-red-600 text-white px-3 py-2 sm:px-4 sm:py-2 rounded-lg font-medium transition text-xs sm:text-sm"
-                                    >
-                                        Delete
-                                    </button>
-                                    <button
-                                        onClick={() => setshowPopup(false)}
-                                        className="bg-gray-200 hover:bg-gray-300 text-gray-800 px-3 py-2 sm:px-4 sm:py-2 rounded-lg font-medium transition text-xs sm:text-sm"
-                                    >
-                                        Cancel
-                                    </button>
-                                </div>
+                                        <button
+                                            onClick={() => { }}
+                                            className="bg-blue-600 hover:bg-blue-700 text-white px-3 py-2 sm:px-4 sm:py-2 rounded-lg font-medium transition text-xs sm:text-sm"
+                                        >
+                                            Edit
+                                        </button>
+                                        <button
+                                            onClick={handleDelete}
+                                            className="bg-red-500 hover:bg-red-600 text-white px-3 py-2 sm:px-4 sm:py-2 rounded-lg font-medium transition text-xs sm:text-sm"
+                                        >
+                                            Delete
+                                        </button>
+                                        <button
+                                            onClick={() => setshowPopup(false)}
+                                            className="bg-gray-200 hover:bg-gray-300 text-gray-800 px-3 py-2 sm:px-4 sm:py-2 rounded-lg font-medium transition text-xs sm:text-sm"
+                                        >
+                                            Cancel
+                                        </button>
+                                    </div>
+                                    {/* Popup for mobile with darkened backdrop */}
+                                    <div className="sm:hidden fixed inset-0 z-50 flex items-center justify-center">
+                                        <div
+                                            className="absolute inset-0 backdrop-brightness-50"
+                                            onClick={() => setshowPopup(false)}
+                                        />
+                                        <div
+                                            className="relative w-[90svw] bg-white backdrop-brightness-50 shadow-xl p-4 flex flex-col gap-2 border-b border-gray-100 z-10"
+                                        >
+                                            <button
+                                                onClick={() => { }}
+                                                className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-medium transition text-sm"
+                                            >
+                                                Edit
+                                            </button>
+                                            <button
+                                                onClick={handleDelete}
+                                                className="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg font-medium transition text-sm"
+                                            >
+                                                Delete
+                                            </button>
+                                            <button
+                                                onClick={() => setshowPopup(false)}
+                                                className="bg-gray-200 hover:bg-gray-300 text-gray-800 px-4 py-2 rounded-lg font-medium transition text-sm"
+                                            >
+                                                Cancel
+                                            </button>
+                                        </div>
+                                    </div>
+                                </>
                             )}
                         </div>
                     ))}
