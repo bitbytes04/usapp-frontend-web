@@ -88,8 +88,36 @@ const AccountSettings = () => {
         setIsEditing(!isEditing);
     };
 
+
+    // Validation state
+    const [errors, setErrors] = useState({});
+
+    // Validation function
+    const validate = () => {
+        const newErrors = {};
+        if (!formData.firstName.trim()) newErrors.firstName = "First name is required.";
+        if (!formData.lastName.trim()) newErrors.lastName = "Last name is required.";
+        if (!formData.username.trim()) newErrors.username = "Username is required.";
+        if (!formData.email.trim()) {
+            newErrors.email = "Email is required.";
+        } else if (!/^[\w-.]+@([\w-]+\.)+[\w-]{2,4}$/.test(formData.email)) {
+            newErrors.email = "Invalid email format.";
+        }
+        if (!formData.age || formData.age < 13) newErrors.age = "Valid age is required.";
+        if (formData.userType === "Guardian") {
+            if (!formData.endName.trim()) newErrors.endName = "End user name is required.";
+            if (!formData.endAge || formData.endAge < 1) newErrors.endAge = "Valid end user age is required.";
+            if (!formData.age || formData.age < 18) newErrors.age = "Valid age is required.";
+        }
+        if (formData.boardPreference === "" || formData.boardPreference === null) newErrors.boardPreference = "Board preference is required.";
+        return newErrors;
+    };
+
     const handleSubmit = async (e) => {
         e.preventDefault();
+        const validationErrors = validate();
+        setErrors(validationErrors);
+        if (Object.keys(validationErrors).length > 0) return;
         setIsSubmitting(true);
         setIsEditing(false);
         try {
@@ -151,6 +179,7 @@ const AccountSettings = () => {
             <form
                 onSubmit={handleSubmit}
                 className="bg-white w-full text-black p-6 rounded-lg shadow-lg border-dashed border-2 duration-300"
+                noValidate
             >
                 <div className="mb-4">
                     <label className="block text-lg font-medium mb-2">First Name</label>
@@ -161,7 +190,9 @@ const AccountSettings = () => {
                         onChange={handleInputChange}
                         disabled={!isEditing}
                         className="w-full p-2 border rounded-lg"
+                        required
                     />
+                    {errors.firstName && <span className="text-red-500 text-sm">{errors.firstName}</span>}
                 </div>
                 <div className="mb-4">
                     <label className="block text-lg font-medium mb-2">Last Name</label>
@@ -172,7 +203,9 @@ const AccountSettings = () => {
                         onChange={handleInputChange}
                         disabled={!isEditing}
                         className="w-full p-2 border rounded-lg"
+                        required
                     />
+                    {errors.lastName && <span className="text-red-500 text-sm">{errors.lastName}</span>}
                 </div>
                 <div className="mb-4">
                     <label className="block text-lg font-medium mb-2">Username</label>
@@ -183,7 +216,9 @@ const AccountSettings = () => {
                         onChange={handleInputChange}
                         disabled={!isEditing}
                         className="w-full p-2 border rounded-lg"
+                        required
                     />
+                    {errors.username && <span className="text-red-500 text-sm">{errors.username}</span>}
                 </div>
                 <div className="mb-4">
                     <label className="block text-lg font-medium mb-2">Email</label>
@@ -194,7 +229,9 @@ const AccountSettings = () => {
                         onChange={handleInputChange}
                         disabled={!isEditing}
                         className="w-full p-2 border rounded-lg"
+                        required
                     />
+                    {errors.email && <span className="text-red-500 text-sm">{errors.email}</span>}
                 </div>
                 <div className="mb-4">
                     <label className="block text-lg font-medium mb-2">User Type</label>
@@ -204,6 +241,7 @@ const AccountSettings = () => {
                         onChange={handleInputChange}
                         disabled={!isEditing}
                         className="w-full p-2 border rounded-lg"
+                        required
                     >
                         <option value="Guardian">Guardian</option>
                         <option value="EndUser">End User</option>
@@ -218,7 +256,10 @@ const AccountSettings = () => {
                         onChange={handleInputChange}
                         disabled={!isEditing}
                         className="w-full p-2 border rounded-lg"
+                        required
+                        min={1}
                     />
+                    {errors.age && <span className="text-red-500 text-sm">{errors.age}</span>}
                 </div>
                 {formData.userType === "Guardian" && (
                     <>
@@ -231,7 +272,9 @@ const AccountSettings = () => {
                                 onChange={handleInputChange}
                                 disabled={!isEditing}
                                 className="w-full p-2 border rounded-lg"
+                                required
                             />
+                            {errors.endName && <span className="text-red-500 text-sm">{errors.endName}</span>}
                         </div>
                         <div className="mb-4">
                             <label className="block text-lg font-medium mb-2">End User Age</label>
@@ -242,7 +285,10 @@ const AccountSettings = () => {
                                 onChange={handleInputChange}
                                 disabled={!isEditing}
                                 className="w-full p-2 border rounded-lg"
+                                required
+                                min={1}
                             />
+                            {errors.endAge && <span className="text-red-500 text-sm">{errors.endAge}</span>}
                         </div>
                     </>
                 )}
@@ -254,11 +300,13 @@ const AccountSettings = () => {
                         onChange={handleInputChange}
                         disabled={!isEditing}
                         className="w-full p-2 border rounded-lg"
+                        required
                     >
                         <option value="">Select</option>
                         <option value="Left">Left</option>
                         <option value="Right">Right</option>
                     </select>
+                    {errors.boardPreference && <span className="text-red-500 text-sm">{errors.boardPreference}</span>}
                 </div>
                 <div className="mb-4">
                     <label className="block text-lg font-medium mb-2">Emotion Toggle</label>
@@ -324,7 +372,6 @@ const AccountSettings = () => {
                         <span className="ml-2">{pitchOptions[formData.preferredPitch]}</span>
                     </div>
                 </div>
-
                 <div className="flex justify-between items-center">
                     <button
                         type="button"

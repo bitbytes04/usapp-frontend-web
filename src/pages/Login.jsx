@@ -200,7 +200,7 @@ const Login = () => {
                                 }`}
                         >
 
-                            <SignIn toggleView={toggleView} showTerms={showTerms} setShowTerms={setshowTerms} />
+                            <SignIn toggleView={toggleView} showTerms={showTerms} setShowTerms={setshowTerms} isLogin={isLogin} setIsLogin={setIsLogin} />
                         </div>
 
                     </div>

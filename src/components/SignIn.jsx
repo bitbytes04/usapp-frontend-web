@@ -22,10 +22,12 @@ function SignupForm(props) {
     const [confirmPassword, setConfirmPassword] = useState('');
     const [isConditionsRead, setIsConditionsRead] = useState(false);
     const [showPassword, setShowPassword] = useState(false);
-    const { showTerms, setShowTerms } = props
+    const { showTerms, setShowTerms, isLogin, setIsLogin } = props
     const [isLoading, setIsLoading] = useState(false);
     const toggleView = props.toggleView;
     const [showVerificationScreen, setshowVerificationScreen] = useState(false);
+    const [showError, setshowError] = useState(false);
+    const [ErrorText, setErrorText] = useState('');
     const [currentUser, setcurrentUser] = useState();
     const userTypeOptions = [
         { label: 'Guardian', value: 'Guardian' },
@@ -33,22 +35,35 @@ function SignupForm(props) {
     ];
 
     const validateInputs = () => {
-        if (firstName.length < 5 || lastName.length < 5 || username.length < 5 || email.length < 5) {
-            window.alert("Please complete all information properly.");
+        if (
+            firstName.length < 5 ||
+            lastName.length < 5 ||
+            username.length < 5 ||
+            email.length < 5 ||
+            password.length < 8 ||
+            confirmPassword.length < 8
+        ) {
+            showErrorMessage("Please complete all information properly.");
             return false;
         }
         if (userType === 'Guardian' && (endName.length < 5 || endAge.length === 0)) {
-            window.alert("Guardian must provide End-User's name and age.");
+            showErrorMessage("Guardian must provide End-User's name and age.");
             return false;
         }
         if (parseInt(age) < 18) {
-            window.alert("Guardian must be an adult (18+ years old).");
+            showErrorMessage("Guardian must be an adult (18+ years old).");
             return false;
         }
         if (!isConditionsRead) {
-            window.alert("Please read and agree to the terms and conditions")
+            showErrorMessage("Please read and agree to the terms and conditions");
+            return false;
         }
         return true;
+    };
+
+    const showErrorMessage = (message) => {
+        setErrorText(message);
+        setshowError(true);
     };
 
     const deleteUserFromFirebase = async () => {
@@ -69,7 +84,7 @@ function SignupForm(props) {
             return;
         }
         if (password !== confirmPassword) {
-            window.alert("Passwords do not match");
+            showErrorMessage("Passwords do not match.");
             return;
         }
 
@@ -136,7 +151,8 @@ function SignupForm(props) {
                     try {
                         await axios.post('https://usapp-backend.vercel.app/api/users/create', userData);
                         window.alert("User created successfully!");
-                        navigate("/login");
+                        setIsLogin(true);
+
                     } catch (err) {
                         window.alert("Error creating user: " + (err instanceof Error ? err.message : "Unknown error"));
                     } finally {
@@ -483,6 +499,31 @@ function SignupForm(props) {
                                             Cancel Verification
                                         </button>
                                     </div>
+                                </div>
+                            </div>
+                        </Transition>
+                        <Transition
+                            show={showError}
+                            enter="transition-opacity duration-500"
+                            enterFrom="opacity-0"
+                            enterTo="opacity-100"
+                            leave="transition-opacity duration-500"
+                            leaveFrom="opacity-100"
+                            leaveTo="opacity-0"
+                        >
+                            <div className="fixed inset-0 flex justify-center items-center backdrop-blur-md backdrop-brightness-50 animate-fade-in z-50">
+                                <div className="bg-white p-6 rounded-lg flex flex-col justify-center items-center shadow-lg w-80">
+                                    <h2 className="text-xl font-bold mb-4 text-[#feaf61]">Error</h2>
+                                    <p className="mb-6 text-center text-gray-700">{ErrorText}</p>
+                                    <button
+                                        onClick={() => {
+                                            setshowError(false);
+                                            setErrorText('');
+                                        }}
+                                        className="w-full bg-[#5c7c93] text-white py-2 rounded"
+                                    >
+                                        Close
+                                    </button>
                                 </div>
                             </div>
                         </Transition>

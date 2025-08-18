@@ -16,6 +16,7 @@ export default function CreateWord() {
     const [selectedButton, setselectedButton] = useState();
     const [downloadURL, setdownloadURL] = useState('');
     const [deleting, setdeleting] = useState(false);
+    const [EditPopup, setEditPopup] = useState(false);
 
     const handlePhotoUpload = (e) => {
         const file = e.target.files[0];
@@ -53,6 +54,11 @@ export default function CreateWord() {
         fetchUserButtons();
     }, []);
 
+
+    const handleEdit = () => {
+        console.log('Edit button clicked:', selectedButton);
+        setEditPopup(true);
+    }
     const handleSubmit = async () => {
         if (!wordName || !wordCategory || !wordPhoto) {
             alert('Please complete all fields and upload a photo.');
@@ -142,7 +148,7 @@ export default function CreateWord() {
                 </div>
             </Transition>
             <Transition
-                show={loading}
+                show={deleting}
                 enter="transition-opacity duration-200"
                 enterFrom="opacity-0"
                 enterTo="opacity-100"
@@ -160,7 +166,102 @@ export default function CreateWord() {
                     </div>
                 </div>
             </Transition>
-
+            <Transition
+                show={EditPopup}
+                enter="transition-opacity duration-200"
+                enterFrom="opacity-0"
+                enterTo="opacity-100"
+                leave="transition-opacity duration-200"
+                leaveFrom="opacity-100"
+                leaveTo="opacity-0"
+            >
+                <div className="fixed inset-0 z-50 flex items-center justify-center backdrop-brightness-50">
+                    <div className="bg-white rounded-lg p-8 flex flex-col items-center shadow-lg min-w-[320px]">
+                        <h2 className="text-xl font-bold mb-4 text-blue-900">Edit Button</h2>
+                        <input
+                            type="text"
+                            className="border rounded-lg p-2 mb-2 w-full"
+                            value={selectedButton?.editName ?? selectedButton?.buttonName ?? ''}
+                            onChange={e => {
+                                setselectedButton({
+                                    ...selectedButton,
+                                    editName: e.target.value,
+                                });
+                            }}
+                            placeholder="Button Name"
+                        />
+                        <select
+                            className="border rounded-lg p-2 mb-2 w-full"
+                            value={selectedButton?.editCategory ?? selectedButton?.buttonCategory ?? ''}
+                            onChange={e => {
+                                setselectedButton({
+                                    ...selectedButton,
+                                    editCategory: e.target.value,
+                                });
+                            }}
+                        >
+                            <option value="Nouns">Nouns</option>
+                            <option value="Pronouns">Pronouns</option>
+                            <option value="Verbs">Verbs</option>
+                            <option value="Adjectives">Adjectives</option>
+                            <option value="Prepositions & Social Words">Prepositions & Social Words</option>
+                            <option value="Questions">Questions</option>
+                            <option value="Negation & Important Words">Negation & Important Words</option>
+                            <option value="Adverbs">Adverbs</option>
+                            <option value="Conjunctions">Conjunctions</option>
+                            <option value="Determiners">Determiners</option>
+                        </select>
+                        <div className="flex gap-2 mt-4">
+                            <button
+                                className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-medium transition text-sm"
+                                onClick={async () => {
+                                    // Validation
+                                    const newName = selectedButton.editName ?? selectedButton.buttonName;
+                                    const newCategory = selectedButton.editCategory ?? selectedButton.buttonCategory;
+                                    if (!newName || newName.length < 2) {
+                                        alert('Button name must be at least 2 characters.');
+                                        return;
+                                    }
+                                    if (!newCategory) {
+                                        alert('Please select a button category.');
+                                        return;
+                                    }
+                                    try {
+                                        await axios.post(
+                                            `https://usapp-backend.vercel.app/api/users/${sessionStorage.getItem('userId')}/${selectedButton.id}/editbutton`,
+                                            {
+                                                buttonName: newName,
+                                                buttonCategory: newCategory,
+                                            },
+                                            {
+                                                headers: { 'Content-Type': 'application/json' },
+                                            }
+                                        );
+                                        alert('Button updated!');
+                                        fetchUserButtons();
+                                        setshowPopup(false);
+                                        setselectedButton(undefined);
+                                    } catch (err) {
+                                        alert('Error updating button: ' + (err.response?.data?.error || err.message));
+                                    }
+                                }}
+                            >
+                                Save
+                            </button>
+                            <button
+                                className="bg-gray-200 hover:bg-gray-300 text-gray-800 px-4 py-2 rounded-lg font-medium transition text-sm"
+                                onClick={() => {
+                                    setEditPopup(false);
+                                    setshowPopup(false);
+                                    setselectedButton(undefined);
+                                }}
+                            >
+                                Cancel
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </Transition>
 
             <div className="bg-[#305a7a] flex items-center mb-6 p-2">
                 <h1 className="text-3xl font-bold text-white mx-auto">CREATE NEW BUTTON</h1>
@@ -242,7 +343,7 @@ export default function CreateWord() {
                                         className="hidden sm:flex absolute left-full top-1/2 -translate-y-1/2 ml-4 z-50 bg-white rounded-xl shadow-xl p-3 sm:p-4 min-w-[140px] sm:min-w-[160px] flex-col gap-2 border border-gray-100"
                                     >
                                         <button
-                                            onClick={() => { }}
+                                            onClick={handleEdit}
                                             className="bg-blue-600 hover:bg-blue-700 text-white px-3 py-2 sm:px-4 sm:py-2 rounded-lg font-medium transition text-xs sm:text-sm"
                                         >
                                             Edit
@@ -270,7 +371,7 @@ export default function CreateWord() {
                                             className="relative w-[90svw] bg-white backdrop-brightness-50 shadow-xl p-4 flex flex-col gap-2 border-b border-gray-100 z-10"
                                         >
                                             <button
-                                                onClick={() => { }}
+                                                onClick={handleEdit}
                                                 className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-medium transition text-sm"
                                             >
                                                 Edit
