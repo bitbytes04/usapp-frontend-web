@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
+import { Transition } from '@headlessui/react';
 
 const SLPAccount = () => {
     const [uid, setUid] = useState('');
@@ -7,11 +8,11 @@ const SLPAccount = () => {
     const [clinicName, setClinicName] = useState('');
     const [loading, setLoading] = useState(false);
     const [message, setMessage] = useState('');
-
+    const [showSuccess, setshowSuccess] = useState(true);
 
 
     const getUserInfo = async () => {
-
+        setLoading(true);
         try {
             const res = await axios.get(`https://usapp-backend.vercel.app/api/slp/get-slp/${sessionStorage.getItem("slpId")}`);
             setDisplayName(res.data.displayName || '');
@@ -35,7 +36,6 @@ const SLPAccount = () => {
 
     const validate = () => {
         const newErrors = {};
-        if (!uid.trim()) newErrors.uid = "User ID is required";
         if (!displayName.trim()) newErrors.displayName = "Display Name is required";
         if (!clinicName.trim()) newErrors.clinicName = "Clinic Name is required";
         setErrors(newErrors);
@@ -57,7 +57,7 @@ const SLPAccount = () => {
                 displayName, clinicName
             });
             setIsEditing(false);
-            setMessage('User updated successfully');
+            window.alert("User updated successfully");
         } catch (err) {
             setMessage(err.response?.data?.error || 'Error updating user');
         }
@@ -66,6 +66,43 @@ const SLPAccount = () => {
 
     return (
         <div className="w-full mx-auto p-6 ">
+            <Transition
+                show={loading}
+                enter="transition-opacity duration-200"
+                enterFrom="opacity-0"
+                enterTo="opacity-100"
+                leave="transition-opacity duration-150"
+                leaveFrom="opacity-100"
+                leaveTo="opacity-0"
+            >
+                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-40">
+                    <div className="bg-white rounded-lg px-6 py-4 shadow-lg flex flex-col items-center">
+                        <svg className="animate-spin h-6 w-6 text-blue-900 mb-2" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z"></path>
+                        </svg>
+                        <span className="text-blue-900 font-medium">Loading...</span>
+                    </div>
+                </div>
+            </Transition>
+            <Transition
+                show={showSuccess}
+                enter="transition-opacity duration-200"
+                enterFrom="opacity-0"
+                enterTo="opacity-100"
+                leave="transition-opacity duration-150"
+                leaveFrom="opacity-100"
+                leaveTo="opacity-0"
+            >
+                <div className="fixed inset-0 z-50 flex items-center justify-center backdrop-brightness-50">
+                    <div className="bg-white rounded-lg px-6 py-4 shadow-lg flex flex-col items-center">
+                        <svg className="h-8 w-8 text-green-600 mb-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                        </svg>
+                        <span className="text-green-700 font-medium">Success!</span>
+                    </div>
+                </div>
+            </Transition>
             <h2 className="text-2xl font-bold mb-4">Edit SLP User</h2>
             <form onSubmit={handleSubmit} className="space-y-4">
                 <div>
@@ -99,7 +136,7 @@ const SLPAccount = () => {
                         <button
                             type="submit"
                             className="w-full bg-blue-900 text-white py-2 rounded hover:bg-blue-800"
-                            disabled={loading}
+                            onClick={handleSubmit}
                         >
                             {loading ? 'Updating...' : 'Update User'}
                         </button>
