@@ -17,22 +17,25 @@ const LinkedUsers = ({ uid }) => {
     const [BoardUsageData, setBoardUsageData] = useState({});
     const [SelectedUser, setSelectedUser] = useState({});
     const [usageData, setusageData] = useState([]);
+    const [deleting, setdeleting] = useState(false);
+
+
+    const fetchLinkedUsers = async () => {
+        setLoading(true);
+        try {
+            const res = await axios.get(`https://usapp-backend.vercel.app/api/slp/${sessionStorage.getItem('slpId')}/linked-users`);
+            setLinkedUsers(res.data.linkedUsers || []);
+            setFilteredUsers(res.data.linkedUsers || []);
+        } catch (err) {
+            setLinkedUsers([]);
+            setFilteredUsers([]);
+        }
+        setLoading(false);
+    };
 
 
     // Fetch linked users
     useEffect(() => {
-        const fetchLinkedUsers = async () => {
-            setLoading(true);
-            try {
-                const res = await axios.get(`https://usapp-backend.vercel.app/api/slp/${sessionStorage.getItem('slpId')}/linked-users`);
-                setLinkedUsers(res.data.linkedUsers || []);
-                setFilteredUsers(res.data.linkedUsers || []);
-            } catch (err) {
-                setLinkedUsers([]);
-                setFilteredUsers([]);
-            }
-            setLoading(false);
-        };
 
 
 
@@ -80,12 +83,17 @@ const LinkedUsers = ({ uid }) => {
 
     // Remove linked user
     const handleRemove = async (linkedUserId) => {
+        setdeleting(true);
         if (!window.confirm("Remove this linked user?")) return;
         try {
-            await axios.delete(`/api/slp/linked-users/${uid}/${linkedUserId}`);
+            await axios.post(`https://usapp-backend.vercel.app/api/slp/remove-link/${sessionStorage.getItem("slpId")}/${SelectedUser.userId}`);
             setLinkedUsers((prev) => prev.filter((u) => u.userId !== linkedUserId));
+            fetchLinkedUsers(); // Refresh linked users
         } catch (err) {
-            alert("Failed to remove linked user.");
+            alert(err.response?.data?.error || "Failed to remove linked user.");
+        }
+        finally {
+            setdeleting(false);
         }
     };
 
@@ -154,6 +162,26 @@ const LinkedUsers = ({ uid }) => {
                     className="ml-2 bg-blue-900 text-white px-4 py-2 rounded hover:bg-blue-800"
                     onClick={() => setshowLinkingPopUp(true)}
                 > Send Link Request</button>
+
+                <Transition
+                    show={deleting}
+                    enter="transition-opacity duration-200"
+                    enterFrom="opacity-0"
+                    enterTo="opacity-100"
+                    leave="transition-opacity duration-200"
+                    leaveFrom="opacity-100"
+                    leaveTo="opacity-0"
+                >
+                    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black-50 bg-opacity-40">
+                        <div className="bg-white rounded-lg p-8 flex flex-col items-center shadow-lg">
+                            <svg className="animate-spin h-8 w-8 text-blue-900 mb-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"></path>
+                            </svg>
+                            <span className="text-blue-900 font-semibold text-lg">removing linked user...</span>
+                        </div>
+                    </div>
+                </Transition>
                 <Transition
                     show={showLinkingPopUp}
                     enter="transition-opacity duration-500"
