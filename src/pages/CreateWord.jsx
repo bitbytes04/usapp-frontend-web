@@ -96,6 +96,7 @@ export default function CreateWord() {
                 buttonName: wordName,
                 buttonCategory: wordCategory,
                 buttonImagePath: await getDownloadURL(photoRef),
+                buttonImageRef: photoRef.fullPath,
             };
             try {
                 const response = await axios.post(
@@ -324,7 +325,7 @@ export default function CreateWord() {
                 </div>
                 <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
                     {userButtons.map((button) => (
-                        <div key={button.id} className="relative flex z-10">
+                        <div key={button.id} className="relative flex">
                             <div
                                 className="bg-white w-100 p-4 rounded-lg shadow-md hover:shadow-lg transition-shadow duration-200 cursor-pointer"
                                 onClick={() => {
@@ -355,7 +356,7 @@ export default function CreateWord() {
                                             Delete
                                         </button>
                                         <button
-                                            onClick={() => setshowPopup(false)}
+                                            onClick={() => { setshowPopup(false); setselectedButton(undefined); }}
                                             className="bg-gray-200 hover:bg-gray-300 text-gray-800 px-3 py-2 sm:px-4 sm:py-2 rounded-lg font-medium transition text-xs sm:text-sm"
                                         >
                                             Cancel
@@ -383,7 +384,7 @@ export default function CreateWord() {
                                                 Delete
                                             </button>
                                             <button
-                                                onClick={() => setshowPopup(false)}
+                                                onClick={() => { setshowPopup(false); setselectedButton(undefined); }}
                                                 className="bg-gray-200 hover:bg-gray-300 text-gray-800 px-4 py-2 rounded-lg font-medium transition text-sm"
                                             >
                                                 Cancel

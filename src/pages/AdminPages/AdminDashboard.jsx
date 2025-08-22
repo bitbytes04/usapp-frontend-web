@@ -3,10 +3,11 @@ import '../../App.css'
 import Sidebar, { SidebarItem } from '../../components/Sidebar'
 import header from '../../assets/backgrounds/header_background_img.png'
 import logo from '../../assets/logos/usapp_logo_medium.png'
-import { Home, User, LibraryBig, UserCog, ChartNoAxesCombined, SquarePlus } from 'lucide-react'
+import { Home, User, LibraryBig, UserCog, ChartNoAxesCombined, Blocks } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
 import ManageUsers from './ManageUsers'
 import ManageUserFeedback from './ManageUserFeedback'
+import DefaultButtons from './DefaultButtons'
 import ActivityLogs from './ActivityLogs'
 import { useState } from 'react'
 
@@ -46,12 +47,19 @@ const AdminDashboard = () => {
                                     active={activeItem === "Activity Logs"}
                                     onClick={() => handleSidebarItemClick("Activity Logs")}
                                 />
+                                <SidebarItem
+                                    icon={<Blocks />}
+                                    text="Default Buttons"
+                                    active={activeItem === "Default Buttons"}
+                                    onClick={() => handleSidebarItemClick("Default Buttons")}
+                                />
                             </Sidebar>
                         </div>
                         <div className='flex-grow flex-1 bg-[#fff6eb] overflow-y-auto'>
                             {activeItem === "Manage Users" && <ManageUsers />}
                             {activeItem === "Manage User Feedback" && <ManageUserFeedback />}
                             {activeItem === "Activity Logs" && <ActivityLogs />}
+                            {activeItem === "Default Buttons" && <DefaultButtons />}
                         </div>
                     </div>
 
@@ -100,10 +108,16 @@ const AdminDashboard = () => {
                                     <UserCog size={22} className="mr-2" /> Activity Logs
                                 </button>
                                 <button
+                                    className={`flex items-center p-2 rounded mb-2 ${activeItem === "Default Buttons" ? "bg-[#ffe0b2]" : ""}`}
+                                    onClick={() => { setActiveItem("Default Buttons"); setMenuOpen(false); }}
+                                >
+                                    <Blocks size={22} className="mr-2" /> Default Buttons
+                                </button>
+                                <button
                                     className="flex items-center p-2 rounded mb-2 text-red-600 hover:bg-red-100"
                                     onClick={() => {
-                                        navigate(-1)
                                         sessionStorage.removeItem('admintoken');
+                                        navigate(-1)
                                     }}
                                 >
                                     <Home size={22} className="mr-2" /> Logout

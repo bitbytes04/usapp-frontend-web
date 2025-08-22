@@ -37,8 +37,14 @@ const AdminLogin = () => {
 
 
     const handlePasswordReset = async () => {
-        if (Email.length < 5 || Password.length < 5) {
-            showError("Email and password must be at least 5 characters long.");
+        // Validate email format and length
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (Email.length < 5 || !emailRegex.test(Email)) {
+            showError("Please enter a valid email address.");
+            return;
+        }
+        if (Password.length < 5) {
+            showError("Password must be at least 5 characters long.");
             return;
         }
         setLoadingReset(true);

@@ -8,7 +8,7 @@ const SLPAccount = () => {
     const [clinicName, setClinicName] = useState('');
     const [loading, setLoading] = useState(false);
     const [message, setMessage] = useState('');
-    const [showSuccess, setshowSuccess] = useState(true);
+    const [showSuccess, setshowSuccess] = useState(false);
 
 
     const getUserInfo = async () => {
@@ -53,7 +53,7 @@ const SLPAccount = () => {
         setLoading(true);
         setMessage('');
         try {
-            await axios.put(`https://usapp-backend.vercel.app/api/slp/edit-slp/${sessionStorage.getItem("slpId")}`, {
+            await axios.post(`https://usapp-backend.vercel.app/api/slp/edit-slp/${sessionStorage.getItem("slpId")}`, {
                 displayName, clinicName
             });
             setIsEditing(false);
