@@ -43,10 +43,6 @@ const AdminLogin = () => {
             showError("Please enter a valid email address.");
             return;
         }
-        if (Password.length < 5) {
-            showError("Password must be at least 5 characters long.");
-            return;
-        }
         setLoadingReset(true);
         await sendPasswordResetEmail(auth, Email)
             .then(() => {
