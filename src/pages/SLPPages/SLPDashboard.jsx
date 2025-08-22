@@ -21,88 +21,104 @@ const SLPDashboard = () => {
         setActiveItem(item);
     };
 
+
     return (
         <>
-
-
-            <div className={`flex-row md:flex hidden bg-[#fff6eb] h-screen max-w-screen transition-transform duration-500 ease-in-out ${activeItem ? "translate-x-0" : "-translate-x-full"}`}>
+            {(sessionStorage.getItem("slpId") == null || sessionStorage.getItem("slpId") === undefined) ? (
                 <div>
-                    <Sidebar>
-                        <SidebarItem
-                            icon={<User />}
-                            text="Linked Users"
-                            active={activeItem === "Linked Users"}
-                            onClick={() => handleSidebarItemClick("Linked Users")}
-                        />
-                        <SidebarItem
-                            icon={<UserCog />}
-                            text="SLP Account"
-                            active={activeItem === "SLP Account"}
-                            onClick={() => handleSidebarItemClick("SLP Account")}
-                        />
-                    </Sidebar>
-                </div>
-                <div className='flex-grow flex-1 bg-[#fff6eb] overflow-y-auto'>
-                    {activeItem === "Linked Users" && <LinkedUsers />}
-                    {activeItem === "SLP Account" && <SLPAccount />}
-                </div>
-            </div>
-
-            <div className="md:hidden">
-                <div className="flex items-center justify-between px-4 py-3 bg-[#fff6eb] shadow">
-                    <div className="flex items-center">
-                        <img src={logo} alt="USApp Logo" className="h-8 w-auto mr-2" />
+                    <div className="flex flex-col items-center justify-center h-screen bg-[#fff6eb]">
+                        <img src={logo} alt="USApp Logo" className="h-16 mb-6" />
+                        <h2 className="text-2xl font-semibold mb-2 text-gray-800">Please log in to access the SLP Dashboard</h2>
+                        <button
+                            className="mt-4 px-6 py-2 bg-[#ffe0b2] text-gray-900 rounded shadow hover:bg-[#ffd699] transition"
+                            onClick={() => navigate('/slp/login')}
+                        >
+                            Go to Login
+                        </button>
                     </div>
-                    <button
-                        className="p-2 rounded bg-[#ffe0b2]"
-                        onClick={() => setMenuOpen(prev => !prev)}
-                        aria-label="Open Menu"
-                    >
-                        <User size={22} />
-                    </button>
                 </div>
-                {/* Sliding mobile menu */}
-                <div className={`fixed inset-0 z-50 backdrop-brightness-50 flex justify-end transition-all duration-500 ${menuOpen ? "visible" : "invisible pointer-events-none"}`}>
-                    <div
-                        className={`bg-white w-64 h-full shadow-lg flex backdrop-opacity-40 flex-col p-4 transition-transform duration-500 ease-in-out
+            ) : (
+                <>
+                    <div className={`flex-row md:flex hidden bg-[#fff6eb] h-screen max-w-screen transition-transform duration-500 ease-in-out ${activeItem ? "translate-x-0" : "-translate-x-full"}`}>
+                        <div>
+                            <Sidebar>
+                                <SidebarItem
+                                    icon={<User />}
+                                    text="Linked Users"
+                                    active={activeItem === "Linked Users"}
+                                    onClick={() => handleSidebarItemClick("Linked Users")}
+                                />
+                                <SidebarItem
+                                    icon={<UserCog />}
+                                    text="SLP Account"
+                                    active={activeItem === "SLP Account"}
+                                    onClick={() => handleSidebarItemClick("SLP Account")}
+                                />
+
+                            </Sidebar>
+                        </div>
+                        <div className='flex-grow flex-1 bg-[#fff6eb] overflow-y-auto'>
+                            {activeItem === "Linked Users" && <LinkedUsers />}
+                            {activeItem === "SLP Account" && <SLPAccount />}
+                        </div>
+                    </div>
+
+                    <div className="md:hidden">
+                        <div className="flex items-center justify-between px-4 py-3 bg-[#fff6eb] shadow">
+                            <div className="flex items-center">
+                                <img src={logo} alt="USApp Logo" className="h-8 w-auto mr-2" />
+                            </div>
+                            <button
+                                className="p-2 rounded bg-[#ffe0b2]"
+                                onClick={() => setMenuOpen(prev => !prev)}
+                                aria-label="Open Menu"
+                            >
+                                <User size={22} />
+                            </button>
+                        </div>
+                        {/* Sliding mobile menu */}
+                        <div className={`fixed inset-0 z-50 backdrop-brightness-50 flex justify-end transition-all duration-500 ${menuOpen ? "visible" : "invisible pointer-events-none"}`}>
+                            <div
+                                className={`bg-white w-64 h-full shadow-lg flex backdrop-opacity-40 flex-col p-4 transition-transform duration-500 ease-in-out
                                             ${menuOpen ? "translate-x-0" : "translate-x-full"}`}
-                    >
-                        <button
-                            className="self-end mb-4 text-gray-500"
-                            onClick={() => setMenuOpen(false)}
-                            aria-label="Close Menu"
-                        >
-                            ✕
-                        </button>
-                        <button
-                            className={`flex items-center p-2 rounded mb-2 ${activeItem === "Linked Users" ? "bg-[#ffe0b2]" : ""}`}
-                            onClick={() => { setActiveItem("Linked Users"); setMenuOpen(false); }}
-                        >
-                            <User size={22} className="mr-2" /> Linked Users
-                        </button>
-                        <button
-                            className={`flex items-center p-2 rounded mb-2 ${activeItem === "SLP Account" ? "bg-[#ffe0b2]" : ""}`}
-                            onClick={() => { setActiveItem("SLP Account"); setMenuOpen(false); }}
-                        >
-                            <UserCog size={22} className="mr-2" /> SLP Account
-                        </button>
-                        <button
-                            className="flex items-center p-2 rounded mb-2 text-red-600 hover:bg-red-100"
-                            onClick={() => {
-                                sessionStorage.removeItem('slpId');
-                                navigate(-1)
-
-                            }}
-                        >
-                            <Home size={22} className="mr-2" /> Logout
-                        </button>
+                            >
+                                <button
+                                    className="self-end mb-4 text-gray-500"
+                                    onClick={() => setMenuOpen(false)}
+                                    aria-label="Close Menu"
+                                >
+                                    ✕
+                                </button>
+                                <button
+                                    className={`flex items-center p-2 rounded mb-2 ${activeItem === "Linked Users" ? "bg-[#ffe0b2]" : ""}`}
+                                    onClick={() => { setActiveItem("Linked Users"); setMenuOpen(false); }}
+                                >
+                                    <User size={22} className="mr-2" /> Linked Users
+                                </button>
+                                <button
+                                    className={`flex items-center p-2 rounded mb-2 ${activeItem === "SLP Account" ? "bg-[#ffe0b2]" : ""}`}
+                                    onClick={() => { setActiveItem("SLP Account"); setMenuOpen(false); }}
+                                >
+                                    <UserCog size={22} className="mr-2" /> SLP Account
+                                </button>
+                                <button
+                                    className="flex items-center p-2 rounded mb-2 text-red-600 hover:bg-red-100"
+                                    onClick={() => {
+                                        sessionStorage.clear();
+                                        navigate('/slp/login')
+                                    }}
+                                >
+                                    <Home size={22} className="mr-2" /> Logout
+                                </button>
+                            </div>
+                        </div>
+                        <div className="transition-transform duration-500 ease-in-out">
+                            {activeItem === "Linked Users" && <LinkedUsers />}
+                            {activeItem === "SLP Account" && <SLPAccount />}
+                        </div>
                     </div>
-                </div>
-                <div className="transition-transform duration-500 ease-in-out">
-                    {activeItem === "Linked Users" && <LinkedUsers />}
-                    {activeItem === "SLP Account" && <SLPAccount />}
-                </div>
-            </div>
+                </>
+            )}
 
 
         </>

@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useEffect } from 'react'
 import { Transition } from '@headlessui/react'
 import logo from '../assets/logos/usapp_logo_medium.png'
 import { sendPasswordResetEmail, signInWithEmailAndPassword } from 'firebase/auth'
@@ -35,9 +35,13 @@ const AdminLogin = () => {
         setshowErrorMessage(true);
     }
 
+    useEffect(() => {
+        sessionStorage.clear();
+    }, []);
 
     const handlePasswordReset = async () => {
         // Validate email format and length
+        setshowForgotPassword(false);
         const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
         if (Email.length < 5 || !emailRegex.test(Email)) {
             showError("Please enter a valid email address.");
@@ -54,7 +58,7 @@ const AdminLogin = () => {
             })
             .finally(() => {
                 setLoadingReset(false);
-                setshowForgotPassword(false);
+
             });
     }
 
@@ -239,7 +243,7 @@ const AdminLogin = () => {
                                         <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
                                         <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"></path>
                                     </svg>
-                                    <span className="text-lg font-semibold text-gray-700">Logging In...</span>
+                                    <span className="text-lg font-semibold text-gray-700">Sending Password Reset Email...</span>
                                 </div>
                             </div>
                         ) : (

@@ -28,7 +28,7 @@ export default function CreateWord() {
             setdeleting(true)
             const uid = sessionStorage.getItem('userId');
             await axios.post(`https://usapp-backend.vercel.app/api/users/${sessionStorage.getItem('userId')}/${selectedButton.id}/deletebutton`);
-            alert('Board deleted successfully!');
+            alert('Button deleted successfully!');
             fetchUserButtons(); // Refresh the list
             setshowPopup(false);
         } catch (error) {

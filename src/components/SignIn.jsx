@@ -50,9 +50,12 @@ function SignupForm(props) {
             showErrorMessage("Guardian must provide End-User's name and age.");
             return false;
         }
-        if (parseInt(age) < 18) {
+        if (parseInt(age) < 18 && userType === 'Guardian') {
             showErrorMessage("Guardian must be an adult (18+ years old).");
             return false;
+        }
+        if (parseInt(age) < 13) {
+            showErrorMessage("You must be at least 13 years old to sign up.");
         }
         if (!isConditionsRead) {
             showErrorMessage("Please read and agree to the terms and conditions");
@@ -150,6 +153,12 @@ function SignupForm(props) {
                     };
                     try {
                         await axios.post('https://usapp-backend.vercel.app/api/users/create', userData);
+                        setFirstName('');
+                        setLastName('');
+                        setUsername('');
+                        setEmail('');
+                        setPassword('');
+                        setConfirmPassword('');
                         window.alert("User created successfully!");
                         setIsLogin(true);
 
@@ -257,7 +266,7 @@ function SignupForm(props) {
                                     <p className="text-red-600 text-xs mb-2">Please enter a valid age.</p>
                                 )}
                                 {endAge !== "" && Number(endAge) < 13 && (
-                                    <p className="text-red-600 text-xs mb-2">End-User must be at least 13 years old.</p>
+                                    <p className="text-red-600 text-xs mb-2">End-User must be at least 5 years old.</p>
                                 )}
                             </>
                         )}
@@ -277,7 +286,7 @@ function SignupForm(props) {
                                 !userType ||
                                 !age ||
                                 isNaN(Number(age)) ||
-                                Number(age) < 13 ||
+                                Number(age) < 18 ||
                                 (userType === "Guardian" && (endName.length < 5 || !endAge || isNaN(Number(endAge)) || Number(endAge) < 13))
                             }
                         >
