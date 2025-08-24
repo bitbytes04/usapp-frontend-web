@@ -1,70 +1,91 @@
-import React from 'react'
+import React, { useState } from 'react';
 import logo from '../assets/logos/usapp_logo_medium.png';
+import header from '../assets/backgrounds/header-landing.png';
+import showcase from '../assets/backgrounds/showcase-landing.png';
+
+const navItems = [
+    { label: 'Login as Board User', href: '/login' },
+    { label: 'Login as Speech Language Pathologist', href: '/slp/login' },
+
+];
+
 const Landing = () => {
+    const [dropdownOpen, setDropdownOpen] = useState(false);
+
+    const handleNav = (href) => {
+        window.location.href = href;
+    };
+
     return (
-        <div style={{
+        <>
+            <div className='flex flex-col justify-start min-h-screen bg-[#fff6eb]'>
+                <div className='relative flex flex-row items-center justify-center h-20 lg:h-30 shadow-2xl border-b-1 border-white object-fill bg-gray-50'>
+                    <img src={header} alt="header background" className='w-full h-full object-cover absolute inset-0 z-0' />
+                    <img src={logo} alt="USAPP Logo" className='h-12 sm:h-15 lg:h-25 object-contain absolute top-2 left-4 sm:top-1 sm:left-20 z-10' />
 
-        }} className="min-h-screen  bg-beige flex flex-col">
-            <header className="py-4 px-3 usapp-bg md:py-6 md:px-8 bg-[#043b64]  text-white flex flex-col md:flex-row justify-between items-center shadow-lg relative overflow-hidden">
-
-                <h1 className="m-0 text-xl md:text-2xl font-bold flex items-center gap-3">
-                    USAPP
-                </h1>
-
-            </header>
-            <main className="flex-1 flex flex-col items-center justify-center p-3 md:p-8">
-                <div className="flex flex-col gap-4 md:flex-row md:gap-8 w-full max-w-6xl">
-                    <div className="flex flex-col flex-1 items-center">
-                        <img src={logo} alt="USAPP Logo" className="mb-4 h-28 md:h-40 w-auto" />
-                        <h2 className="text-xl md:text-3xl font-semibold mb-3 text-center text-[#043b64]">Filipino AAC Communication Board</h2>
-                        <p className="text-sm md:text-md indent-6 md:indent-10 text-justify max-w-xs md:max-w-xl mb-4 md:mb-6 text-[#17616e]">
-                            USAPP is an Augmentative and Alternative Communication (AAC) board designed specifically for Filipinos.
-                            It empowers individuals with speech or language difficulties to communicate more effectively using symbols, words, and phrases in Filipino (Tagalog).
-                            Our mission is to make communication accessible, inclusive, and culturally relevant for everyone in the Philippines.
-                        </p>
-                        <a
-                            href="/login"
-                            className="mt-2 md:mt-4 px-6 py-2 rounded bg-[#043b64] text-white font-bold text-2xl shadow hover:bg-[#17616e] transition"
+                    {/* Dropdown Navigation */}
+                    <div className='absolute right-4 sm:right-5 lg:right-20 z-20'>
+                        <button
+                            className='bg-[#a3d7e0] text-black text-base sm:text-md font-bold py-2 usapp-border px-3 sm:px-10 rounded-lg hover:bg-[#3d6786] hover:text-white flex items-center'
+                            onClick={() => setDropdownOpen(!dropdownOpen)}
+                            id="dropdownMenuButton"
                         >
-                            Get Started
+                            LOGIN
+                            <svg className="ml-2 w-4 h-4" fill="none" stroke="currentColor" strokeWidth="4" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
+                            </svg>
+                        </button>
+                        {dropdownOpen && (
+                            <div
+                                onMouseLeave={() => setDropdownOpen(false)}
+                                className='absolute right-0 mt-2 w-40 sm:w-80 bg-white rounded-lg shadow-lg border'
+                                tabIndex={-1}
+                            >
+                                {navItems.map((item) => (
+                                    <>
+                                        <button
+                                            key={item.label}
+                                            className='block w-full text-left px-1 sm:px-4 py-2 text-black hover:bg-[#a3d7e0] hover:text-white text-sm sm:text-base'
+                                            onClick={() => handleNav(item.href)}
+                                        >
+                                            {item.label}
+                                        </button>
+                                        <hr className='border-t border-gray-500 m-0' />
+                                    </>
+                                ))}
+                            </div>
+                        )}
+                    </div>
+                </div>
+                <div className='flex-grow w-full flex flex-col-reverse lg:flex-row p-5 '>
+                    <div className='flex-[10] h-full w-full flex flex-col items-center justify-start p-4 bg-[#fff6eb]'>
+                        <h1 className='text-2xl font-bold mb-4 text-white bg-[#035084] px-2 py-2 w-full lg:mt-2 usapp-border  rounded-sm '>WHAT IS USAPP?</h1>
+                        <p className='text-base sm:text-sm lg:text-md text-justify mb-4 bg-white rounded p-4 w-full border border-gray-300 shadow-md'>
+                            <strong>USAPP</strong> is an Augmentative and Alternative Communication (AAC) board mobile application designed specifically for Filipinos. It empowers individuals with speech or language difficulties to communicate more effectively using symbols, words, and phrases in Filipino (Tagalog). Our mission is to make communication accessible, inclusive, and innovative for everyone in the Philippines.
+                        </p>
+                        <h1 className='text-2xl font-bold mb-4 text-white bg-[#fe8917] usapp-border px-2 py-2 w-full lg:mt-2  rounded-sm '>KEY FEATURES</h1>
+
+                        <ul className='list-none text-base sm:text-sm lg:text-md mb-4 bg-white rounded p-4 w-full border border-gray-300 shadow-md'>
+                            <li className='mb-2'><strong>Easy-to-Use Communication Boards</strong> – Tap words, phrases, or symbols to build sentences quickly.</li>
+                            <li className='mb-2'><strong>Personalized Vocabulary</strong> – Customize boards with words that matter most to you.</li>
+                            <li className='mb-2'><strong>Tagalog Support</strong> – Communicate seamlessly in Tagalog.</li>
+                            <li className='mb-2'><strong>Smart Suggestions</strong> – AI-powered predictions make communication faster and more natural.</li>
+                            <li className='mb-2'><strong>Accessible Design</strong> – Built with color-coding, visuals, and user-friendly navigation for all ages.</li>
+                        </ul>
+
+                        <a
+                            href='https://drive.google.com/file/d/1U_MnVjBjlMS7RncDo1kRbcDOUKceWevF/view?usp=drive_link'
+                            className='bg-[#12b2b5] w-full text-white text-base sm:text-md font-bold py-2 usapp-border px-3 sm:px-10 rounded-lg hover:bg-[#3d6786] hover:text-white mt-2'>
+                            DOWNLOAD THE APP
                         </a>
                     </div>
-
-                    <div className="flex-1 flex flex-col justify-center items-center bg-white rounded-lg shadow-md p-6 md:p-8">
-                        <h3 className="text-lg md:text-2xl font-bold text-[#043b64] mb-4 text-center">Why Use USAPP?</h3>
-                        <ul className="space-y-3 text-[#17616e] text-sm md:text-base list-disc list-inside">
-                            <li>
-                                <span className="font-semibold">Culturally Relevant:</span> Uses Filipino language and symbols tailored for local context.
-                            </li>
-                            <li>
-                                <span className="font-semibold">User-Friendly:</span> Simple, intuitive interface for all ages and abilities.
-                            </li>
-                            <li>
-                                <span className="font-semibold">Accessible Anywhere:</span> Works on any device with a web browser.
-                            </li>
-                            <li>
-                                <span className="font-semibold">Customizable:</span> Personalize boards to fit individual needs.
-                            </li>
-                            <li>
-                                <span className="font-semibold">Free to Use:</span> No cost, no hidden fees—communication for everyone.
-                            </li>
-                        </ul>
+                    <div className='flex-[12] flex flex-col items-center justify-center p-4 lg:pl-0 overflow-hidden'>
+                        <img src={showcase} className='w:[90%] lg:w-[85%]' />
                     </div>
-
                 </div>
+            </div>
+        </>
+    );
+};
 
-            </main>
-            <footer className="py-3 md:py-4 bg-[#17616e] text-white text-center text-xs md:text-base">
-                &copy; {new Date().getFullYear()} USAPP. All rights reserved.
-                <button
-                    onClick={() => window.location.href = '/slp/login'}
-                    className="ml-4 px-4 py-1 rounded bg-white text-[#17616e] font-semibold shadow hover:bg-gray-100 transition"
-                >
-                    SLP PORTAL
-                </button>
-            </footer>
-        </div>
-    )
-}
-
-export default Landing
+export default Landing;
