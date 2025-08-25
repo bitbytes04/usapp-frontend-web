@@ -44,8 +44,30 @@ export default function CreateBoard() {
         fetchButtonsAndUserData();
     }, []);
 
-    const filteredButtons = testButtons.filter(button =>
-        button.buttonName.toLowerCase().includes(searchQuery.toLowerCase())
+    // Filter and sort functions
+    const filterButtons = (buttons, query, category) => {
+        let filtered = buttons;
+        if (category) {
+            filtered = filtered.filter(button => button.buttonCategory === category);
+        }
+        if (query) {
+            filtered = filtered.filter(button =>
+                button.buttonName.toLowerCase().includes(query.toLowerCase())
+            );
+        }
+        return filtered;
+    };
+
+    const sortButtons = (buttons) => {
+        return [...buttons].sort((a, b) => {
+            if (a.buttonCategory < b.buttonCategory) return -1;
+            if (a.buttonCategory > b.buttonCategory) return 1;
+            return a.buttonName.localeCompare(b.buttonName);
+        });
+    };
+
+    const filteredButtons = sortButtons(
+        filterButtons(testButtons, searchQuery, boardCategory)
     );
 
     const handleSubmit = async () => {
@@ -243,6 +265,27 @@ export default function CreateBoard() {
                     placeholder="Search buttons..."
                     className="border border-gray-300 rounded-lg p-2 mb-4 w-full focus:outline-none focus:ring-2 bg-white focus:ring-blue-400 transition"
                 />
+                <div className="flex flex-row gap-4 mb-4">
+                    <select
+                        value={boardCategory}
+                        onChange={(e) => setBoardCategory(e.target.value)}
+                        className="border border-gray-300 rounded-lg p-2 focus:outline-none focus:ring-2 focus:ring-blue-200 transition"
+                    >
+                        <option value="">All Categories</option>
+                        {[...new Set(testButtons.map(b => b.buttonCategory))]
+                            .sort()
+                            .map((cat, idx) => (
+                                <option key={idx} value={cat}>{cat}</option>
+                            ))}
+                    </select>
+                    <button
+                        onClick={() => setBoardCategory('')}
+                        className="bg-gray-200 px-4 py-2 rounded hover:bg-gray-300"
+                        type="button"
+                    >
+                        Clear Category Filter
+                    </button>
+                </div>
                 <div className="flex bg-white border border-gray-200 p-3 rounded-xl flex-row flex-wrap w-full justify-center gap-4 max-h-[350px] overflow-y-auto">
                     {Loading ? (
                         <div className="col-span-full w-full flex justify-center items-center py-16">

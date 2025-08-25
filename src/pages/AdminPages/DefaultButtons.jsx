@@ -207,12 +207,22 @@ const DefaultButtons = () => {
         "Determiners"
     ];
 
-    // Filter and search logic
-    const filteredButtons = buttonList.filter(button => {
-        const matchesSearch = button.buttonName.toLowerCase().includes(search.toLowerCase());
-        const matchesCategory = categoryFilter ? button.buttonCategory === categoryFilter : true;
-        return matchesSearch && matchesCategory;
-    });
+    // Filter, sort, and search logic
+    const filteredButtons = buttonList
+        .filter(button => {
+            const matchesSearch = button.buttonName.toLowerCase().includes(search.toLowerCase());
+            const matchesCategory = categoryFilter ? button.buttonCategory === categoryFilter : true;
+            return matchesSearch && matchesCategory;
+        })
+        .sort((a, b) => {
+            // Sort by category first
+            if (a.buttonCategory < b.buttonCategory) return -1;
+            if (a.buttonCategory > b.buttonCategory) return 1;
+            // Then by button name
+            if (a.buttonName.toLowerCase() < b.buttonName.toLowerCase()) return -1;
+            if (a.buttonName.toLowerCase() > b.buttonName.toLowerCase()) return 1;
+            return 0;
+        });
 
     // Pagination logic
     const totalPages = Math.ceil(filteredButtons.length / pageSize);
