@@ -95,22 +95,22 @@ export default function CreateBoard() {
 
     const getCategoryColor = (category) => {
         switch (category) {
-            case 'People': return '#FACC15'; // yellow-400
-            case 'Actions': return '#EF4444'; // red-500
-            case 'Feelings': return '#22C55E'; // green-500
-            case 'Things': return '#3B82F6'; // blue-500
-            case 'Places': return '#8B5CF6';
-            case 'Nouns': return '#FFA332'; // orange
-            case 'Pronouns': return '#FFE777'; // light yellow
-            case 'Verbs': return '#A3E264'; // light green
-            case 'Adjectives': return '#63C4FF'; // sky blue
-            case 'Prepositions & Social Words': return '#FF84C1'; // light pink
-            case 'Questions': return '#B28BFF'; // lavender
-            case 'Negation & Important Words': return '#FF4747'; // bright red
-            case 'Adverbs': return '#B98A6A'; // brown/tan
-            case 'Conjunctions': return '#FFFFFF'; // white
-            case 'Determiners': return '#595959'; // dark gray
-            default: return '#D3D3D3'; // fallback light gray// purple-500
+            case 'People': return 'bg-yellow-400';
+            case 'Actions': return 'bg-red-500';
+            case 'Feelings': return 'bg-green-500';
+            case 'Things': return 'bg-blue-500';
+            case 'Places': return 'bg-purple-500';
+            case 'Nouns': return 'bg-orange-400';
+            case 'Pronouns': return 'bg-yellow-200';
+            case 'Verbs': return 'bg-green-300';
+            case 'Adjectives': return 'bg-sky-400';
+            case 'Prepositions & Social Words': return 'bg-pink-300';
+            case 'Questions': return 'bg-purple-300';
+            case 'Negation & Important Words': return 'bg-red-600';
+            case 'Adverbs': return 'bg-amber-700';
+            case 'Conjunctions': return 'bg-white';
+            case 'Determiners': return 'bg-gray-800';
+            default: return 'bg-gray-300';
         }
     };
 
