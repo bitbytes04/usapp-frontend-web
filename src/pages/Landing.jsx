@@ -74,7 +74,7 @@ const Landing = () => {
                         </ul>
 
                         <a
-                            href='https://drive.google.com/file/d/1xVgbnAM_ylndrRn72zUL63nQv35yzu0J/view?usp=drive_link'
+                            href='https://drive.google.com/file/d/1wQ0TZ9yJ8gt6-uDpzLvmmpgi7up6QsHH/view?usp=sharing'
                             className='bg-[#12b2b5] w-full text-white text-center sm:text-md font-bold py-2 usapp-border px-3 sm:px-10 rounded-lg hover:bg-[#3d6786] hover:text-white mt-2'>
                             DOWNLOAD THE APP
                         </a>
