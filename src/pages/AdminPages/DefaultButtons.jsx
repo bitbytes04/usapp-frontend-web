@@ -184,7 +184,7 @@ const DefaultButtons = () => {
             await axios.post(`https://usapp-backend.vercel.app/api/default/delete-buttons/${id}`);
             alert('Button deleted successfully!');
         } catch (error) {
-
+            alert('Error deleting button: ' + (error.response?.data?.error || error.message));
         }
         finally {
             setdeleting(false);
