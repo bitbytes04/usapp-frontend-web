@@ -126,18 +126,7 @@ export default function EditBoard() {
                                 required
                             />
                         </div>
-                        <div className="flex items-center space-x-2">
-                            <input
-                                type="checkbox"
-                                id="favorite"
-                                checked={isFavorite}
-                                onChange={(e) => setIsFavorite(e.target.checked)}
-                                className="h-5 w-5 text-blue-600"
-                            />
-                            <label htmlFor="favorite" className="font-medium text-lg">
-                                Favorite
-                            </label>
-                        </div>
+
                         <div>
                             <label className="block font-medium mb-2 text-lg">Buttons</label>
                             <input
