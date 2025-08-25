@@ -42,7 +42,7 @@ export default function Sidebar({ children }) {
                             `}
                     >
                         <button
-                            onClick={() => { navigate(-1); sessionStorage.removeItem('admintoken'); }}
+                            onClick={() => { navigate(-1); sessionStorage.clear(); }}
 
                             className={`${expanded ? "block" : "hidden"} w-full bg-red-900 hover:bg-red-700 delay-150 duration-300 text-white py-2 rounded`} >
                             Log out
