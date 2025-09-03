@@ -24,7 +24,7 @@ const DefaultButtons = () => {
         buttonName: '',
         id: ''
     });
-    const [pageSize] = useState(8);
+    const [pageSize] = useState(10);
 
 
     useEffect(() => {

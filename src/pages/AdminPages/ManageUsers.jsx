@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { Transition } from '@headlessui/react';
-import { PieChart, Pie, Cell, Tooltip, Legend } from 'recharts';
+import { PieChart, Pie, Cell, Tooltip, Legend, BarChart, Bar, XAxis, YAxis } from 'recharts';
 
 const ManageUsers = () => {
     const [allUsers, setAllUsers] = useState([]);
@@ -9,6 +9,7 @@ const ManageUsers = () => {
     const [boardLogs, setboardLogs] = useState([]);
     const [loading, setLoading] = useState(true);
     const [isProcessing, setisProcessing] = useState(false);
+    const [StatNumber, setStatNumber] = useState(10);
 
     useEffect(() => {
         const fetchUsers = async () => {
@@ -51,6 +52,7 @@ const ManageUsers = () => {
             setAllUsers(allRes.data.users || []);
             setSlpUsers(slpRes.data.users || []);
             setboardLogs(bLogsRes.data.boardLogs || []);
+            alert(`User ${action}d successfully.`);
 
         } catch (err) {
             alert('Failed to update user status.');
@@ -141,6 +143,37 @@ const ManageUsers = () => {
         });
         // Convert to array for recharts
         return Object.entries(stats).map(([name, value]) => ({ name, value }));
+    };
+
+    const getTopButtonStats = (logs, topN = 10) => {
+        const stats = getButtonPressStats(logs);
+        if (stats.length <= topN) return { top: stats, remaining: [] };
+        const sorted = [...stats].sort((a, b) => b.value - a.value);
+        const top = sorted.slice(0, topN);
+        const remainingValue = sorted.slice(topN).reduce((sum, item) => sum + item.value, 0);
+        const remainingNames = sorted.slice(topN).map(item => item.name);
+        return {
+            top: [...top],
+            remaining: sorted.slice(topN)
+        };
+    };
+
+    const { top: topButtonStats, remaining: remainingButtonStats } = getTopButtonStats(boardLogs, StatNumber);
+    console.log('Top Button Stats:', topButtonStats);
+
+    const [buttonSearchTerm, setButtonSearchTerm] = useState('');
+    const [buttonSearchResult, setButtonSearchResult] = useState(null);
+
+    const handleButtonSearch = () => {
+        if (!buttonSearchTerm.trim()) {
+            setButtonSearchResult(null);
+            return;
+        }
+        const stats = getButtonPressStats(boardLogs);
+        const found = stats.find(item =>
+            item.name.toLowerCase().includes(buttonSearchTerm.toLowerCase())
+        );
+        setButtonSearchResult(found || { name: buttonSearchTerm, value: 0 });
     };
 
     return (
@@ -314,76 +347,44 @@ const ManageUsers = () => {
                     )}
 
                     <h2 className="px-3 bg-blue-900 text-xl font-semibold text-white mt-5">USER STATISTICS</h2>
-                    <div className='flex flex-col md:flex-row md:items-center shadow-md rounded bg-white md:justify-center gap-4 '>
-                        <div className="mt-10 flex flex-col items-center">
-                            <h2 className="text-xl font-semibold mb-4">User Roles Distribution</h2>
-                            <div className="w-full flex justify-center">
-                                <PieChart width={350} height={300} className='z-0'>
-                                    <Pie
-                                        dataKey="value"
-                                        isAnimationActive={true}
-                                        data={
-                                            Object.entries(
+
+                    <div className='overflow-x-auto'>
+
+
+
+                        <div className="flex flex-col px-5 shadow-md rounded bg-white mt-5 md:mt-0">
+
+                            <div className="flex flex-col md:flex-row-reverse justify-around">
+                                <div className="border-2 border-gray-300 rounded px-2 m-2">
+                                    <h2 className="text-md font-semibold py-2 bg-amber-800 text-white text-center w-full my-2">USER ROLE DISTRIBUTION</h2>
+                                    <PieChart width={300} height={400} className='z-0'>
+                                        <Pie
+                                            dataKey="value"
+                                            isAnimationActive={true}
+                                            data={
+                                                Object.entries(
+                                                    allUsers.reduce((acc, user) => {
+                                                        const role = user.role || 'unknown';
+                                                        acc[role] = (acc[role] || 0) + 1;
+                                                        return acc;
+                                                    }, {})
+                                                ).map(([role, value]) => ({ name: role, value }))
+                                            }
+                                            cx="50%"
+                                            cy="50%"
+                                            outerRadius={100}
+                                            fill="#8884d8"
+                                            label
+                                        >
+                                            {Object.entries(
                                                 allUsers.reduce((acc, user) => {
                                                     const role = user.role || 'unknown';
                                                     acc[role] = (acc[role] || 0) + 1;
                                                     return acc;
                                                 }, {})
-                                            ).map(([role, value]) => ({ name: role, value }))
-                                        }
-                                        cx="50%"
-                                        cy="50%"
-                                        outerRadius={100}
-                                        fill="#8884d8"
-                                        label
-                                    >
-                                        {Object.entries(
-                                            allUsers.reduce((acc, user) => {
-                                                const role = user.role || 'unknown';
-                                                acc[role] = (acc[role] || 0) + 1;
-                                                return acc;
-                                            }, {})
-                                        ).map(([role], idx) => (
-                                            <Cell
-                                                key={role}
-                                                fill={
-                                                    [
-                                                        "#8884d8",
-                                                        "#82ca9d",
-                                                        "#ffc658",
-                                                        "#ff8042",
-                                                        "#8dd1e1",
-                                                        "#a4de6c",
-                                                        "#d0ed57",
-                                                        "#d8854f"
-                                                    ][idx % 8]
-                                                }
-                                            />
-                                        ))}
-                                    </Pie>
-                                    <Tooltip />
-                                    <Legend />
-                                </PieChart>
-                            </div>
-                        </div>
-                        <div>
-                            <div className="mt-10 flex flex-col items-center">
-                                <h2 className="text-xl font-semibold mb-4">Button Press Stats (Board Logs)</h2>
-                                <div className="w-full flex justify-center">
-                                    <PieChart width={350} height={300}>
-                                        <Pie
-                                            dataKey="value"
-                                            isAnimationActive={true}
-                                            data={getButtonPressStats(boardLogs)}
-                                            cx="50%"
-                                            cy="50%"
-                                            outerRadius={100}
-                                            fill="#82ca9d"
-                                            label
-                                        >
-                                            {getButtonPressStats(boardLogs).map((entry, idx) => (
+                                            ).map(([role], idx) => (
                                                 <Cell
-                                                    key={entry.name}
+                                                    key={role}
                                                     fill={
                                                         [
                                                             "#8884d8",
@@ -402,14 +403,128 @@ const ManageUsers = () => {
                                         <Tooltip />
                                         <Legend />
                                     </PieChart>
+
                                 </div>
+
+                                <div className="border-2 border-gray-300 rounded m-2">
+                                    <h2 className="text-md font-semibold py-2 bg-teal-800 text-white w-full text-center my-2">TOP BUTTON PRESSES</h2>
+                                    <PieChart width={300} height={400} className='z-0'>
+                                        <Legend />
+                                        <Pie
+                                            dataKey="value"
+                                            isAnimationActive={true}
+                                            data={topButtonStats}
+                                            cx="50%"
+                                            cy="50%"
+                                            outerRadius={100}
+                                            fill="#82ca9d"
+                                            label
+                                        >
+                                            {topButtonStats.map((entry, idx) => (
+                                                <Cell
+                                                    key={entry.name}
+                                                    fill={
+                                                        [
+                                                            "#8884d8",
+                                                            "#82ca9d",
+                                                            "#ffc658",
+                                                            "#ff8042",
+                                                            "#8dd1e1",
+                                                            "#a4de6c",
+                                                            "#d0ed57",
+                                                            "#d8854f"
+                                                        ][idx % 8]
+                                                    }
+                                                />
+                                            ))}
+                                        </Pie>
+                                        <Tooltip />
+                                    </PieChart>
+
+                                </div>
+
+
+
+                                <div className="flex flex-col items-center px-2 pb-4 flex-1 border-2 border-gray-300 rounded m-2">
+                                    <h2 className="text-md font-semibold py-2 bg-blue-900 text-white w-full text-center my-2">CHART DISPLAY LIMIT</h2>
+
+                                    <input
+                                        type="number"
+                                        min={1} max={15}
+                                        placeholder="Enter button name/word..."
+                                        value={StatNumber}
+                                        onChange={e => setStatNumber(e.target.value)}
+                                        className="w-full py-2  px-3 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-400"
+                                    />
+
+
+                                    <h2 className="text-md font-semibold py-2 bg-blue-900 text-white w-full text-center my-2">SEARCH BUTTON USAGE</h2>
+                                    <div className="flex gap-2 mb-2 w-full">
+                                        <input
+                                            type="text"
+                                            placeholder="Enter button name/word..."
+                                            value={buttonSearchTerm}
+                                            onChange={e => setButtonSearchTerm(e.target.value)}
+                                            className="px-3 flex-grow py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-400"
+                                        />
+                                        <button
+                                            className="px-4 py-2 bg-blue-900 text-white rounded hover:bg-blue-700"
+                                            onClick={handleButtonSearch}
+                                        >
+                                            Search
+                                        </button>
+
+
+                                    </div>
+
+                                    <div className='flex-grow bg-gray-100 w-full p-3 rounded text-center border-1 border-gray-200'>
+                                        {buttonSearchResult && (
+                                            <div className="text-lg capitalize mt-2">
+                                                <span className="font-semibold">{buttonSearchResult.name}:</span> {buttonSearchResult.value} usage{buttonSearchResult.value === 1 ? '' : 's'}
+                                            </div>
+                                        )}
+                                    </div>
+
+
+                                </div>
+
+                            </div>
+                            <h2 className="text-md font-semibold py-2 bg-teal-800 text-white w-full text-center my-2">CHART DISPLAY LIMIT</h2>
+                            <div className='border-gray-300 p-5 self-center max-w-[100%] rounded m-2 overflow-x-auto'>
+
+
+                                <BarChart width={800} height={300} data={topButtonStats}>
+                                    <Bar dataKey="value" fill="#8884d8" className='z-0'>
+                                        {topButtonStats.map((entry, idx) => (
+                                            <Cell
+                                                key={entry.name}
+                                                fill={[
+                                                    "#8884d8",
+                                                    "#82ca9d",
+                                                    "#ffc658",
+                                                    "#ff8042",
+                                                    "#8dd1e1",
+                                                    "#a4de6c",
+                                                    "#d0ed57",
+                                                    "#d8854f"
+                                                ][idx % 8]}
+                                            />
+                                        ))}
+                                    </Bar>
+                                    <Tooltip />
+
+                                    <XAxis dataKey="name" />
+                                    <YAxis />
+                                </BarChart>
                             </div>
                         </div>
                     </div>
-                </>
-            )}
 
-        </div>
+                </>
+            )
+            }
+
+        </div >
     );
 };
 
