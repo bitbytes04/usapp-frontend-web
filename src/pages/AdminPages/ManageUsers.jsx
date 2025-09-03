@@ -406,7 +406,7 @@ const ManageUsers = () => {
 
                                 </div>
 
-                                <div className="border-2 border-gray-300 rounded m-2">
+                                <div className="border-2 border-gray-300 px-2 rounded m-2">
                                     <h2 className="text-md font-semibold py-2 bg-teal-800 text-white w-full text-center my-2">TOP BUTTON PRESSES</h2>
                                     <PieChart width={300} height={400} className='z-0'>
                                         <Legend />
@@ -446,7 +446,7 @@ const ManageUsers = () => {
 
 
                                 <div className="flex flex-col items-center px-2 pb-4 flex-1 border-2 border-gray-300 rounded m-2">
-                                    <h2 className="text-md font-semibold py-2 bg-blue-900 text-white w-full text-center my-2">CHART DISPLAY LIMIT</h2>
+                                    <h2 className="text-md font-semibold py-2 bg-cyan-700 text-white w-full text-center my-2">CHART DISPLAY LIMIT</h2>
 
                                     <input
                                         type="number"
@@ -458,7 +458,7 @@ const ManageUsers = () => {
                                     />
 
 
-                                    <h2 className="text-md font-semibold py-2 bg-blue-900 text-white w-full text-center my-2">SEARCH BUTTON USAGE</h2>
+                                    <h2 className="text-md font-semibold py-2 bg-cyan-700 text-white w-full text-center my-2">SEARCH BUTTON USAGE</h2>
                                     <div className="flex gap-2 mb-2 w-full">
                                         <input
                                             type="text"
@@ -468,7 +468,7 @@ const ManageUsers = () => {
                                             className="px-3 flex-grow py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-400"
                                         />
                                         <button
-                                            className="px-4 py-2 bg-blue-900 text-white rounded hover:bg-blue-700"
+                                            className="px-4 py-2 bg-cyan-700 text-white rounded hover:bg-blue-700"
                                             onClick={handleButtonSearch}
                                         >
                                             Search
@@ -489,7 +489,7 @@ const ManageUsers = () => {
                                 </div>
 
                             </div>
-                            <h2 className="text-md font-semibold py-2 bg-teal-800 text-white w-full text-center my-2">CHART DISPLAY LIMIT</h2>
+                            <h2 className="text-md font-semibold py-2 bg-teal-800 text-white w-full text-center my-2">TOP BUTTON PRESSES</h2>
                             <div className='border-gray-300 p-5 self-center max-w-[100%] rounded m-2 overflow-x-auto'>
 
 
