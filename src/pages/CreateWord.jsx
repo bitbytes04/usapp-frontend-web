@@ -8,7 +8,7 @@ import { useEffect } from 'react';
 
 export default function CreateWord() {
     const [wordName, setWordName] = useState('');
-    const [wordCategory, setWordCategory] = useState('');
+    const [wordCategory, setWordCategory] = useState('Nouns');
     const [wordPhoto, setWordPhoto] = useState(null);
     const [loading, setLoading] = useState(false);
     const [userButtons, setuserButtons] = useState([]);
