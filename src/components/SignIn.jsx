@@ -50,11 +50,11 @@ function SignupForm(props) {
             showErrorMessage("Guardian must provide End-User's name and age.");
             return false;
         }
-        if (parseInt(age) < 18 && userType === 'Guardian') {
+        if (parseInt(age) < 18 && userType === 'Guardian' && parseInt(age) > 120) {
             showErrorMessage("Guardian must be an adult (18+ years old).");
             return false;
         }
-        if (parseInt(age) < 13) {
+        if (parseInt(age) < 13 && parseInt(age) > 120) {
             showErrorMessage("You must be at least 13 years old to sign up.");
         }
         if (!isConditionsRead) {

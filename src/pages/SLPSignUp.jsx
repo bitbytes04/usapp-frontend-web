@@ -55,6 +55,7 @@ const SLPSignUp = (props) => {
             case 'age':
                 if (!value) return 'Age is required';
                 if (isNaN(value) || value < 21) return 'Must be 21 or older';
+                if (isNaN(value) || value > 120) return 'Invalid age';
                 break;
             default:
                 break;
