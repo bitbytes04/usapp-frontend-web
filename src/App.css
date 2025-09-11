@@ -1,7 +1,7 @@
 @import "tailwindcss";
 
 .usapp-border {
-    @apply border-black border-1 border-r-4 border-b-4
+    @apply border-gray-800 border-1 border-r-4 border-b-4
 }
 
 .usapp-bg {

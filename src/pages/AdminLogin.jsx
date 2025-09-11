@@ -132,6 +132,9 @@ const AdminLogin = () => {
     return (
         <div className="flex flex-col justify-center usapp-bg min-h-svh max-w-[100svw] overflow-x-hidden items-center  p-4">
             <div className="h-[80%] max-h-[1000px] flex flex-col justify-center backdrop-blur-lg bg-white rounded-lg  w-11/12 max-w-96 lg:max-w-[900px] min-h-[400px] shadow-2xl items-center p-6">
+                <button className='absolute left-5 top-4 cursor-pointer p-2 bg-blue-900 hidden lg:block px-4 rounded-md text-xs usapp-border hover:bg-cyan-600 font-bold text-white'
+                    onClick={() => navigate("/", { replace: true })}
+                >GO BACK</button>
                 <img className=" m-0 w-3/12 mb-0 min-w-60" src={logo} alt="Logo" />
                 <div className="relative w-full max-w-96 lg:max-w-[900px] border-2 rounded-lg border-dashed border-gray-400 min-h-[500px] overflow-y-auto overflow-x-hidden ">
                     {/* Login Form */}

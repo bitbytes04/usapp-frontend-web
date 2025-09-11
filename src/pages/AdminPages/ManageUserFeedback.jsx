@@ -39,6 +39,38 @@ const ManageUserFeedback = () => {
         setSummarizing(false);
     };
 
+    // Table sorting and searching
+    const [search, setSearch] = useState('');
+    const [sortKey, setSortKey] = useState('timestamp');
+    const [sortOrder, setSortOrder] = useState('desc');
+
+    // Filter and sort feedbacks
+    const filteredFeedbacks = feedbacks
+        .filter(fb =>
+            fb.feedback.toLowerCase().includes(search.toLowerCase()) ||
+            String(fb.rating).includes(search)
+        )
+        .sort((a, b) => {
+            let valA = a[sortKey];
+            let valB = b[sortKey];
+            if (sortKey === 'timestamp') {
+                valA = new Date(valA);
+                valB = new Date(valB);
+            }
+            if (valA < valB) return sortOrder === 'asc' ? -1 : 1;
+            if (valA > valB) return sortOrder === 'asc' ? 1 : -1;
+            return 0;
+        });
+
+    const handleSort = key => {
+        if (sortKey === key) {
+            setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc');
+        } else {
+            setSortKey(key);
+            setSortOrder('asc');
+        }
+    };
+
     return (
         <div className="w-full mx-auto p-6">
             <h1 className="text-2xl font-bold mb-4">Manage User Feedback</h1>
@@ -53,27 +85,65 @@ const ManageUserFeedback = () => {
                     {summarizing ? 'Summarizing...' : 'Summarize Feedback'}
                 </button>
             </div>
+            <div className="mb-4 flex items-center gap-2">
+                <input
+                    type="text"
+                    className="border rounded px-3 py-2 w-full max-w-xs"
+                    placeholder="Search feedback or rating..."
+                    value={search}
+                    onChange={e => setSearch(e.target.value)}
+                />
+            </div>
             {loading ? (
                 <div>Loading feedbacks...</div>
-            ) : feedbacks.length === 0 ? (
+            ) : filteredFeedbacks.length === 0 ? (
                 <div className="text-gray-500">No feedbacks found.</div>
             ) : (
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
-                    {feedbacks.map(fb => (
-                        <div
-                            key={fb.id}
-                            className="bg-white rounded-lg shadow p-5 flex flex-col gap-2 border border-gray-100"
-                        >
-                            <div className="flex items-center gap-2">
-                                <span className="font-bold text-blue-600">Rating:</span>
-                                <span>{fb.rating}</span>
-                            </div>
-                            <div className="text-gray-800">{fb.feedback}</div>
-                            <div className="text-xs text-gray-400 mt-auto">
-                                {fb.timestamp && new Date(fb.timestamp).toLocaleString()}
-                            </div>
-                        </div>
-                    ))}
+                <div className="overflow-x-auto mb-8">
+                    <table className="min-w-full  bg-white rounded-lg shadow border border-black-100">
+                        <thead>
+                            <tr>
+                                <th
+                                    className="px-4 py-2 cursor-pointer"
+                                    onClick={() => handleSort('rating')}
+                                >
+                                    Rating
+                                    {sortKey === 'rating' && (
+                                        <span>{sortOrder === 'asc' ? ' ▲' : ' ▼'}</span>
+                                    )}
+                                </th>
+                                <th
+                                    className="px-4 py-2 cursor-pointer"
+                                    onClick={() => handleSort('feedback')}
+                                >
+                                    Feedback
+                                    {sortKey === 'feedback' && (
+                                        <span>{sortOrder === 'asc' ? ' ▲' : ' ▼'}</span>
+                                    )}
+                                </th>
+                                <th
+                                    className="px-4 py-2 cursor-pointer"
+                                    onClick={() => handleSort('timestamp')}
+                                >
+                                    Timestamp
+                                    {sortKey === 'timestamp' && (
+                                        <span>{sortOrder === 'asc' ? ' ▲' : ' ▼'}</span>
+                                    )}
+                                </th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {filteredFeedbacks.map(fb => (
+                                <tr key={fb.id} className="border-t">
+                                    <td className="px-4 py-2 text-center text-blue-600 font-bold">{fb.rating}</td>
+                                    <td className="px-4 py-2 text-center text-gray-800">{fb.feedback}</td>
+                                    <td className="px-4 py-2 text-center text-xs text-gray-400">
+                                        {fb.timestamp && new Date(fb.timestamp).toLocaleString()}
+                                    </td>
+                                </tr>
+                            ))}
+                        </tbody>
+                    </table>
                 </div>
             )}
             {summary && (

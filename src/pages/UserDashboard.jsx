@@ -1,7 +1,7 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 
 import '../App.css'
-import Sidebar, { SidebarItem } from '../components/Sidebar'
+import Sidebar, { SidebarItem, SidebarNameplate } from '../components/Sidebar'
 import header from '../assets/backgrounds/header_background_img.png'
 import logo from '../assets/logos/usapp_logo_medium.png'
 import { Home, User, LibraryBig, UserCog, ChartNoAxesCombined, SquarePlus, Users, MessageSquarePlus } from 'lucide-react'
@@ -13,9 +13,25 @@ import CreateWord from './CreateWord'
 import { useNavigate } from 'react-router-dom'
 import AccountLinking from './AccountLinking'
 import UserFeedback from './UserFeedback'
+import axios from 'axios'
+
 function UserDashboard() {
   const navigate = useNavigate();
   const [activeItem, setActiveItem] = useState("My Boards");
+  const [userName, setUserName] = useState("User");
+
+  const getUserInfo = async () => {
+    try {
+      const response = await axios.get(`https://usapp-backend.vercel.app/api/users/${sessionStorage.getItem('userId')}`);
+      setUserName(response.data.firstName || "User");
+    } catch (error) {
+
+    }
+  }
+
+  useEffect(() => {
+    getUserInfo();
+  }, []);
 
   const handleSidebarItemClick = (item) => {
     setActiveItem(item);
@@ -43,6 +59,7 @@ function UserDashboard() {
           <div className={`flex-row md:flex hidden bg-[#fff6eb] h-screen max-w-screen transition-transform duration-500 ease-in-out ${activeItem ? "translate-x-0" : "-translate-x-full"}`}>
             <div>
               <Sidebar>
+                <SidebarNameplate name={userName} />
                 <SidebarItem
                   icon={<LibraryBig />}
                   text="My Boards"

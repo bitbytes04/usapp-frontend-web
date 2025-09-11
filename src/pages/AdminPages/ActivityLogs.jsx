@@ -6,6 +6,8 @@ const ActivityLogs = () => {
     const [search, setSearch] = useState('');
     const [sortBy, setSortBy] = useState('timestamp');
     const [sortOrder, setSortOrder] = useState('desc');
+    const [startDate, setStartDate] = useState('');
+    const [endDate, setEndDate] = useState('');
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
@@ -27,6 +29,57 @@ const ActivityLogs = () => {
         setSearch(e.target.value);
     };
 
+    const generatePrintable = () => {
+        const printableWindow = window.open('', '_blank');
+        const tableHtml = `
+            <html>
+            <head>
+                <title>UsApp Activity Logs</title>
+                <style>
+                    body { font-family: Arial, sans-serif; padding: 20px; }
+                    table { border-collapse: collapse; width: 100%; }
+                    th, td { border: 1px solid #ccc; padding: 8px; text-align: left; }
+                    th { background: #f3f3f3; }
+                </style>
+            </head>
+            <body>
+                <h2>Activity Logs</h2>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Timestamp</th>
+                            <th>Action</th>
+                            <th>Details</th>
+                            <th>User ID</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${filteredLogs.map(log => {
+            let dateObj;
+            if (log.timestamp && typeof log.timestamp === 'object' && '_seconds' in log.timestamp) {
+                dateObj = new Date(log.timestamp._seconds * 1000 + Math.floor((log.timestamp._nanoseconds || 0) / 1e6));
+            } else {
+                dateObj = new Date(log.timestamp);
+            }
+            return `
+                                <tr>
+                                    <td>${dateObj.toLocaleString()}</td>
+                                    <td>${log.action}</td>
+                                    <td>${log.details}</td>
+                                    <td>${log.userId}</td>
+                                </tr>
+                            `;
+        }).join('')}
+                    </tbody>
+                </table>
+            </body>
+            </html>
+        `;
+        printableWindow.document.write(tableHtml);
+        printableWindow.document.close();
+        printableWindow.focus();
+        printableWindow.print();
+    };
 
     const handleSort = (field) => {
         if (sortBy === field) {
@@ -38,12 +91,34 @@ const ActivityLogs = () => {
     };
 
     const filteredLogs = logs
-        .filter(log =>
-            Object.values(log)
+        .filter(log => {
+            // Search filter
+            const matchesSearch = Object.values(log)
                 .join(' ')
                 .toLowerCase()
-                .includes(search.toLowerCase())
-        )
+                .includes(search.toLowerCase());
+
+            // Date filter
+            let logDate;
+            if (log.timestamp && typeof log.timestamp === 'object' && '_seconds' in log.timestamp) {
+                logDate = new Date(log.timestamp._seconds * 1000 + Math.floor((log.timestamp._nanoseconds || 0) / 1e6));
+            } else {
+                logDate = new Date(log.timestamp);
+            }
+
+            let matchesDate = true;
+            if (startDate) {
+                matchesDate = matchesDate && logDate >= new Date(startDate);
+            }
+            if (endDate) {
+                // Set endDate to end of day for inclusive filtering
+                const end = new Date(endDate);
+                end.setHours(23, 59, 59, 999);
+                matchesDate = matchesDate && logDate <= end;
+            }
+
+            return matchesSearch && matchesDate;
+        })
         .sort((a, b) => {
             if (sortBy === 'timestamp') {
                 const getMillis = (ts) => {
@@ -79,103 +154,176 @@ const ActivityLogs = () => {
     return (
         <div className="p-6 bg-[#fff6eb] min-h-screen w-full">
             <h2 className="text-2xl font-bold w-full mb-6 text-gray-800">Activity Logs</h2>
-            <input
-                type="text"
-                placeholder="Search logs..."
-                value={search}
-                onChange={handleSearch}
-                className="mb-6 p-2 w-full border border-gray-300 rounded shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-400"
-            />
-            {loading ? (
-                <div className="text-center text-gray-500">Loading...</div>
-            ) : (
-                <div className="overflow-x-auto ">
-                    <table className="min-w-full bg-white border border-gray-200 rounded shadow">
-                        <thead>
-                            <tr className="bg-gray-100">
-                                <th
-                                    onClick={() => handleSort('timestamp')}
-                                    className="py-3 px-4 cursor-pointer text-left font-semibold text-gray-700 select-none"
-                                >
-                                    Timestamp {sortBy === 'timestamp' ? (sortOrder === 'asc' ? '▲' : '▼') : ''}
-                                </th>
-                                <th
-                                    onClick={() => handleSort('action')}
-                                    className="py-3 px-4 cursor-pointer text-left font-semibold text-gray-700 select-none"
-                                >
-                                    Action {sortBy === 'action' ? (sortOrder === 'asc' ? '▲' : '▼') : ''}
-                                </th>
-                                <th
-                                    onClick={() => handleSort('details')}
-                                    className="py-3 px-4 cursor-pointer text-left font-semibold text-gray-700 select-none"
-                                >
-                                    Details {sortBy === 'details' ? (sortOrder === 'asc' ? '▲' : '▼') : ''}
-                                </th>
-                                <th
-                                    onClick={() => handleSort('userId')}
-                                    className="py-3 px-4 cursor-pointer text-left font-semibold text-gray-700 select-none"
-                                >
-                                    User ID {sortBy === 'userId' ? (sortOrder === 'asc' ? '▲' : '▼') : ''}
-                                </th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {currentLogs.length === 0 ? (
-                                <tr>
-                                    <td colSpan="4" className="py-6 text-center text-gray-500">No logs found.</td>
-                                </tr>
-                            ) : (
-                                currentLogs.map(log => {
-                                    // Convert Firestore timestamp to JS Date
-                                    let dateObj;
-                                    if (log.timestamp && typeof log.timestamp === 'object' && '_seconds' in log.timestamp) {
-                                        dateObj = new Date(log.timestamp._seconds * 1000 + Math.floor((log.timestamp._nanoseconds || 0) / 1e6));
-                                    } else {
-                                        dateObj = new Date(log.timestamp);
-                                    }
-                                    return (
-                                        <tr key={log.id} className="hover:bg-gray-50 transition">
-                                            <td className="py-2 px-4 border-t">{dateObj.toLocaleString()}</td>
-                                            <td className="py-2 px-4 border-t">{log.action}</td>
-                                            <td className="py-2 px-4 border-t">{log.details}</td>
-                                            <td className="py-2 px-4 border-t">{log.userId}</td>
-                                        </tr>
-                                    );
-                                })
-                            )}
-                        </tbody>
-                    </table>
-                    {/* Pagination Controls */}
-                    {totalPages > 1 && (
-                        <div className="flex justify-center items-center mt-4 space-x-2">
-                            <button
-                                onClick={() => handlePageChange(currentPage - 1)}
-                                disabled={currentPage === 1}
-                                className="px-3 py-1 rounded border bg-gray-100 text-gray-700 disabled:opacity-50"
-                            >
-                                Prev
-                            </button>
-                            {Array.from({ length: totalPages }, (_, i) => (
-                                <button
-                                    key={i + 1}
-                                    onClick={() => handlePageChange(i + 1)}
-                                    className={`px-3 py-1 rounded border ${currentPage === i + 1 ? 'bg-blue-500 text-white' : 'bg-gray-100 text-gray-700'}`}
-                                >
-                                    {i + 1}
-                                </button>
-                            ))}
-                            <button
-                                onClick={() => handlePageChange(currentPage + 1)}
-                                disabled={currentPage === totalPages}
-                                className="px-3 py-1 rounded border bg-gray-100 text-gray-700 disabled:opacity-50"
-                            >
-                                Next
-                            </button>
-                        </div>
-                    )}
+            <div className="flex flex-col md:flex-row items-end justify-between mb-4 space-y-4 md:space-y-0 gap-5">
+                <div className='flex-grow'>
+                    <label htmlFor="search" className='font-semibold'>Search by Action, UID, Details</label>
+                    <input
+                        type="text"
+                        placeholder="Search logs..."
+                        value={search}
+                        onChange={handleSearch}
+                        className="p-2 w-full border border-gray-300 flex-grow rounded shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-400"
+                    />
                 </div>
-            )}
-        </div>
+                <div className="flex items-center gap-2">
+                    <label htmlFor="startDate" className="font-semibold">From:</label>
+                    <input
+                        type="date"
+                        id="startDate"
+                        value={startDate || ''}
+                        onChange={e => setStartDate(e.target.value)}
+                        className="p-2 border border-gray-300 rounded shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-400"
+                    />
+                    <label htmlFor="endDate" className="font-semibold ml-2">To:</label>
+                    <input
+                        type="date"
+                        id="endDate"
+                        value={endDate || ''}
+                        onChange={e => setEndDate(e.target.value)}
+                        className="p-2 border border-gray-300 rounded shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-400"
+                    />
+                </div>
+                <button
+                    onClick={generatePrintable}
+                    className="bg-blue-600 text-white px-4 py-2 rounded shadow hover:bg-blue-700 transition-colors duration-200">Print</button>
+            </div>
+            {
+                loading ? (
+                    <div className="text-center text-gray-500">Loading...</div>
+                ) : (
+                    <div className="overflow-x-auto ">
+                        <table className="min-w-full bg-white border border-gray-200 rounded shadow">
+                            <thead>
+                                <tr className="bg-gray-100">
+                                    <th
+                                        onClick={() => handleSort('timestamp')}
+                                        className="py-3 px-4 cursor-pointer text-left font-semibold text-gray-700 select-none"
+                                    >
+                                        Timestamp {sortBy === 'timestamp' ? (sortOrder === 'asc' ? '▲' : '▼') : ''}
+                                    </th>
+                                    <th
+                                        onClick={() => handleSort('action')}
+                                        className="py-3 px-4 cursor-pointer text-left font-semibold text-gray-700 select-none"
+                                    >
+                                        Action {sortBy === 'action' ? (sortOrder === 'asc' ? '▲' : '▼') : ''}
+                                    </th>
+                                    <th
+                                        onClick={() => handleSort('details')}
+                                        className="py-3 px-4 cursor-pointer text-left font-semibold text-gray-700 select-none"
+                                    >
+                                        Details {sortBy === 'details' ? (sortOrder === 'asc' ? '▲' : '▼') : ''}
+                                    </th>
+                                    <th
+                                        onClick={() => handleSort('userId')}
+                                        className="py-3 px-4 cursor-pointer text-left font-semibold text-gray-700 select-none"
+                                    >
+                                        User ID {sortBy === 'userId' ? (sortOrder === 'asc' ? '▲' : '▼') : ''}
+                                    </th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {currentLogs.length === 0 ? (
+                                    <tr>
+                                        <td colSpan="4" className="py-6 text-center text-gray-500">No logs found.</td>
+                                    </tr>
+                                ) : (
+                                    currentLogs.map(log => {
+                                        // Convert Firestore timestamp to JS Date
+                                        let dateObj;
+                                        if (log.timestamp && typeof log.timestamp === 'object' && '_seconds' in log.timestamp) {
+                                            dateObj = new Date(log.timestamp._seconds * 1000 + Math.floor((log.timestamp._nanoseconds || 0) / 1e6));
+                                        } else {
+                                            dateObj = new Date(log.timestamp);
+                                        }
+                                        return (
+                                            <tr key={log.id} className="hover:bg-gray-50 transition">
+                                                <td className="py-2 px-4 border-t">{dateObj.toLocaleString()}</td>
+                                                <td className="py-2 px-4 border-t">{log.action}</td>
+                                                <td className="py-2 px-4 border-t">{log.details}</td>
+                                                <td className="py-2 px-4 border-t">{log.userId}</td>
+                                            </tr>
+                                        );
+                                    })
+                                )}
+                            </tbody>
+                        </table>
+                        {/* Pagination Controls */}
+                        {totalPages > 1 && (
+                            <div className="flex justify-center items-center overflow-x-auto mt-4 space-x-2">
+                                <button
+                                    onClick={() => handlePageChange(currentPage - 1)}
+                                    disabled={currentPage === 1}
+                                    className="px-3 py-1 rounded border bg-gray-100 text-gray-700 disabled:opacity-50"
+                                >
+                                    Prev
+                                </button>
+                                {totalPages <= 10 ? (
+                                    Array.from({ length: totalPages }, (_, i) => (
+                                        <button
+                                            key={i + 1}
+                                            onClick={() => handlePageChange(i + 1)}
+                                            className={`px-3 py-1 rounded border ${currentPage === i + 1 ? 'bg-blue-500 text-white' : 'bg-gray-100 text-gray-700'}`}
+                                        >
+                                            {i + 1}
+                                        </button>
+                                    ))
+                                ) : (
+                                    <>
+                                        {/* Always show first page */}
+                                        <button
+                                            key={1}
+                                            onClick={() => handlePageChange(1)}
+                                            className={`px-3 py-1 rounded border ${currentPage === 1 ? 'bg-blue-500 text-white' : 'bg-gray-100 text-gray-700'}`}
+                                        >
+                                            1
+                                        </button>
+                                        {/* Show ... if currentPage > 4 */}
+                                        {currentPage > 4 && (
+                                            <span className="px-2">...</span>
+                                        )}
+                                        {/* Show pages around currentPage */}
+                                        {Array.from({ length: 5 }, (_, i) => {
+                                            const page = currentPage - 2 + i;
+                                            if (page > 1 && page < totalPages) {
+                                                return (
+                                                    <button
+                                                        key={page}
+                                                        onClick={() => handlePageChange(page)}
+                                                        className={`px-3 py-1 rounded border ${currentPage === page ? 'bg-blue-500 text-white' : 'bg-gray-100 text-gray-700'}`}
+                                                    >
+                                                        {page}
+                                                    </button>
+                                                );
+                                            }
+                                            return null;
+                                        })}
+                                        {/* Show ... if currentPage < totalPages - 3 */}
+                                        {currentPage < totalPages - 3 && (
+                                            <span className="px-2">...</span>
+                                        )}
+                                        {/* Always show last page */}
+                                        <button
+                                            key={totalPages}
+                                            onClick={() => handlePageChange(totalPages)}
+                                            className={`px-3 py-1 rounded border ${currentPage === totalPages ? 'bg-blue-500 text-white' : 'bg-gray-100 text-gray-700'}`}
+                                        >
+                                            {totalPages}
+                                        </button>
+                                    </>
+                                )}
+                                <button
+                                    onClick={() => handlePageChange(currentPage + 1)}
+                                    disabled={currentPage === totalPages}
+                                    className="px-3 py-1 rounded border bg-gray-100 text-gray-700 disabled:opacity-50"
+                                >
+                                    Next
+                                </button>
+                            </div>
+                        )}
+                    </div>
+                )
+            }
+        </div >
     );
 };
 

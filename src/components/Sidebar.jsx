@@ -14,12 +14,9 @@ export default function Sidebar({ children }) {
         <aside className="h-full">
             <nav className="h-full flex flex-col bg-[#fff6eb] border-r shadow-sm">
                 <div className="p-4 pb-2 flex justify-between items-center">
-                    <img
-                        src={logo}
-                        className={`overflow-hidden transition-all ${expanded ? "w-32" : "w-0"
-                            }`}
-                        alt=""
-                    />
+                    <div className="flex flex-grow items-center justify-center space-x-2">
+                        <img src={logo} alt="UsApp Logo" className={` overflow-hidden transition-all ${expanded ? "w-45" : "w-0"}`} />
+                    </div>
                     <button
                         onClick={() => setExpanded((curr) => !curr)}
                         className="p-1.5 rounded-lg g-[#fff6eb] hover:bg-amber-100 transition-colors duration-200"
@@ -102,5 +99,18 @@ export function SidebarItem({ icon, text, active, alert, onClick }) {
                 </div>
             )}
         </li>
+    )
+}
+
+export function SidebarNameplate({ name, }) {
+    const { expanded } = useContext(SidebarContext);
+
+    return (
+        <div className={`flex items-center rounded-md mb-3 w-full py-2 justify-center transition-all ${expanded ? "w-52 bg-blue-900" : "w-0"} overflow-hidden`}>
+            {expanded && (
+                <div className="flex flex-col w-full text-center font-bold text-white uppercase items-center">Hello, {name}
+                </div>
+            )}
+        </div>
     )
 }

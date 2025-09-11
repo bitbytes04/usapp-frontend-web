@@ -177,7 +177,7 @@ const ManageUsers = () => {
     };
 
     return (
-        <div className="max-w-6xl mx-auto p-6">
+        <div className="p-6 bg-[#fff6eb] min-h-screen w-full">
             <Transition
                 show={isProcessing}
                 enter="transition-opacity duration-500"
@@ -238,7 +238,7 @@ const ManageUsers = () => {
             ) : (
                 <>
                     {filterType === 'all' ? (
-                        <div>
+                        <div className='transition-all duration-500'>
                             <h2 className="px-3 bg-blue-900 text-xl font-semibold text-white mb-2">USERS</h2>
                             <div className="overflow-x-auto rounded shadow">
                                 <table className="min-w-full bg-white">
@@ -246,7 +246,7 @@ const ManageUsers = () => {
                                         <tr className="bg-gray-100 text-gray-700">
                                             {/* <th className="py-2 px-4 text-left">UID</th> */}
                                             <th className="py-2 px-4 text-left">Email</th>
-                                            <th className="py-2 px-4 text-left">Display Name</th>
+                                            <th className="py-2 px-4 text-left">Full Name</th>
                                             <th className="py-2 px-4 text-left">Role</th>
                                             <th className="py-2 px-4 text-left">Status</th>
                                             <th className="py-2 px-4 text-left">Actions</th>
@@ -263,7 +263,7 @@ const ManageUsers = () => {
                                                 <tr key={user.uid} className="border-b hover:bg-blue-50">
                                                     {/* <td className="py-2 px-4">{user.uid}</td> */}
                                                     <td className="py-2 px-4">{user.email}</td>
-                                                    <td className="py-2 px-4">{user.displayName || user.username}</td>
+                                                    <td className="py-2 px-4">{user.firstName || user.username} {user.lastName}</td>
                                                     <td className="py-2 px-4">
                                                         {user.role}
                                                     </td>

@@ -1,6 +1,6 @@
 import React from 'react'
 import '../../App.css'
-import Sidebar, { SidebarItem } from '../../components/Sidebar'
+import Sidebar, { SidebarItem, SidebarNameplate } from '../../components/Sidebar'
 import header from '../../assets/backgrounds/header_background_img.png'
 import logo from '../../assets/logos/usapp_logo_medium.png'
 import { Home, User, LibraryBig, UserCog, ChartNoAxesCombined, Blocks } from 'lucide-react'
@@ -29,6 +29,7 @@ const AdminDashboard = () => {
                     <div className={`flex-row md:flex hidden bg-[#fff6eb] h-screen max-w-screen transition-transform duration-500 ease-in-out ${activeItem ? "translate-x-0" : "-translate-x-full"}`}>
                         <div>
                             <Sidebar>
+                                <SidebarNameplate name='Admin' />
                                 <SidebarItem
                                     icon={<User />}
                                     text="Monitor Users"
@@ -128,6 +129,7 @@ const AdminDashboard = () => {
                             {activeItem === "Manage Users" && <ManageUsers />}
                             {activeItem === "Manage User Feedback" && <ManageUserFeedback />}
                             {activeItem === "Activity Logs" && <ActivityLogs />}
+                            {activeItem === "Default Buttons" && <DefaultButtons />}
                         </div>
                     </div>
                 </>

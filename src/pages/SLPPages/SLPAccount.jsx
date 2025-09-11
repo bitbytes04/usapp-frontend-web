@@ -152,9 +152,7 @@ const SLPAccount = () => {
                     </button>
                 )}
             </form>
-            {message && (
-                <div className="mt-4 text-center text-sm text-gray-700">{message}</div>
-            )}
+
         </div>
     );
 };

@@ -112,7 +112,10 @@ const Login = () => {
 
 
 
-                <div className="h-[80%] max-h-[1000px] flex flex-col justify-center backdrop-blur-lg bg-white rounded-lg  w-11/12 max-w-96 lg:max-w-[900px] min-h-[400px] shadow-2xl items-center p-6">
+                <div className="h-[80%] max-h-[1000px] flex flex-col justify-center backdrop-blur-lg bg-white  rounded-lg  w-11/12 max-w-96 lg:max-w-[900px] min-h-[400px] shadow-2xl items-center p-6">
+                    <button className='absolute left-5 top-4 cursor-pointer p-2 bg-[#feaf61] hidden lg:block px-4 rounded-md hover:text-white transition-all duration-300 text-xs usapp-border hover:bg-[#ca813b] font-bold'
+                        onClick={() => navigate("/", { replace: true })}
+                    >GO BACK</button>
                     <img className=" m-0 w-3/12 mb-0 min-w-60" src={logo} alt="Logo" />
                     <div className="relative w-full max-w-96 lg:max-w-[900px] border-2 rounded-lg border-dashed border-gray-400 min-h-[500px] overflow-y-auto overflow-x-hidden ">
 
@@ -193,6 +196,7 @@ const Login = () => {
                                         Sign Up
                                     </button>
                                 </p>
+
                             </div>
                         </div>
                         <div

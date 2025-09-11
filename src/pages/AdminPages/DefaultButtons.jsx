@@ -446,31 +446,78 @@ const DefaultButtons = () => {
                 </tbody>
             </table>
             {/* Pagination Controls */}
-            <div className="flex justify-center items-center mt-6 gap-2">
-                <button
-                    onClick={() => handlePageChange(currentPage - 1)}
-                    disabled={currentPage === 1}
-                    className="px-3 py-1 rounded bg-gray-200 text-gray-700 hover:bg-gray-300 disabled:opacity-50"
-                >
-                    Prev
-                </button>
-                {[...Array(totalPages)].map((_, idx) => (
+            {totalPages > 1 && (
+                <div className="flex justify-center items-center overflow-x-auto mt-4 space-x-2">
                     <button
-                        key={idx + 1}
-                        onClick={() => handlePageChange(idx + 1)}
-                        className={`px-3 py-1 rounded ${currentPage === idx + 1 ? 'bg-blue-600 text-white' : 'bg-gray-200 text-gray-700 hover:bg-gray-300'}`}
+                        onClick={() => handlePageChange(currentPage - 1)}
+                        disabled={currentPage === 1}
+                        className="px-3 py-1 rounded border bg-gray-100 text-gray-700 disabled:opacity-50"
                     >
-                        {idx + 1}
+                        Prev
                     </button>
-                ))}
-                <button
-                    onClick={() => handlePageChange(currentPage + 1)}
-                    disabled={currentPage === totalPages || totalPages === 0}
-                    className="px-3 py-1 rounded bg-gray-200 text-gray-700 hover:bg-gray-300 disabled:opacity-50"
-                >
-                    Next
-                </button>
-            </div>
+                    {totalPages <= 10 ? (
+                        Array.from({ length: totalPages }, (_, i) => (
+                            <button
+                                key={i + 1}
+                                onClick={() => handlePageChange(i + 1)}
+                                className={`px-3 py-1 rounded border ${currentPage === i + 1 ? 'bg-blue-500 text-white' : 'bg-gray-100 text-gray-700'}`}
+                            >
+                                {i + 1}
+                            </button>
+                        ))
+                    ) : (
+                        <>
+                            {/* Always show first page */}
+                            <button
+                                key={1}
+                                onClick={() => handlePageChange(1)}
+                                className={`px-3 py-1 rounded border ${currentPage === 1 ? 'bg-blue-500 text-white' : 'bg-gray-100 text-gray-700'}`}
+                            >
+                                1
+                            </button>
+                            {/* Show ... if currentPage > 4 */}
+                            {currentPage > 4 && (
+                                <span className="px-2">...</span>
+                            )}
+                            {/* Show pages around currentPage */}
+                            {Array.from({ length: 5 }, (_, i) => {
+                                const page = currentPage - 2 + i;
+                                if (page > 1 && page < totalPages) {
+                                    return (
+                                        <button
+                                            key={page}
+                                            onClick={() => handlePageChange(page)}
+                                            className={`px-3 py-1 rounded border ${currentPage === page ? 'bg-blue-500 text-white' : 'bg-gray-100 text-gray-700'}`}
+                                        >
+                                            {page}
+                                        </button>
+                                    );
+                                }
+                                return null;
+                            })}
+                            {/* Show ... if currentPage < totalPages - 3 */}
+                            {currentPage < totalPages - 3 && (
+                                <span className="px-2">...</span>
+                            )}
+                            {/* Always show last page */}
+                            <button
+                                key={totalPages}
+                                onClick={() => handlePageChange(totalPages)}
+                                className={`px-3 py-1 rounded border ${currentPage === totalPages ? 'bg-blue-500 text-white' : 'bg-gray-100 text-gray-700'}`}
+                            >
+                                {totalPages}
+                            </button>
+                        </>
+                    )}
+                    <button
+                        onClick={() => handlePageChange(currentPage + 1)}
+                        disabled={currentPage === totalPages}
+                        className="px-3 py-1 rounded border bg-gray-100 text-gray-700 disabled:opacity-50"
+                    >
+                        Next
+                    </button>
+                </div>
+            )}
         </div>
     );
 };

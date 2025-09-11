@@ -74,14 +74,6 @@ const AccountLinking = ({ uid }) => {
                                         {req.fromDisplayName}
                                     </span>
                                 </div>
-                                <div className="mb-2">
-                                    <span className="uppercase text-xs font-bold text-gray-500 tracking-wider mr-2">
-                                        Clinic:
-                                    </span>
-                                    <span className="inline-block bg-blue-800 text-white px-3 py-1 rounded-full font-medium shadow text-xs sm:text-base">
-                                        {req.fromClinicName}
-                                    </span>
-                                </div>
                                 <div className="text-sm">
                                     <span className="uppercase text-xs font-bold text-gray-500 tracking-wider mr-2">
                                         Status:

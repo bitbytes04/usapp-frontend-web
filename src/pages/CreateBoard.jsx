@@ -6,6 +6,7 @@ import { Transition } from '@headlessui/react';
 export default function CreateBoard() {
     const [boardName, setBoardName] = useState('');
     const [boardCategory, setBoardCategory] = useState('');
+    const [SearchCategory, setSearchCategory] = useState('');
     const [selectedButtons, setSelectedButtons] = useState([]);
     const [searchQuery, setSearchQuery] = useState('');
     const [Loading, setLoading] = useState();
@@ -47,8 +48,11 @@ export default function CreateBoard() {
     // Filter and sort functions
     const filterButtons = (buttons, query, category) => {
         let filtered = buttons;
-        if (category) {
+        if (category && category !== 'all') {
             filtered = filtered.filter(button => button.buttonCategory === category);
+        }
+        if (category === 'all') {
+            filtered = buttons;
         }
         if (query) {
             filtered = filtered.filter(button =>
@@ -67,7 +71,7 @@ export default function CreateBoard() {
     };
 
     const filteredButtons = sortButtons(
-        filterButtons(testButtons, searchQuery, boardCategory)
+        filterButtons(testButtons, searchQuery, SearchCategory)
     );
 
     const handleSubmit = async () => {
@@ -267,11 +271,11 @@ export default function CreateBoard() {
                 />
                 <div className="flex flex-row gap-4 mb-4">
                     <select
-                        value={boardCategory}
-                        onChange={(e) => setBoardCategory(e.target.value)}
+                        value={SearchCategory}
+                        onChange={(e) => setSearchCategory(e.target.value)}
                         className="border border-gray-300 rounded-lg p-2 focus:outline-none focus:ring-2 focus:ring-blue-200 transition"
                     >
-                        <option value="">All Categories</option>
+                        <option value='all'>All Categories</option>
                         {[...new Set(testButtons.map(b => b.buttonCategory))]
                             .sort()
                             .map((cat, idx) => (
@@ -279,7 +283,7 @@ export default function CreateBoard() {
                             ))}
                     </select>
                     <button
-                        onClick={() => setBoardCategory('')}
+                        onClick={() => setSearchCategory('all')}
                         className="bg-gray-200 px-4 py-2 rounded hover:bg-gray-300"
                         type="button"
                     >
