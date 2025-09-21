@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { Transition } from '@headlessui/react';
-import { PieChart, Pie, Cell, Tooltip, Legend, BarChart, Bar, XAxis, YAxis } from 'recharts';
+import { PieChart, Pie, Cell, Tooltip, Legend, BarChart, Bar, XAxis, YAxis, LineChart, Line } from 'recharts';
 
 const ManageUsers = () => {
     const [allUsers, setAllUsers] = useState([]);
@@ -9,7 +9,11 @@ const ManageUsers = () => {
     const [boardLogs, setboardLogs] = useState([]);
     const [loading, setLoading] = useState(true);
     const [isProcessing, setisProcessing] = useState(false);
+    const [wordFrequencyInput, setwordFrequencyInput] = useState('');
+    const [StartDate, setStartDate] = useState('');
+    const [EndDate, setEndDate] = useState('');
     const [StatNumber, setStatNumber] = useState(10);
+    const [wordFrequencyWords, setwordFrequencyWords] = useState([]);
 
     useEffect(() => {
         const fetchUsers = async () => {
@@ -31,7 +35,9 @@ const ManageUsers = () => {
             }
             setLoading(false);
         };
+
         fetchUsers();
+
     }, []);
 
     const handleUserStatusChange = async (uid, type, action) => {
@@ -145,13 +151,290 @@ const ManageUsers = () => {
         return Object.entries(stats).map(([name, value]) => ({ name, value }));
     };
 
+    const generateUserDistributionReport = () => {
+        const date = new Date().toLocaleString();
+        let reportWindow = window.open('', '_blank', 'width=900,height=700');
+        if (!reportWindow) return;
+
+        // User role distribution data
+        const roleStats = Object.entries(
+            allUsers.reduce((acc, user) => {
+                const role = user.role || 'unknown';
+                acc[role] = (acc[role] || 0) + 1;
+                return acc;
+            }, {})
+        ).map(([role, value]) => ({ name: role, value }));
+
+        const roleStatsRows = roleStats.map(
+            stat => `<tr><td>${stat.name}</td><td>${stat.value}</td></tr>`
+        ).join('');
+
+        // Pie chart for roles
+        const pieChartData = [
+            ['Role', 'Count'],
+            ...roleStats.map(stat => [stat.name, stat.value])
+        ];
+
+        const html = `
+            <html>
+            <head>
+                <title>User Role Distribution Report</title>
+                <style>
+                    body { font-family: Arial, sans-serif; margin: 40px; }
+                    h1, h2 { color: #1e293b; }
+                    table { border-collapse: collapse; width: 100%; margin-bottom: 24px; }
+                    th, td { border: 1px solid #ccc; padding: 8px 12px; text-align: left; }
+                    th { background: #f1f5f9; }
+                </style>
+                <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+                <script type="text/javascript">
+                    window.onload = function() {
+                        google.charts.load('current', {'packages':['corechart']});
+                        google.charts.setOnLoadCallback(drawChart);
+
+                        function drawChart() {
+                            var data = google.visualization.arrayToDataTable(${JSON.stringify(pieChartData)});
+                            var options = {
+                                title: 'User Role Distribution',
+                                legend: { position: 'right' },
+                                pieHole: 0.4,
+                                width: 400,
+                                height: 350
+                            };
+                            var chart = new google.visualization.PieChart(document.getElementById('rolePieChart'));
+                            chart.draw(data, options);
+                        }
+                    }
+                </script>
+            </head>
+            <body>
+                <h1>User Role Distribution Report</h1>
+                <p><strong>Generated:</strong> ${date}</p>
+                <div id="rolePieChart"></div>
+                <h2>User Role Distribution</h2>
+                <table>
+                    <thead><tr><th>Role</th><th>Count</th></tr></thead>
+                    <tbody>${roleStatsRows}</tbody>
+                </table>
+            </body>
+            </html>
+        `;
+        reportWindow.document.write(html);
+        reportWindow.document.close();
+        reportWindow.focus();
+        reportWindow.print();
+    };
+
+    const generateTopButtonPressesReport = async () => {
+        const date = new Date().toLocaleString();
+        let reportWindow = window.open('UsApp Usage Report', '_blank',);
+        if (!reportWindow) return;
+
+        // Top button stats
+        const buttonStatsRows = topButtonStats.map(
+            stat => `<tr><td>${stat.name}</td><td>${stat.value}</td></tr>`
+        ).join('');
+
+        // Pie chart for top button presses
+        const buttonPieChartData = [
+            ['Button', 'Presses'],
+            ...topButtonStats.map(stat => [stat.name, stat.value])
+        ];
+        // Bar chart for top button presses
+        const buttonBarChartData = [
+            ['Button', 'Presses'],
+            ...topButtonStats.map(stat => [stat.name, stat.value])
+        ];
+
+        // Prepare word frequency data for Google Charts LineChart
+        // Build columns: ['Date', 'word1', 'word2', ...]
+        const wfWords = wordFrequencyWords.length ? wordFrequencyWords : ['yes', 'no'];
+        // Build a map of date -> { word1: count, word2: count, ... }
+        const allDates = {};
+        wfWords.forEach(word => {
+            getWordFrequencyPerDay(boardLogs, [word]).forEach(({ date, count }) => {
+                if (!allDates[date]) allDates[date] = {};
+                allDates[date][word] = count;
+            });
+        });
+        // Fill missing words with 0
+        const sortedDates = Object.keys(allDates).sort();
+        const wordFreqChartData = [
+            ['Date', ...wfWords],
+            ...sortedDates.map(date => [
+                date,
+                ...wfWords.map(word => allDates[date][word] || 0)
+            ])
+        ];
+
+        const html = `
+            <html>
+            <head>
+                <title>Top Button Presses Report</title>
+                <style>
+                    body { font-family: Arial, sans-serif; margin: 40px; display:flex; flex-direction:column;  }
+                    h1, h2 { color: #1e293b; }
+                    table { border-collapse: collapse; width: 100%; margin-bottom: 24px; }
+                    th, td { border: 1px solid #ccc; padding: 8px 12px; text-align: left; }
+                    th { background: #f1f5f9; }
+                    .chart-container { display: flex; flex-wrap: wrap; gap: 40px; padding:20px; page-break-inside: avoid; page-break-after: auto; }
+                    .chart-box { width: 100%; max-width: 900px; margin-bottom: 40px; }
+                </style>
+                <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+                <script type="text/javascript">
+                    window.onload = function() {
+                        google.charts.load('current', {'packages':['corechart', 'bar']});
+                        google.charts.setOnLoadCallback(drawCharts);
+
+                        function drawCharts() {
+                            // Button Pie Chart
+                            var btnPieData = google.visualization.arrayToDataTable(${JSON.stringify(buttonPieChartData)});
+                            var btnPieOptions = {
+                                title: 'Top Button Presses (Pie)',
+                                width: 700,
+                                height: 500,
+                                legend: { position: 'top', maxLines: 3 },
+                                pieHole: 0.2,
+                        
+                            };
+                            var btnPieChart = new google.visualization.PieChart(document.getElementById('buttonPieChart'));
+                            btnPieChart.draw(btnPieData, btnPieOptions);
+
+                            // Button Bar Chart
+                            var btnBarData = google.visualization.arrayToDataTable(${JSON.stringify(buttonBarChartData)});
+                            var btnBarOptions = {
+                                title: 'Top Button Presses (Bar)',
+                                legend: { position: 'none' },
+                             
+                                height: 500,
+                                bars: 'vertical',
+                                hAxis: { title: 'Button' },
+                                vAxis: { title: 'Presses' }
+                            };
+                            var btnBarChart = new google.visualization.ColumnChart(document.getElementById('buttonBarChart'));
+                            btnBarChart.draw(btnBarData, btnBarOptions);
+
+                            // Word Frequency Line Chart
+                            var wordFreqData = google.visualization.arrayToDataTable(${JSON.stringify(wordFreqChartData)});
+                            var wordFreqOptions = {
+                                title: 'Word Frequency Over Time',
+                                curveType: 'function',
+                                legend: { position: 'top', maxLines: 3 },
+                               
+                                height: 350,
+                                hAxis: { title: 'Date' },
+                                vAxis: { title: 'Frequency', minValue: 0 }
+                            };
+                            var wordFreqChart = new google.visualization.LineChart(document.getElementById('wordFreqLineChart'));
+                            wordFreqChart.draw(wordFreqData, wordFreqOptions);
+                        }
+                    }
+                </script>
+            </head>
+            <body>
+                <h1>UsApp Usage Report</h1>
+                <div>
+                <h4>Date Range</h4>  
+                <p><strong>Generated:</strong> ${date}</p>
+                <p>${StartDate || 'N/A'} to ${EndDate || 'N/A'}</p>
+                </div>
+              
+                    <table>
+                        <thead><tr><th>Button</th><th>Presses</th></tr></thead>
+                        <tbody>${buttonStatsRows}</tbody>
+                    </table>
+         
+            
+                <div class="chart-container">
+                   <div class="chart-box" style="align-self:center;">
+                        <div id="buttonPieChart"></div>
+                    </div>
+                </div>
+                
+                <div class="chart-container">
+                   <div class="chart-box" style="align-self:center;">
+                        <div id="buttonBarChart"></div>
+                    </div>
+                </div>
+               
+                 <div class="chart-container">
+                   <div class="chart-box" style="align-self:center;">
+                        <div id="wordFreqLineChart"></div>
+                    </div>
+                </div>
+            
+                <footer style="margin-top:20px; font-size:15px; color:#666;">Generated by UsApp Admin Panel: bitbytes.dev@gmail.com</footer>
+            </body>
+            </html>
+        `;
+        reportWindow.document.write(html);
+        reportWindow.document.close();
+        reportWindow.focus();
+        setTimeout(() => { reportWindow.print(); }, 200);
+
+    };
+
+    /**
+     * Generates daily frequency data for a word or group of words from boardLogs.
+     * @param {Array} logs - The boardLogs array.
+     * @param {string[]} words - Array of words to count (case-insensitive).
+     * @returns {Array} - Array of { date: 'YYYY-MM-DD', count: number } for each day.
+     */
+    const getWordFrequencyPerDay = (logs, words) => {
+        let searchWords = [];
+
+        searchWords = words.map(w => w.toLowerCase());
+
+        if (searchWords.length === 0) return [];
+        // Map: date string => count
+        const freqMap = {};
+        logs.forEach(log => {
+            const logDate = new Date(log.timestamp || log.date || log.createdAt);
+            const dateStr = logDate.toISOString().slice(0, 10); // YYYY-MM-DD
+
+            // Filter by StartDate and EndDate if provided
+            if (StartDate && logDate < new Date(StartDate)) return;
+            if (EndDate && logDate > new Date(new Date(EndDate).setHours(23, 59, 59, 999))) return;
+
+            if (!Array.isArray(log.buttonPresses)) return;
+            let count = 0;
+            log.buttonPresses.forEach(bp => {
+                const btnName = (bp.buttonId || bp.id || '').toString().toLowerCase();
+                if (searchWords.some(word => btnName === word)) {
+                    count += bp.count || 1;
+                }
+            });
+            if (count > 0) {
+                freqMap[dateStr] = (freqMap[dateStr] || 0) + count;
+            }
+        });
+        console.log('Frequency Map:', freqMap);
+        // Convert to sorted array for recharts
+        return Object.entries(freqMap)
+            .map(([date, count]) => ({ date, count }))
+            .sort((a, b) => a.date.localeCompare(b.date));
+    };
+
     const getTopButtonStats = (logs, topN = 10) => {
-        const stats = getButtonPressStats(logs);
+        // Filter logs by StartDate and EndDate if provided
+        let filteredLogs = logs;
+        if (StartDate) {
+            filteredLogs = filteredLogs.filter(log => {
+                const logDate = new Date(log.timestamp || log.date || log.createdAt);
+                return logDate >= new Date(StartDate);
+            });
+        }
+        if (EndDate) {
+            filteredLogs = filteredLogs.filter(log => {
+                const logDate = new Date(log.timestamp || log.date || log.createdAt);
+                // Add 1 day to EndDate to make it inclusive
+                return logDate <= new Date(new Date(EndDate).setHours(23, 59, 59, 999));
+            });
+        }
+        const stats = getButtonPressStats(filteredLogs);
         if (stats.length <= topN) return { top: stats, remaining: [] };
         const sorted = [...stats].sort((a, b) => b.value - a.value);
         const top = sorted.slice(0, topN);
-        const remainingValue = sorted.slice(topN).reduce((sum, item) => sum + item.value, 0);
-        const remainingNames = sorted.slice(topN).map(item => item.name);
         return {
             top: [...top],
             remaining: sorted.slice(topN)
@@ -159,7 +442,7 @@ const ManageUsers = () => {
     };
 
     const { top: topButtonStats, remaining: remainingButtonStats } = getTopButtonStats(boardLogs, StatNumber);
-    console.log('Top Button Stats:', topButtonStats);
+
 
     const [buttonSearchTerm, setButtonSearchTerm] = useState('');
     const [buttonSearchResult, setButtonSearchResult] = useState(null);
@@ -199,19 +482,22 @@ const ManageUsers = () => {
                                 <span className="text-lg font-semibold text-gray-700">Processing Request...</span>
                             </div>
                         </div>
-                        <h2 className="text-xl font-bold mb-4">Generating Summary</h2>
+
                     </div>
                 </div>
             </Transition>
             <h1 className="text-2xl font-bold mb-6 px-3 bg-blue-900 text-white">MONITOR USERS</h1>
-            <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-6">
-                <input
-                    type="text"
-                    placeholder="Search by name, email, or UID..."
-                    value={searchTerm}
-                    onChange={e => setSearchTerm(e.target.value)}
-                    className="w-full md:w-1/3 px-4 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-400"
-                />
+            <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-4 mb-6">
+                <div className="flex flex-col flex-grow">
+                    <label className="text-gray-700 font-semibold ml-2">Search & Filter:</label>
+                    <input
+                        type="text"
+                        placeholder="Search by name, email, or UID..."
+                        value={searchTerm}
+                        onChange={e => setSearchTerm(e.target.value)}
+                        className="w-full md:w-1/3 px-4 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-400"
+                    />
+                </div>
                 <div className="flex gap-2">
                     <button
                         className={`px-4 py-2 rounded ${filterType === 'all' ? 'bg-blue-900 text-white' : 'bg-gray-200 text-gray-700'}`}
@@ -348,14 +634,14 @@ const ManageUsers = () => {
 
                     <h2 className="px-3 bg-blue-900 text-xl font-semibold text-white mt-5">USER STATISTICS</h2>
 
-                    <div className='overflow-x-auto'>
+                    <div className='overflow-x-auto shadow-xl mt-2'>
 
 
 
-                        <div className="flex flex-col px-5 shadow-md rounded bg-white mt-5 md:mt-0">
+                        <div className="flex flex-col px-5 shadow-md rounded bg-white  mt-5 md:mt-0">
 
-                            <div className="flex flex-col md:flex-row-reverse justify-around">
-                                <div className="border-2 border-gray-300 rounded px-2 m-2">
+                            <div className="flex flex-col-reverse md:flex-row-reverse  overflow-x-auto">
+                                <div className="border-2 border-gray-300 flex flex-col items-center justify-center rounded px-2 m-2">
                                     <h2 className="text-md font-semibold py-2 bg-amber-800 text-white text-center w-full my-2">USER ROLE DISTRIBUTION</h2>
                                     <PieChart width={300} height={400} className='z-0'>
                                         <Pie
@@ -406,7 +692,7 @@ const ManageUsers = () => {
 
                                 </div>
 
-                                <div className="border-2 border-gray-300 px-2 rounded m-2">
+                                <div className="border-2 border-gray-300 flex flex-col items-center justify-center rounded px-2 m-2">
                                     <h2 className="text-md font-semibold py-2 bg-teal-800 text-white w-full text-center my-2">TOP BUTTON PRESSES</h2>
                                     <PieChart width={300} height={400} className='z-0'>
                                         <Legend />
@@ -449,17 +735,39 @@ const ManageUsers = () => {
                                     <h2 className="text-md font-semibold py-2 bg-cyan-700 text-white w-full text-center my-2">CHART DISPLAY LIMIT</h2>
 
                                     <input
+                                        name='Chart Display Limit'
                                         type="number"
                                         min={1} max={15}
-                                        placeholder="Enter button name/word..."
+                                        placeholder="Enter chart limit "
                                         value={StatNumber}
-                                        onChange={e => setStatNumber(e.target.value)}
+                                        onChange={e => { if (e.target.value > 15) { setStatNumber(15) } else if (e.target.value < 0) { setStatNumber(1) } else { setStatNumber(e.target.value) } }}
                                         className="w-full py-2  px-3 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-400"
                                     />
 
-
+                                    <h2 className="text-md font-semibold py-2 bg-cyan-700 text-white w-full text-center my-2">SEARCH BUTTON USAGE</h2>
+                                    <div className="flex gap-5 flex-col md:flex-row justify-center items-center mb-4">
+                                        <div className="flex flex-col">
+                                            <label className="text-sm font-semibold mb-1 text-gray-700">Start Date</label>
+                                            <input
+                                                type="date"
+                                                value={StartDate || ''}
+                                                onChange={e => setStartDate(e.target.value)}
+                                                className="px-4 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-400"
+                                            />
+                                        </div>
+                                        <div className="flex flex-col">
+                                            <label className="text-sm font-semibold mb-1 text-gray-700">End Date</label>
+                                            <input
+                                                type="date"
+                                                value={EndDate || ''}
+                                                onChange={e => setEndDate(e.target.value)}
+                                                className="px-4 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-400"
+                                            />
+                                        </div>
+                                    </div>
                                     <h2 className="text-md font-semibold py-2 bg-cyan-700 text-white w-full text-center my-2">SEARCH BUTTON USAGE</h2>
                                     <div className="flex gap-2 mb-2 w-full">
+
                                         <input
                                             type="text"
                                             placeholder="Enter button name/word..."
@@ -484,16 +792,20 @@ const ManageUsers = () => {
                                             </div>
                                         )}
                                     </div>
+                                    <button
+                                        className="mt-4 px-4 py-2 bg-blue-900 w-full text-white rounded hover:bg-blue-700"
+                                        onClick={generateTopButtonPressesReport}
+                                    >Generate Report</button>
 
 
                                 </div>
 
                             </div>
                             <h2 className="text-md font-semibold py-2 bg-teal-800 text-white w-full text-center my-2">TOP BUTTON PRESSES</h2>
-                            <div className='border-gray-300 p-5 self-center max-w-[100%] rounded m-2 overflow-x-auto'>
+                            <div className="flex flex-col items-center px-2 pb-4 flex-1 border-2 border-gray-300 rounded m-2 mt-6 overflow-x-auto">
 
 
-                                <BarChart width={800} height={300} data={topButtonStats}>
+                                <BarChart width={1000} height={300} data={topButtonStats}>
                                     <Bar dataKey="value" fill="#8884d8" className='z-0'>
                                         {topButtonStats.map((entry, idx) => (
                                             <Cell
@@ -516,6 +828,89 @@ const ManageUsers = () => {
                                     <XAxis dataKey="name" />
                                     <YAxis />
                                 </BarChart>
+                            </div>
+                            <h2 className="text-md font-semibold py-2 bg-[#bd6207] text-white w-full text-center my-2 ">Word Frequency Over Time</h2>
+                            <div className="flex flex-col md:flex-row gap-2 mt-2 w-full items-center ml-2 justify-start">
+                                <input
+                                    type="text"
+                                    placeholder="Enter comma-separated words (e.g. Mama,Papa,hello)"
+                                    value={wordFrequencyInput}
+                                    onChange={e => setwordFrequencyInput(e.target.value)}
+                                    className="px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-400 w-full md:w-96"
+                                />
+                                <button
+                                    className="px-4 py-2 bg-indigo-700 text-sm md:text-md font-bold text-white rounded hover:bg-blue-700"
+                                    onClick={() => {
+                                        if (!wordFrequencyInput.trim()) {
+                                            const stats = topButtonStats;
+                                            const words = stats.slice(0, (StatNumber + 1)).map(stat => stat.name);
+                                            setwordFrequencyWords(words.length ? words : ['yes', 'no']);
+                                        }
+                                        else {
+                                            const words = wordFrequencyInput
+                                                .split(',')
+                                                .map(w => w.trim())
+                                                .filter(Boolean);
+                                            setwordFrequencyWords(words.length ? words : ['yes', 'no']);
+                                        }
+                                    }}
+                                >
+                                    Show Frequency
+                                </button>
+                            </div>
+                            <div className="flex flex-col items-center px-2 pb-4 flex-1 border-2 border-gray-300 rounded m-2 mt-6">
+                                <div className="w-full overflow-x-auto">
+                                    <LineChart
+                                        width={1000}
+                                        height={300}
+                                        data={(() => {
+                                            // For each word, build a series of {date, [word]: count}
+                                            // Merge all dates
+                                            const allDates = {};
+                                            wordFrequencyWords.forEach(word => {
+                                                getWordFrequencyPerDay(boardLogs, [word]).forEach(({ date, count }) => {
+                                                    if (!allDates[date]) allDates[date] = {};
+                                                    allDates[date][word] = count;
+                                                });
+                                            });
+                                            // Fill missing words with 0
+                                            return Object.entries(allDates)
+                                                .map(([date, counts]) => {
+                                                    const entry = { date };
+                                                    wordFrequencyWords.forEach(word => {
+                                                        entry[word] = counts[word] || 0;
+                                                    });
+                                                    return entry;
+                                                })
+                                                .sort((a, b) => a.date.localeCompare(b.date));
+                                        })()}
+                                        margin={{ top: 5, right: 30, left: 20, bottom: 5 }}
+                                    >
+                                        <XAxis dataKey="date" />
+                                        <YAxis allowDecimals={false} />
+                                        <Tooltip />
+                                        <Legend />
+                                        {wordFrequencyWords.map((word, idx) => (
+                                            <Line
+                                                key={word}
+                                                type="monotone"
+                                                dataKey={word}
+                                                stroke={[
+                                                    "#8884d8",
+                                                    "#82ca9d",
+                                                    "#ffc658",
+                                                    "#ff8042",
+                                                    "#8dd1e1",
+                                                    "#a4de6c",
+                                                    "#d0ed57",
+                                                    "#d8854f"
+                                                ][idx % 8]}
+                                                strokeWidth={2}
+                                                dot={{ r: 3 }}
+                                            />
+                                        ))}
+                                    </LineChart>
+                                </div>
                             </div>
                         </div>
                     </div>
