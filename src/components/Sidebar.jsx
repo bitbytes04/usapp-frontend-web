@@ -12,7 +12,7 @@ export default function Sidebar({ children }) {
 
     return (
         <aside className="h-full">
-            <nav className="h-full flex flex-col bg-[#fff6eb] border-r shadow-sm">
+            <nav className="h-full flex flex-col bg-gradient-to-b from-[#e5f2f5] via-[#fff6eb] to-[#fff6eb] border-r shadow-sm">
                 <div className="p-4 pb-2 flex justify-between items-center">
                     <div className="flex flex-grow items-center justify-center space-x-2">
                         <img src={logo} alt="UsApp Logo" className={` overflow-hidden transition-all ${expanded ? "w-45" : "w-0"}`} />
@@ -102,11 +102,11 @@ export function SidebarItem({ icon, text, active, alert, onClick }) {
     )
 }
 
-export function SidebarNameplate({ name, }) {
+export function SidebarNameplate({ name, color }) {
     const { expanded } = useContext(SidebarContext);
 
     return (
-        <div className={`flex items-center rounded-md mb-3 w-full py-2 justify-center transition-all ${expanded ? "w-52 bg-blue-900" : "w-0"} overflow-hidden`}>
+        <div className={`flex items-center rounded-md mb-3 w-full py-2 justify-center transition-all ${expanded ? `w-52 ${color ? `bg-[${color}]` : "bg-blue-900"}` : "w-0"} overflow-hidden`}>
             {expanded && (
                 <div className="flex flex-col w-full text-center font-bold text-white uppercase items-center">Hello, {name}
                 </div>

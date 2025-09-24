@@ -29,7 +29,7 @@ const AdminDashboard = () => {
                     <div className={`flex-row md:flex hidden bg-[#fff6eb] h-screen max-w-screen transition-transform duration-500 ease-in-out ${activeItem ? "translate-x-0" : "-translate-x-full"}`}>
                         <div>
                             <Sidebar>
-                                <SidebarNameplate name='Admin' />
+                                <SidebarNameplate name='Admin' color="#3d6887" />
                                 <SidebarItem
                                     icon={<User />}
                                     text="Monitor Users"

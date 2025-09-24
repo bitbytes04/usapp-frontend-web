@@ -14,6 +14,10 @@ const ManageUsers = () => {
     const [EndDate, setEndDate] = useState('');
     const [StatNumber, setStatNumber] = useState(10);
     const [wordFrequencyWords, setwordFrequencyWords] = useState([]);
+    const [IncludeAIReport, setIncludeAIReport] = useState(false);
+    const [AIReport, setAIReport] = useState('');
+    const [IsGenerating, setIsGenerating] = useState(false);
+
 
     useEffect(() => {
         const fetchUsers = async () => {
@@ -33,12 +37,50 @@ const ManageUsers = () => {
                 setSlpUsers([]);
                 setboardLogs([]);
             }
+
             setLoading(false);
         };
 
         fetchUsers();
 
     }, []);
+
+    useEffect(() => {
+        generateLineChart()
+        getBoardLogsDateRange(boardLogs);
+        setStartDate(getBoardLogsDateRange(boardLogs).earliest);
+        setEndDate(getBoardLogsDateRange(boardLogs).latest);
+    }, [boardLogs]);
+
+
+    const generateLineChart = () => {
+        if (!wordFrequencyInput.trim()) {
+            const stats = topButtonStats;
+            const words = stats.slice(0, (StatNumber + 1)).map(stat => stat.name);
+            setwordFrequencyWords(words.length ? words : ['yes', 'no']);
+        }
+        else {
+            const words = wordFrequencyInput
+                .split(',')
+                .map(w => w.trim())
+                .filter(Boolean);
+            setwordFrequencyWords(words.length ? words : ['yes', 'no']);
+        }
+    }
+
+    const getBoardLogsDateRange = (logs) => {
+        if (!Array.isArray(logs) || logs.length === 0) return { earliest: null, latest: null };
+        const dates = logs
+            .map(log => new Date(log.timestamp || log.date || log.createdAt))
+            .filter(date => !isNaN(date));
+        if (dates.length === 0) return { earliest: null, latest: null };
+        dates.sort((a, b) => a - b);
+        return {
+            earliest: dates[0].toISOString().slice(0, 10),
+            latest: dates[dates.length - 1].toISOString().slice(0, 10)
+        };
+    };
+
 
     const handleUserStatusChange = async (uid, type, action) => {
         try {
@@ -136,6 +178,32 @@ const ManageUsers = () => {
         );
     };
 
+    // AI Report Generation
+    const generateWrittenReport = async (data) => {
+
+        console.log('Generating report with data:', data);
+
+        if (!IncludeAIReport) return;
+        else {
+            try {
+                setIsGenerating(true);
+                if (!data || typeof data !== 'string' || data.trim() === '') {
+                    throw new Error("No valid string data provided for report generation.");
+                }
+                const response = await axios.post('https://usapp-backend.vercel.app/api/admin/generate-written-report', { data });
+                if (response.data && response.data.success) {
+                    setAIReport(response.data.report);
+                } else {
+                    throw new Error(response.data.message || "Failed to generate report.");
+                }
+            } catch (error) {
+                throw new Error(error.message || "Error generating written report.");
+            } finally {
+                setIsGenerating(false);
+            }
+        }
+    };
+
     // Helper: Aggregate button presses from boardLogs
     const getButtonPressStats = (logs) => {
         const stats = {};
@@ -150,6 +218,26 @@ const ManageUsers = () => {
         // Convert to array for recharts
         return Object.entries(stats).map(([name, value]) => ({ name, value }));
     };
+
+
+    const loadLineChart = () => {
+        const allDates = {};
+        wordFrequencyWords.forEach(word => {
+            getWordFrequencyPerDay(boardLogs, [word]).forEach(({ date, count }) => {
+                if (!allDates[date]) allDates[date] = {};
+                allDates[date][word] = count;
+            });
+        });
+        return Object.entries(allDates)
+            .map(([date, counts]) => {
+                const entry = { date };
+                wordFrequencyWords.forEach(word => {
+                    entry[word] = counts[word] || 0;
+                });
+                return entry;
+            })
+            .sort((a, b) => a.date.localeCompare(b.date));
+    }
 
     const generateUserDistributionReport = () => {
         const date = new Date().toLocaleString();
@@ -225,7 +313,24 @@ const ManageUsers = () => {
         reportWindow.print();
     };
 
+    const LoadButtonReport = async () => {
+        const data = `start date: ${StartDate} end date: ${EndDate}` + "Frequency Date:" + JSON.stringify(loadLineChart()) + "Top Buttons:" + JSON.stringify(topButtonStats)
+        console.log(loadLineChart());
+        if (IncludeAIReport) {
+            try {
+                await generateWrittenReport(data);
+                generateTopButtonPressesReport();
+            } catch (err) {
+                // handle error if needed
+            }
+        } else {
+            generateTopButtonPressesReport();
+        }
+    }
+
     const generateTopButtonPressesReport = async () => {
+
+
         const date = new Date().toLocaleString();
         let reportWindow = window.open('UsApp Usage Report', '_blank',);
         if (!reportWindow) return;
@@ -272,13 +377,20 @@ const ManageUsers = () => {
             <head>
                 <title>Top Button Presses Report</title>
                 <style>
-                    body { font-family: Arial, sans-serif; margin: 40px; display:flex; flex-direction:column;  }
+                    body { font-family: Arial, sans-serif; margin: 40px; display:flex; flex-direction:column; text-align:justify;  }
                     h1, h2 { color: #1e293b; }
-                    table { border-collapse: collapse; width: 100%; margin-bottom: 24px; }
+                    table { border-collapse: collapse; width: 100%; flex:1 !important;}
                     th, td { border: 1px solid #ccc; padding: 8px 12px; text-align: left; }
                     th { background: #f1f5f9; }
                     .chart-container { display: flex; flex-wrap: wrap; gap: 40px; padding:20px; page-break-inside: avoid; page-break-after: auto; }
                     .chart-box { width: 100%; max-width: 900px; margin-bottom: 40px; }
+                    .topbuttons{ display: flex !important; gap: 10px !important; margin-bottom: 20px; flex-direction:row;  }
+                  
+                    @media print {
+                    .topbuttons{ display: flex !important; gap: 10px !important; margin-bottom: 20px; flex-direction:row;  }
+                    table { border-collapse: collapse; width: 100%; flex:1 !important;}
+                    .chart-box { width: 100%; max-width: 900px; margin-bottom: 40px; flex:1 !important; }
+                    }
                 </style>
                 <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
                 <script type="text/javascript">
@@ -291,8 +403,8 @@ const ManageUsers = () => {
                             var btnPieData = google.visualization.arrayToDataTable(${JSON.stringify(buttonPieChartData)});
                             var btnPieOptions = {
                                 title: 'Top Button Presses (Pie)',
-                                width: 700,
-                                height: 500,
+                                width: 400,
+                                height: 400,
                                 legend: { position: 'top', maxLines: 3 },
                                 pieHole: 0.2,
                         
@@ -334,19 +446,26 @@ const ManageUsers = () => {
             <body>
                 <h1>UsApp Usage Report</h1>
                 <div>
-                <h4>Date Range</h4>  
+                <p><strong>Data Date Range: </strong>${StartDate || 'N/A'} to ${EndDate || 'N/A'}</p>  
                 <p><strong>Generated:</strong> ${date}</p>
-                <p>${StartDate || 'N/A'} to ${EndDate || 'N/A'}</p>
+                
                 </div>
-              
-                    <table>
+
+                ${(IncludeAIReport && AIReport) ? `
+                    <div>
+                        <h2>Generated Analysis</h2>
+                        <p>${AIReport.replace(/\n/g, '<br/>')}</p>
+                    </div>
+                    ` : ''}
+                
+                <div class="topbuttons">    
+                   <div class="chart-box" style="align-self:center;">
+                         <table>
                         <thead><tr><th>Button</th><th>Presses</th></tr></thead>
                         <tbody>${buttonStatsRows}</tbody>
                     </table>
-         
-            
-                <div class="chart-container">
-                   <div class="chart-box" style="align-self:center;">
+                    </div>
+                   <div class="chart-box" style="align-self:center; flex:1 !important;">
                         <div id="buttonPieChart"></div>
                     </div>
                 </div>
@@ -408,7 +527,6 @@ const ManageUsers = () => {
                 freqMap[dateStr] = (freqMap[dateStr] || 0) + count;
             }
         });
-        console.log('Frequency Map:', freqMap);
         // Convert to sorted array for recharts
         return Object.entries(freqMap)
             .map(([date, count]) => ({ date, count }))
@@ -480,6 +598,31 @@ const ManageUsers = () => {
                                     <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"></path>
                                 </svg>
                                 <span className="text-lg font-semibold text-gray-700">Processing Request...</span>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+            </Transition>
+            <Transition
+                show={IsGenerating}
+                enter="transition-opacity duration-500"
+                enterFrom="opacity-0"
+                enterTo="opacity-100"
+                leave="transition-opacity duration-500"
+                leaveFrom="opacity-100"
+                leaveTo="opacity-0"
+                className="z-20"
+            >
+                <div className="fixed inset-0 flex justify-center items-center backdrop-blur-md backdrop-brightness-50 animate-fade-in">
+                    <div className="p-6 flex flex-col justify-center items-center backdrop-blur-md backdrop-brightness-50 w-80">
+                        <div className="fixed inset-0 z-50 flex items-center justify-center">
+                            <div className="bg-white px-8 py-6 rounded-lg flex flex-col items-center shadow-lg">
+                                <svg className="animate-spin h-8 w-8 text-blue-500 mb-3" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"></path>
+                                </svg>
+                                <span className="text-lg font-semibold text-gray-700">Generating Report...</span>
                             </div>
                         </div>
 
@@ -794,9 +937,21 @@ const ManageUsers = () => {
                                     </div>
                                     <button
                                         className="mt-4 px-4 py-2 bg-blue-900 w-full text-white rounded hover:bg-blue-700"
-                                        onClick={generateTopButtonPressesReport}
-                                    >Generate Report</button>
+                                        onClick={LoadButtonReport}
+                                    >GENERATE REPORT</button>
+                                    <div className="flex items-center self-start ml-2 mt-2 gap-2">
 
+                                        <input
+                                            type="checkbox"
+                                            id="includeAIReport"
+                                            checked={IncludeAIReport}
+                                            onChange={e => setIncludeAIReport(e.target.checked)}
+                                            className="h-4 w-4"
+                                        />
+                                        <label htmlFor="includeAIReport" className="text-sm md:text-md font-semibold text-gray-700">
+                                            Include AI-Assisted Analysis
+                                        </label>
+                                    </div>
 
                                 </div>
 
@@ -840,50 +995,18 @@ const ManageUsers = () => {
                                 />
                                 <button
                                     className="px-4 py-2 bg-indigo-700 text-sm md:text-md font-bold text-white rounded hover:bg-blue-700"
-                                    onClick={() => {
-                                        if (!wordFrequencyInput.trim()) {
-                                            const stats = topButtonStats;
-                                            const words = stats.slice(0, (StatNumber + 1)).map(stat => stat.name);
-                                            setwordFrequencyWords(words.length ? words : ['yes', 'no']);
-                                        }
-                                        else {
-                                            const words = wordFrequencyInput
-                                                .split(',')
-                                                .map(w => w.trim())
-                                                .filter(Boolean);
-                                            setwordFrequencyWords(words.length ? words : ['yes', 'no']);
-                                        }
-                                    }}
+                                    onClick={generateLineChart}
                                 >
                                     Show Frequency
                                 </button>
+
                             </div>
                             <div className="flex flex-col items-center px-2 pb-4 flex-1 border-2 border-gray-300 rounded m-2 mt-6">
                                 <div className="w-full overflow-x-auto">
                                     <LineChart
                                         width={1000}
                                         height={300}
-                                        data={(() => {
-                                            // For each word, build a series of {date, [word]: count}
-                                            // Merge all dates
-                                            const allDates = {};
-                                            wordFrequencyWords.forEach(word => {
-                                                getWordFrequencyPerDay(boardLogs, [word]).forEach(({ date, count }) => {
-                                                    if (!allDates[date]) allDates[date] = {};
-                                                    allDates[date][word] = count;
-                                                });
-                                            });
-                                            // Fill missing words with 0
-                                            return Object.entries(allDates)
-                                                .map(([date, counts]) => {
-                                                    const entry = { date };
-                                                    wordFrequencyWords.forEach(word => {
-                                                        entry[word] = counts[word] || 0;
-                                                    });
-                                                    return entry;
-                                                })
-                                                .sort((a, b) => a.date.localeCompare(b.date));
-                                        })()}
+                                        data={loadLineChart()}
                                         margin={{ top: 5, right: 30, left: 20, bottom: 5 }}
                                     >
                                         <XAxis dataKey="date" />
