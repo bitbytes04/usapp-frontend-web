@@ -116,17 +116,7 @@ const SLPAccount = () => {
                     />
                     {errors.displayName && <div className="text-red-500 text-xs">{errors.displayName}</div>}
                 </div>
-                <div>
-                    <label className="block mb-1 font-medium">Clinic Name</label>
-                    <input
-                        type="text"
-                        className={`w-full border rounded px-3 py-2 ${errors.clinicName ? 'border-red-500' : ''}`}
-                        value={clinicName}
-                        onChange={e => setClinicName(e.target.value)}
-                        disabled={!isEditing}
-                    />
-                    {errors.clinicName && <div className="text-red-500 text-xs">{errors.clinicName}</div>}
-                </div>
+
                 {isEditing ? (
                     <div className="flex justify-between">
                         <button

@@ -674,6 +674,7 @@ const ManageUsers = () => {
                                     <thead>
                                         <tr className="bg-gray-100 text-gray-700">
                                             {/* <th className="py-2 px-4 text-left">UID</th> */}
+                                            <th className="py-2 px-4 text-left">No.</th>
                                             <th className="py-2 px-4 text-left">Email</th>
                                             <th className="py-2 px-4 text-left">Full Name</th>
                                             <th className="py-2 px-4 text-left">Role</th>
@@ -688,9 +689,10 @@ const ManageUsers = () => {
                                                 <td colSpan={5} className="py-4 text-center text-gray-500">No users found.</td>
                                             </tr>
                                         ) : (
-                                            getCurrentUsers(filteredAllUsers).map(user => (
+                                            getCurrentUsers(filteredAllUsers).map((user, idx) => (
                                                 <tr key={user.uid} className="border-b hover:bg-blue-50">
                                                     {/* <td className="py-2 px-4">{user.uid}</td> */}
+                                                    <td className="py-2 px-4">{idx + 1}</td>
                                                     <td className="py-2 px-4">{user.email}</td>
                                                     <td className="py-2 px-4">{user.firstName || user.username} {user.lastName}</td>
                                                     <td className="py-2 px-4">
@@ -986,13 +988,16 @@ const ManageUsers = () => {
                             </div>
                             <h2 className="text-md font-semibold py-2 bg-[#bd6207] text-white w-full text-center my-2 ">Word Frequency Over Time</h2>
                             <div className="flex flex-col md:flex-row gap-2 mt-2 w-full items-center ml-2 justify-start">
-                                <input
-                                    type="text"
-                                    placeholder="Enter comma-separated words (e.g. Mama,Papa,hello)"
-                                    value={wordFrequencyInput}
-                                    onChange={e => setwordFrequencyInput(e.target.value)}
-                                    className="px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-400 w-full md:w-96"
-                                />
+                                <div className='flex flex-col'>
+                                    <label className='text-sm font-semibold ml-2'>Search Frequency Data of Specific Words:</label>
+                                    <input
+                                        type="text"
+                                        placeholder="Enter comma-separated words (e.g. Mama,Papa,hello)"
+                                        value={wordFrequencyInput}
+                                        onChange={e => setwordFrequencyInput(e.target.value)}
+                                        className="px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-400 w-full md:w-96"
+                                    />
+                                </div>
                                 <button
                                     className="px-4 py-2 bg-indigo-700 text-sm md:text-md font-bold text-white rounded hover:bg-blue-700"
                                     onClick={generateLineChart}
