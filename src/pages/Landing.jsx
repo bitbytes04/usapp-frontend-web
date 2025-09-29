@@ -80,7 +80,7 @@ const Landing = () => {
                         </ul>
 
                         <a
-                            href='https://drive.google.com/file/d/1wQ0TZ9yJ8gt6-uDpzLvmmpgi7up6QsHH/view?usp=sharing'
+                            href='https://drive.google.com/file/d/1k1ZyVvo8AIWeYEmsoaolNsqp5AwNb2YZ/view?usp=sharing'
                             className='bg-[#12b2b5] w-full text-white text-center sm:text-md font-bold py-2 usapp-border px-3 sm:px-10 rounded-lg hover:bg-[#3d6786] hover:text-white mt-2'
                             aria-label="Download the USAPP AAC app for Filipinos"
                         >

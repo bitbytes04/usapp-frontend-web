@@ -335,44 +335,53 @@ const DefaultButtons = () => {
                 </div>
             </Transition>
             <h1 className="text-2xl font-bold mb-6 px-3 bg-blue-900 text-white">MANAGE DEFAULT BUTTONS</h1>
-            <form onSubmit={handleSubmit} className={`flex flex-col  md:flex-row p-5 rounded-md gap-4 mb-8 ${editingId ? 'bg-blue-100 ' : 'border-2 border-gray-300'}`}>
-                <input
-                    name="buttonName"
-                    placeholder="Button Name"
-                    value={form.buttonName}
-                    onChange={handleChange}
-                    maxLength={15}
-                    required
-                    className="border border-black rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 flex-1"
-                />
-                <input
-                    type="file"
-                    accept="image/*"
-                    onChange={handlePhotoUpload}
-                    required={!editingId}
-                    className="border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 flex-1"
-                />
-                <select
-                    value={buttonCategory}
-                    onChange={(e) => { setbuttonCategory(e.target.value) }}
-                    name='buttonCategory'
-                    className="border rounded-lg p-2"
-                    required
-                >
-                    <option value="Nouns">Nouns</option>
-                    <option value="Pronouns">Pronouns</option>
-                    <option value="Verbs">Verbs</option>
-                    <option value="Adjectives">Adjectives</option>
-                    <option value="Prepositions & Social Words">Prepositions & Social Words</option>
-                    <option value="Questions">Questions</option>
-                    <option value="Negation & Important Words">Negation & Important Words</option>
-                    <option value="Adverbs">Adverbs</option>
-                    <option value="Conjunctions">Conjunctions</option>
-                    <option value="Determiners">Determiners</option>
-                </select>
+            <form onSubmit={handleSubmit} className={`flex flex-col  md:flex-row p-5 items-end rounded-md gap-4 mb-4 ${editingId ? 'bg-blue-100 ' : 'border-2 border-gray-300'}`}>
+                <div className='flex flex-col flex-2'>
+                    <p className='font-semibold font-sm'>Button Name</p>
+                    <input
+                        name="buttonName"
+                        placeholder="Button Name"
+                        value={form.buttonName}
+                        onChange={handleChange}
+                        maxLength={15}
+                        required
+                        className="border border-black rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 flex-1"
+                    />
+                </div>
+                <div className='flex flex-col flex-2'>
+                    <p className='font-semibold font-sm'>Button Image</p>
+                    <input
+                        type="file"
+                        accept="image/*"
+                        onChange={handlePhotoUpload}
+                        required={!editingId}
+                        className="border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 flex-1"
+                    />
+                </div>
+                <div className='flex flex-col flex-2'>
+                    <p className='font-semibold font-sm'>Button Category</p>
+                    <select
+                        value={buttonCategory}
+                        onChange={(e) => { setbuttonCategory(e.target.value) }}
+                        name='buttonCategory'
+                        className="border rounded-lg p-2"
+                        required
+                    >
+                        <option value="Nouns">Nouns</option>
+                        <option value="Pronouns">Pronouns</option>
+                        <option value="Verbs">Verbs</option>
+                        <option value="Adjectives">Adjectives</option>
+                        <option value="Prepositions & Social Words">Prepositions & Social Words</option>
+                        <option value="Questions">Questions</option>
+                        <option value="Negation & Important Words">Negation & Important Words</option>
+                        <option value="Adverbs">Adverbs</option>
+                        <option value="Conjunctions">Conjunctions</option>
+                        <option value="Determiners">Determiners</option>
+                    </select>
+                </div>
                 <button
                     type="submit"
-                    className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition"
+                    className="bg-blue-600 text-white px-4 py-2 flex-1 rounded hover:bg-blue-700 transition"
                 >
                     {editingId ? 'Update' : 'Add'}
                 </button>
@@ -387,36 +396,44 @@ const DefaultButtons = () => {
                 )}
             </form>
             <div className="flex flex-col md:flex-row gap-4 mb-4">
-                <input
-                    type="text"
-                    placeholder="Search by name..."
-                    value={search}
-                    onChange={e => { setSearch(e.target.value); setCurrentPage(1); }}
-                    className="border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 flex-1"
-                />
-                <select
-                    value={categoryFilter}
-                    onChange={e => { setCategoryFilter(e.target.value); setCurrentPage(1); }}
-                    className="border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 flex-1"
-                >
-                    <option value="">All Categories</option>
-                    {categories.map(cat => (
-                        <option key={cat} value={cat}>{cat}</option>
-                    ))}
-                </select>
+                <div className='flex flex-col flex-2'>
+                    <p className='font-semibold font-sm'>Search by Name:</p>
+                    <input
+                        type="text"
+                        placeholder="Search by name..."
+                        value={search}
+                        onChange={e => { setSearch(e.target.value); setCurrentPage(1); }}
+                        className="border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 flex-1"
+                    />
+                </div>
+                <div className='flex flex-col flex-2'>
+                    <p className='font-semibold font-sm'>Filter by Category:</p>
+                    <select
+                        value={categoryFilter}
+                        onChange={e => { setCategoryFilter(e.target.value); setCurrentPage(1); }}
+                        className="border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 flex-1"
+                    >
+                        <option value="">All Categories</option>
+                        {categories.map(cat => (
+                            <option key={cat} value={cat}>{cat}</option>
+                        ))}
+                    </select>
+                </div>
             </div>
             <table className="min-w-full bg-white border border-gray-200 rounded-lg overflow-hidden">
                 <thead>
                     <tr className="bg-gray-100">
-                        <th className="py-3 px-4 text-left font-semibold text-gray-700">Button Name</th>
+
+                        <th className="py-3 px-4 text-left font-semibold text-gray-700">No.</th>
                         <th className="py-3 px-4 text-left font-semibold text-gray-700">Button Image Path</th>
                         <th className="py-3 px-4 text-left font-semibold text-gray-700">Button Category</th>
                         <th className="py-3 px-4 text-left font-semibold text-gray-700">Actions</th>
                     </tr>
                 </thead>
                 <tbody>
-                    {paginatedButtons.map((button) => (
+                    {paginatedButtons.map((button, idx) => (
                         <tr key={button.id} className="border-t border-gray-200">
+                            <td className="py-2 px-4">{idx + 1}</td>
                             <td className="py-2 px-4">{button.buttonName}</td>
                             <td className="py-2 px-4">
                                 <img src={button.buttonImagePath} alt={button.buttonName} className="w-16 border-2 h-16 object-cover rounded" />

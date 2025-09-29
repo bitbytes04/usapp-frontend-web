@@ -38,7 +38,7 @@ const AdminDashboard = () => {
                                 />
                                 <SidebarItem
                                     icon={<LibraryBig />}
-                                    text="Manage User Feedback"
+                                    text="Monitor User Feedback"
                                     active={activeItem === "Manage User Feedback"}
                                     onClick={() => handleSidebarItemClick("Manage User Feedback")}
                                 />
@@ -100,7 +100,7 @@ const AdminDashboard = () => {
                                     className={`flex items-center p-2 rounded mb-2 ${activeItem === "Manage User Feedback" ? "bg-[#ffe0b2]" : ""}`}
                                     onClick={() => { setActiveItem("Manage User Feedback"); setMenuOpen(false); }}
                                 >
-                                    <LibraryBig size={22} className="mr-2" /> Manage User Feedback
+                                    <LibraryBig size={22} className="mr-2" /> Monitor User Feedback
                                 </button>
                                 <button
                                     className={`flex items-center p-2 rounded mb-2 ${activeItem === "Activity Logs" ? "bg-[#ffe0b2]" : ""}`}

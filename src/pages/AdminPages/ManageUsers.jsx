@@ -193,6 +193,7 @@ const ManageUsers = () => {
                 const response = await axios.post('https://usapp-backend.vercel.app/api/admin/generate-written-report', { data });
                 if (response.data && response.data.success) {
                     setAIReport(response.data.report);
+                    generateTopButtonPressesReport(response.data.report);
                 } else {
                     throw new Error(response.data.message || "Failed to generate report.");
                 }
@@ -319,7 +320,7 @@ const ManageUsers = () => {
         if (IncludeAIReport) {
             try {
                 await generateWrittenReport(data);
-                generateTopButtonPressesReport();
+
             } catch (err) {
                 // handle error if needed
             }
@@ -328,7 +329,7 @@ const ManageUsers = () => {
         }
     }
 
-    const generateTopButtonPressesReport = async () => {
+    const generateTopButtonPressesReport = async (AIReport) => {
 
 
         const date = new Date().toLocaleString();
@@ -886,10 +887,10 @@ const ManageUsers = () => {
                                         placeholder="Enter chart limit "
                                         value={StatNumber}
                                         onChange={e => { if (e.target.value > 15) { setStatNumber(15) } else if (e.target.value < 0) { setStatNumber(1) } else { setStatNumber(e.target.value) } }}
-                                        className="w-full py-2  px-3 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-400"
+                                        className="w-full py-2 text-center px-3 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-400"
                                     />
 
-                                    <h2 className="text-md font-semibold py-2 bg-cyan-700 text-white w-full text-center my-2">SEARCH BUTTON USAGE</h2>
+                                    <h2 className="text-md font-semibold py-2 bg-cyan-700 text-white w-full text-center my-2">DATE RANGE</h2>
                                     <div className="flex gap-5 flex-col md:flex-row justify-center items-center mb-4">
                                         <div className="flex flex-col">
                                             <label className="text-sm font-semibold mb-1 text-gray-700">Start Date</label>

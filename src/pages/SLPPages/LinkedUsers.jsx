@@ -922,7 +922,7 @@ const LinkedUsers = ({ uid }) => {
                             </tbody>
                         </table>
                         {/* Pagination */}
-                        {totalPages > 1 && (
+                        {totalPages > 0 && (
                             <div className="flex justify-center mt-4 space-x-2">
                                 <button
                                     className="px-3 py-1 border rounded disabled:opacity-50"

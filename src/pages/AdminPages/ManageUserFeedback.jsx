@@ -73,10 +73,23 @@ const ManageUserFeedback = () => {
 
     return (
         <div className="w-full mx-auto p-6">
-            <h1 className="text-2xl font-bold mb-4">Manage User Feedback</h1>
+            <h1 className="text-2xl font-bold mb-4">Monitor User Feedback</h1>
             {error && <div className="mb-4 text-red-500">{error}</div>}
-            <div className="mb-6 flex items-center justify-between">
-                <span className="text-lg font-semibold">All Feedbacks</span>
+            <div className=" flex items-center justify-between">
+                <span className="text-lg font-semibold"></span>
+
+            </div>
+            <div className="mb-4 flex items-end justify-between gap-2">
+                <div className='flex flex-col'>
+                    <p className='font-semibold'>Search:</p>
+                    <input
+                        type="text"
+                        className="border rounded px-3 py-2 w-full max-w-xs"
+                        placeholder="Search feedback or rating..."
+                        value={search}
+                        onChange={e => setSearch(e.target.value)}
+                    />
+                </div>
                 <button
                     className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 disabled:opacity-50"
                     onClick={handleSummarize}
@@ -84,15 +97,6 @@ const ManageUserFeedback = () => {
                 >
                     {summarizing ? 'Summarizing...' : 'Summarize Feedback'}
                 </button>
-            </div>
-            <div className="mb-4 flex items-center gap-2">
-                <input
-                    type="text"
-                    className="border rounded px-3 py-2 w-full max-w-xs"
-                    placeholder="Search feedback or rating..."
-                    value={search}
-                    onChange={e => setSearch(e.target.value)}
-                />
             </div>
             {loading ? (
                 <div>Loading feedbacks...</div>
