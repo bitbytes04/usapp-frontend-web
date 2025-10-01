@@ -293,7 +293,7 @@ const LinkedUsers = ({ uid }) => {
         setdeleting(true);
         if (!window.confirm("Remove this linked user?")) return;
         try {
-            await axios.post(`https://usapp-backend.vercel.app/api/slp/remove-link/${sessionStorage.getItem("slpId")}/${SelectedUser.userId}`);
+            await axios.post(`https://usapp-backend.vercel.app/api/slp/remove-link/${sessionStorage.getItem("slpId")}/${linkedUserId}`);
             setLinkedUsers((prev) => prev.filter((u) => u.userId !== linkedUserId));
             fetchLinkedUsers(); // Refresh linked users
         } catch (err) {
